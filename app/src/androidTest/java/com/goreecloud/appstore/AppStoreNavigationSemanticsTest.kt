@@ -77,6 +77,18 @@ class AppStoreNavigationSemanticsTest {
         val density = InstrumentationRegistry.getInstrumentation()
             .targetContext.resources.displayMetrics.density
 
+        // The shared fixture is a development-channel catalog. Exercise discovery through the
+        // explicit Developer demo identity instead of weakening channel authorization for the
+        // default Standard demo identity.
+        composeRule.onNode(hasText("Standard demo") and hasClickAction())
+            .assertExists()
+            .performClick()
+        composeRule.waitForIdle()
+        composeRule.onNode(hasText("Developer demo") and hasClickAction())
+            .assertExists()
+            .performClick()
+        composeRule.waitForIdle()
+
         // Discover owns the category controls as its fourth LazyColumn item (index 3):
         // development notice, hero, search, then category filters. The compact rendered
         // viewport can start with that item outside the composed semantics tree, so use
@@ -116,7 +128,7 @@ class AppStoreNavigationSemanticsTest {
             .assertIsDisplayed()
             .performClick()
         composeRule.waitForIdle()
-        composeRule.onNode(hasText("10 items in this development catalog"))
+        composeRule.onNode(hasText("11 items in this development catalog"))
             .assertExists()
             .assertIsDisplayed()
     }
