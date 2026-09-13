@@ -1,3 +1,9 @@
+/* GLAZE UI V1.4 — Optical Intelligence Development mapping.
+ * V1.4 inherits the V1.3 neutral structural surface. The App Store keeps
+ * Environmental Color Memory at 0% and never derives trusted chrome from catalog
+ * artwork, package/security evidence, identity/entitlement state, telemetry,
+ * camera input, or remote context. Accessibility preferences outrank optics.
+ */
 :root {
   color-scheme: light dark;
   --gc-frost-white: #F7F9FC;
@@ -5,6 +11,8 @@
   --gc-ice-blue: #8DB5FF;
   --gc-development-amber: #D9A35F;
   --gc-deep-dark-canvas: #05070A;
+  --glaze-optical-memory-influence: 0;
+  --glaze-optical-warmth: 0;
   --canvas: var(--gc-frost-white);
   --surface: #FFFFFF;
   --surface-alt: var(--gc-pearl);
@@ -150,7 +158,13 @@ dialog { width: min(620px, calc(100vw - 28px)); max-height: calc(100vh - 28px); 
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .001ms !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
 }
 
+@media (prefers-reduced-transparency: reduce) {
+  .topbar { backdrop-filter: none; background: var(--surface); }
+  .store-card, dialog { background: var(--surface); }
+}
+
 @media (forced-colors: active) {
+  .topbar { backdrop-filter: none; background: Canvas; }
   .dev-badge, .chip, .tabs button[aria-current="page"] { border: 1px solid ButtonText; }
-  .store-card, .unavailable, dialog { box-shadow: none; }
+  .store-card, .unavailable, dialog { background: Canvas; box-shadow: none; }
 }
