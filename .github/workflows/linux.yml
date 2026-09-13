@@ -84,7 +84,7 @@ jobs:
           from pathlib import Path
 
           contract = json.loads(Path("contracts/linux-distribution.json").read_text(encoding="utf-8"))
-          assert contract["schemaVersion"] == 2
+          assert contract["schemaVersion"] == 3
           assert contract["application"] == "goreecloud-app-store"
           assert contract["platform"] == "linux"
           assert contract["lifecycle"] == "development"
@@ -104,26 +104,31 @@ jobs:
           assert derivative["desktopInstallPath"] == "/app/share/icons/hicolor/256x256/apps/com.goreecloud.AppStore.Development.png"
           assert derivative["canonicalSvgInstallPath"] == "/app/share/goreecloud-app-store/branding/app-icon.svg"
           glaze = contract["glazeUi"]
-          assert glaze["target"] == "1.3.0"
-          assert glaze["stableReleaseTag"] == "v1.3.0"
-          assert glaze["stableReleaseRevision"] == "ff34f232f295c9dcb07e4c681f66d4104d0b9323"
-          assert glaze["sourceQualificationAnchor"] == "fc7cc91d2eace8da2371371c2855c24cbcb326a1"
-          assert glaze["rollbackVersion"] == "1.2.0"
+          assert glaze["target"] == "1.4.0"
+          assert glaze["stableReleaseTag"] == "v1.4.0"
+          assert glaze["stableReleaseRevision"] == "84cb3db4884042f0fa25ed6d475a127fb110f596"
+          assert glaze["sourceQualificationAnchor"] == "84cb3db4884042f0fa25ed6d475a127fb110f596"
+          assert glaze["rollbackVersion"] == "1.3.0"
           assert glaze["neutralHostMaterial"] is True
+          assert glaze["opticalIntelligenceLocal"] is True
+          assert glaze["environmentalMemoryInfluence"] == 0.0
           assert glaze["adaptiveColorCarriesSemanticAuthority"] is False
           assert glaze["environmentalSamplingEnabled"] is False
-          assert glaze["renderedAcceptance"] == "pending-v1.3-revalidation"
+          assert glaze["renderedAcceptance"] == "pending-v1.4-revalidation"
           assert glaze["accessibilityAcceptance"] == "pending"
           assert glaze["representativeTargetAcceptance"] == "pending"
+          assert glaze["humanVisualExcellence"] == "deferred-v1.4.1"
           assert glaze["rollbackAcceptance"] == "pending"
           assert glaze["conformanceAccepted"] is False
           assert contract["productionAcceptance"] is False
           assert contract["security"]["automaticPackageInstallationEnabled"] is False
           styles = Path("linux/resources/style.css").read_text(encoding="utf-8")
+          assert "GLAZE UI V1.4" in styles
+          assert "Environmental Color Memory/tint is disabled" in styles
           assert "goreecloud_deep_teal" not in styles
           assert "goreecloud_ice_blue" in styles
           assert "@card_bg_color" in styles
-          print("Linux distribution contract validated: native client 0.1.0-dev, shared 12-item catalog, current approved App Store identity, GLAZE UI V1.3 neutral material mapping, fresh rendered revalidation required, productionAcceptance=false")
+          print("Linux distribution contract validated: native client 0.1.0-dev, shared 12-item catalog, current approved App Store identity, GLAZE UI V1.4 neutral/zero-memory optical mapping, fresh rendered revalidation required, productionAcceptance=false")
           PY
 
       - name: Verify pinned Rust dependency graph
@@ -246,7 +251,7 @@ jobs:
           Everkeep recovery: not connected.
           GoreeCloud Mesh production transport: not connected.
           GoreeCloud Manager registration/operational integration: not connected.
-          GLAZE UI V1.3 / 1.3.0 source mapping: present; fresh Linux rendered/accessibility/representative-target/performance/rollback/Human Visual Excellence acceptance remains pending and application conformance is not accepted.
+          GLAZE UI V1.4 / 1.4.0 source mapping: present; environmental memory/tint remains disabled for App Store trusted chrome. Fresh Linux V1.4 rendered/accessibility/representative-target/performance/rollback acceptance remains pending and application conformance is not accepted. Human/manual/physical-device/subjective Glaze validation is assigned to V1.4.1.
           Canonical App Store product identity: approved; the Linux source SVG is byte-exact to the canonical branding blob. Debian installs that SVG directly. Flatpak retains the exact SVG as package provenance and uses a build-time 256x256 PNG derivative for desktop/AppStream composition; derivative dimensions and generated AppStream catalog/icon outputs are validated by this workflow.
           Representative Linux desktop rendering, native accessibility, Human Visual Excellence, protected signing, upgrade/rollback, release, deployment, Release Candidate approval, and Stable acceptance: not established.
           EOF
