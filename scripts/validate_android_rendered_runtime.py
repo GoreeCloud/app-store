@@ -3,7 +3,8 @@
 
 This validator exercises the exact checked-out 0.1.5-dev APK on one deterministic
 Android emulator across compact, dark, 200% text, and tablet-sized cases. Native
-Compose instrumentation owns semantic click-target acceptance. Emulator evidence
+Compose instrumentation owns semantic click-target and category-filter acceptance,
+including content that is intentionally below the launch viewport. Emulator evidence
 is not TalkBack certification, physical-device acceptance, Human Visual
 Excellence, production signing/distribution acceptance, or Stable qualification.
 """
@@ -179,6 +180,10 @@ def main() -> None:
     if os.environ.get("APP_STORE_COMPOSE_NAV_ACCEPTED", "").strip().lower() != "true":
         raise SystemExit("Compose-native navigation/category acceptance was not established")
 
+    # Rendered cases intentionally assert only content guaranteed inside the initial viewport.
+    # Category controls are lazy content and may remain below the launch viewport on both compact
+    # and larger form factors. Their existence, 48dp semantics, horizontal scrolling, filtering,
+    # and restoration to All are independently exercised by the Compose instrumentation gate.
     cases = [
         rendered_case(
             serial,
@@ -187,7 +192,7 @@ def main() -> None:
             height=844,
             font_scale=1.0,
             night=False,
-            required_fragments=("Search apps and services", "Categories", "All", "Communication"),
+            required_fragments=("Search apps and services",),
         ),
         rendered_case(
             serial,
@@ -214,7 +219,7 @@ def main() -> None:
             height=1280,
             font_scale=1.0,
             night=False,
-            required_fragments=("Search apps and services", "Categories"),
+            required_fragments=("Search apps and services",),
         ),
     ]
 

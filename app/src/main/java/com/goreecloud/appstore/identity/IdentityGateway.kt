@@ -50,6 +50,7 @@ object DevelopmentIdentityGateway : IdentityGateway {
             subjectId = "dev:developer",
             displayName = "Developer demo",
             audiences = setOf(
+                "audience:standard",
                 "audience:developer",
                 "channel:stable",
                 "channel:rc",
