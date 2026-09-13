@@ -3,6 +3,7 @@ package com.goreecloud.appstore
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.hasText
@@ -91,11 +92,13 @@ class AppStoreNavigationSemanticsTest {
         composeRule.waitForIdle()
 
         // Discover owns the category controls as its fourth LazyColumn item (index 3):
-        // development notice, hero, search, then category filters. The compact rendered
-        // viewport can start with that item outside the composed semantics tree, so use
-        // LazyColumn's own ScrollToIndex authority instead of depending on text discovery
-        // for an item that does not exist in semantics until it is materialized.
-        val catalog = composeRule.onNode(hasScrollAction())
+        // development notice, hero, search, then category filters. Once categories materialize,
+        // both the vertical catalog and horizontal category row are scrollable. Bind explicitly to
+        // the vertical catalog by requiring the Discover search field as a descendant rather than
+        // depending on semantics-tree ordering.
+        val catalog = composeRule.onNode(
+            hasScrollAction() and hasAnyDescendant(hasText("Search apps and services"))
+        )
         catalog.performScrollToIndex(3)
         composeRule.waitForIdle()
 
