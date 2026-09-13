@@ -6,9 +6,9 @@ import com.goreecloud.appstore.domain.PackageDeliveryPolicy.ArtifactCandidate
 import com.goreecloud.appstore.domain.PackageDeliveryPolicy.Blocker
 import com.goreecloud.appstore.domain.PackageDeliveryPolicy.DeviceState
 import com.goreecloud.appstore.domain.PackageDeliveryPolicy.Evidence
-import kotlin.test.Test
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class PackageDeliveryPolicyTest {
     private val session = IdentitySession(
