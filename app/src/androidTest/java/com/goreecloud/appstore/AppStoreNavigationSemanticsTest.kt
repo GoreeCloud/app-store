@@ -79,8 +79,9 @@ class AppStoreNavigationSemanticsTest {
 
         // The shared fixture is a development-channel catalog. Exercise discovery through the
         // explicit Developer demo identity instead of weakening channel authorization for the
-        // default Standard demo identity.
-        composeRule.onNode(hasText("Standard demo") and hasClickAction())
+        // default Standard demo identity. The collapsed selector intentionally uses the compact
+        // session label "Standard"; full fixture display names appear only inside the menu.
+        composeRule.onNode(hasText("Standard") and hasClickAction())
             .assertExists()
             .performClick()
         composeRule.waitForIdle()
