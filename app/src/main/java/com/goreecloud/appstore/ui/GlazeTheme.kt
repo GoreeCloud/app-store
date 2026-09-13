@@ -12,14 +12,17 @@ import androidx.compose.ui.unit.dp
 enum class GlazeThemeMode { SYSTEM, LIGHT, DARK, DEEP_DARK }
 
 /**
- * GLAZE UI V1.3 — Adaptive Resonance source mapping.
+ * GLAZE UI V1.4 — Optical Intelligence source mapping.
  *
- * Neutral glass remains the material foundation. Adaptive expression is bounded,
- * non-semantic, and subordinate to accessibility and task completion. The App Store
- * does not sample environment/user content or use adaptive color as authority for
- * entitlement, trust, privacy, security, installation, or availability state.
+ * V1.4 inherits the V1.3 neutral token/component foundation. Optical adaptation is bounded,
+ * local, non-semantic, and subordinate to accessibility, task completion, privacy, and security.
+ * App Store catalog artwork, package trust, identity, entitlement, availability, telemetry, camera,
+ * and remote context never drive trusted application chrome optics. See [GlazeOpticalV14].
  */
 object GlazeFoundation {
+    const val VERSION = "1.4.0"
+    const val STABLE_REVISION = "84cb3db4884042f0fa25ed6d475a127fb110f596"
+
     val FrostWhite = Color(0xFFF7F9FC)
     val Pearl = Color(0xFFEFF2F6)
     val IceBlue = Color(0xFF8DB5FF)
