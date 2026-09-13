@@ -9,12 +9,13 @@ data class PlatformIntegrationStatus(
 )
 
 object GlazeUiContract {
-    const val VERSION = "1.3.0"
-    const val RELEASE_TAG = "v1.3.0"
-    const val RELEASE_REVISION = "ff34f232f295c9dcb07e4c681f66d4104d0b9323"
-    const val SOURCE_QUALIFICATION_ANCHOR = "fc7cc91d2eace8da2371371c2855c24cbcb326a1"
-    const val ROLLBACK_VERSION = "1.2.0"
-    const val MATERIAL_RULE = "Neutral glass remains the material foundation. Adaptive expression is contextual, bounded, and subordinate to meaning, accessibility, and task completion."
+    const val VERSION = "1.4.0"
+    const val RELEASE_TAG = "v1.4.0"
+    const val RELEASE_REVISION = "84cb3db4884042f0fa25ed6d475a127fb110f596"
+    // V1.4's verified Stable merge revision is the exact downstream source pin for this consumer.
+    const val SOURCE_QUALIFICATION_ANCHOR = RELEASE_REVISION
+    const val ROLLBACK_VERSION = "1.3.0"
+    const val MATERIAL_RULE = "Neutral glass remains the material foundation. Optical adaptation is contextual, bounded, and subordinate to meaning, accessibility, privacy, security, and task completion."
     const val SYSTEM_SHELL_SCOPE = "Application"
     const val CONFORMANCE_ACCEPTED = false
 }
@@ -22,9 +23,9 @@ object GlazeUiContract {
 object PlatformIntegrationRegistry {
     val current = listOf(
         PlatformIntegrationStatus(
-            system = "GLAZE UI V1.3 — Adaptive Resonance",
+            system = "GLAZE UI V1.4 — Optical Intelligence",
             state = IntegrationState.TARGETED,
-            detail = "Android, Linux, and Web source mappings target current Stable 1.3.0. Consumer-local rendered, accessibility, representative-target, performance, rollback, and production acceptance remain pending.",
+            detail = "Android, Linux, and Web source mappings target current Stable 1.4.0. V1.3 structural behavior is retained while optical behavior remains local, bounded, accessibility-subordinate, and non-semantic. Fresh consumer-local V1.4 rendered, accessibility, representative-target, performance, rollback, and production acceptance remain pending.",
         ),
         PlatformIntegrationStatus(
             system = "GoreeCloud Manager",
