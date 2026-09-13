@@ -4,8 +4,8 @@ package com.goreecloud.appstore.ui
  * App Store-local GLAZE UI V1.4 Optical Intelligence boundary.
  *
  * The App Store does not collect wallpaper pixels, application artwork colors, catalog content,
- * identity attributes, entitlement state, package/security evidence, telemetry, camera input, or
- * remote context to drive optics. This Development mapping therefore keeps environmental memory
+ * identity attributes, entitlement state, package trust/security evidence, telemetry, camera input,
+ * or remote context to drive optics. This Development mapping therefore keeps environmental memory
  * tint disabled and resolves accessibility precedence deterministically from already-derived UI
  * accessibility flags only.
  */
