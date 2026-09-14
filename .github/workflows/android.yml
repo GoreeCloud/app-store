@@ -27,8 +27,10 @@ jobs:
           printf '%s\n' "$ACTUAL_SHA" | tee build-evidence/source-commit.txt
       - name: Validate approved branding
         run: python3 scripts/validate_branding.py | tee build-evidence/branding.txt
-      - name: Validate GLAZE UI V1.1 source mapping
+      - name: Validate GLAZE UI source mapping
         run: python3 scripts/validate_glaze_ui_adoption.py | tee build-evidence/glaze-ui-adoption.txt
+      - name: Validate installed-state observation boundary
+        run: python3 scripts/validate_android_installed_state_observation.py | tee build-evidence/installed-state-observation.txt
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -69,6 +71,7 @@ jobs:
             build-evidence/source-commit.txt
             build-evidence/branding.txt
             build-evidence/glaze-ui-adoption.txt
+            build-evidence/installed-state-observation.txt
             build-evidence/app-debug.apk.sha256
             build-evidence/app-debug.badging.txt
             build-evidence/app-debug.signing.txt

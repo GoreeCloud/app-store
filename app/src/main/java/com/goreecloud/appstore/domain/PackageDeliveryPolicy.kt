@@ -25,6 +25,8 @@ object PackageDeliveryPolicy {
         DIGEST_NOT_ACCEPTED,
         SIGNATURE_NOT_ACCEPTED,
         WARDVEIL_NOT_ACCEPTED,
+        INSTALLATION_STATE_NOT_ACCEPTED,
+        INSTALLATION_STATE_INCONSISTENT,
         ALREADY_INSTALLED,
         NOT_INSTALLED,
         INSTALLED_PACKAGE_MISMATCH,
@@ -41,11 +43,39 @@ object PackageDeliveryPolicy {
         val minSdk: Int,
     )
 
+    /**
+     * Installation state must carry explicit acceptance evidence.
+     *
+     * Null installed fields are meaningful only when [installationState] is ACCEPTED. An UNKNOWN
+     * observation must never be interpreted as a verified package absence because Android package
+     * visibility can make an installed application unobservable to this process.
+     */
     data class DeviceState(
         val sdkInt: Int,
         val installedPackageName: String? = null,
         val installedVersionCode: Long? = null,
-    )
+        val installationState: AcceptanceState = AcceptanceState.UNKNOWN,
+    ) {
+        companion object {
+            fun observedAbsent(sdkInt: Int): DeviceState = DeviceState(
+                sdkInt = sdkInt,
+                installationState = AcceptanceState.ACCEPTED,
+            )
+
+            fun observedInstalled(
+                sdkInt: Int,
+                packageName: String,
+                versionCode: Long,
+            ): DeviceState = DeviceState(
+                sdkInt = sdkInt,
+                installedPackageName = packageName,
+                installedVersionCode = versionCode,
+                installationState = AcceptanceState.ACCEPTED,
+            )
+
+            fun unobserved(sdkInt: Int): DeviceState = DeviceState(sdkInt = sdkInt)
+        }
+    }
 
     data class Evidence(
         val catalogBinding: AcceptanceState,
@@ -108,45 +138,56 @@ object PackageDeliveryPolicy {
             blockers += Blocker.WARDVEIL_NOT_ACCEPTED
         }
 
-        when (action) {
-            Action.INSTALL -> {
-                if (device.installedPackageName != null || device.installedVersionCode != null) {
-                    blockers += Blocker.ALREADY_INSTALLED
-                }
-            }
+        val installedName = device.installedPackageName
+        val installedCode = device.installedVersionCode
+        val installationStateAccepted = device.installationState == AcceptanceState.ACCEPTED
+        val installationStateConsistent = (installedName == null) == (installedCode == null)
 
-            Action.UPDATE -> {
-                val installedName = device.installedPackageName
-                val installedCode = device.installedVersionCode
-                if (installedName == null || installedCode == null) {
-                    blockers += Blocker.NOT_INSTALLED
-                } else {
-                    if (installedName != artifact.packageName) {
-                        blockers += Blocker.INSTALLED_PACKAGE_MISMATCH
-                    }
-                    if (artifact.versionCode <= installedCode) {
-                        blockers += Blocker.UPDATE_VERSION_NOT_NEWER
-                    }
-                }
-            }
+        if (!installationStateAccepted) {
+            blockers += Blocker.INSTALLATION_STATE_NOT_ACCEPTED
+        }
+        if (!installationStateConsistent) {
+            blockers += Blocker.INSTALLATION_STATE_INCONSISTENT
+        }
 
-            Action.ROLLBACK -> {
-                val installedName = device.installedPackageName
-                val installedCode = device.installedVersionCode
-                if (installedName == null || installedCode == null) {
-                    blockers += Blocker.NOT_INSTALLED
-                } else {
-                    if (installedName != artifact.packageName) {
-                        blockers += Blocker.INSTALLED_PACKAGE_MISMATCH
-                    }
-                    if (artifact.versionCode >= installedCode) {
-                        blockers += Blocker.ROLLBACK_VERSION_NOT_OLDER
+        if (installationStateAccepted && installationStateConsistent) {
+            when (action) {
+                Action.INSTALL -> {
+                    if (installedName != null) {
+                        blockers += Blocker.ALREADY_INSTALLED
                     }
                 }
-                if (evidence.rollback != AcceptanceState.ACCEPTED) {
-                    blockers += Blocker.ROLLBACK_NOT_ACCEPTED
+
+                Action.UPDATE -> {
+                    if (installedName == null || installedCode == null) {
+                        blockers += Blocker.NOT_INSTALLED
+                    } else {
+                        if (installedName != artifact.packageName) {
+                            blockers += Blocker.INSTALLED_PACKAGE_MISMATCH
+                        }
+                        if (artifact.versionCode <= installedCode) {
+                            blockers += Blocker.UPDATE_VERSION_NOT_NEWER
+                        }
+                    }
+                }
+
+                Action.ROLLBACK -> {
+                    if (installedName == null || installedCode == null) {
+                        blockers += Blocker.NOT_INSTALLED
+                    } else {
+                        if (installedName != artifact.packageName) {
+                            blockers += Blocker.INSTALLED_PACKAGE_MISMATCH
+                        }
+                        if (artifact.versionCode >= installedCode) {
+                            blockers += Blocker.ROLLBACK_VERSION_NOT_OLDER
+                        }
+                    }
                 }
             }
+        }
+
+        if (action == Action.ROLLBACK && evidence.rollback != AcceptanceState.ACCEPTED) {
+            blockers += Blocker.ROLLBACK_NOT_ACCEPTED
         }
 
         return Decision(

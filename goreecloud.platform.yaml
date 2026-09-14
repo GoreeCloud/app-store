@@ -82,13 +82,6 @@ platform_systems:
       - app/src/main/java/com/goreecloud/appstore/identity/IdentityGateway.kt
       - web/entitlements.mjs
     notes: Development-only Identity fixtures exist, but production GoreeCloud Identity authentication, session, authorization, account-disablement, revocation, and server-authoritative entitled-catalog delivery are not established.
-  sync:
-    result: applicable-blocked
-    version: null
-    evidence:
-      - SPECIFICATIONS.md
-      - contracts/platform-integrations.json
-    notes: Cross-device Library/history and catalog-state synchronization are product requirements, but no accepted GoreeCloud Sync change-tracking, version reconciliation, conflict handling, offline-resume, or cross-device runtime integration is established. Synchronization must remain separate from Everkeep backup/recovery authority.
 
 health:
   health_endpoint: null
