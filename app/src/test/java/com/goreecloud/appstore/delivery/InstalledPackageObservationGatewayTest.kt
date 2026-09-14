@@ -38,7 +38,7 @@ class InstalledPackageObservationGatewayTest {
         val device = gateway.toDeviceState(35, observation)
         assertEquals(AcceptanceState.ACCEPTED, device.installationState)
         assertEquals("com.goreecloud.browser", device.installedPackageName)
-        assertEquals(123, device.installedVersionCode)
+        assertEquals(123L, device.installedVersionCode)
     }
 
     @Test
