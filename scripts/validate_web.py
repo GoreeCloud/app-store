@@ -7,10 +7,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_ICON_BLOB = "1e86041de7cbde9f92ae2ddb9a813b2585b5f788"
-GLAZE_VERSION = "1.3.0"
-GLAZE_TAG = "v1.3.0"
-GLAZE_REVISION = "ff34f232f295c9dcb07e4c681f66d4104d0b9323"
-GLAZE_SOURCE_ANCHOR = "fc7cc91d2eace8da2371371c2855c24cbcb326a1"
+GLAZE_VERSION = "1.4.0"
+GLAZE_TAG = "v1.4.0"
+GLAZE_REVISION = "84cb3db4884042f0fa25ed6d475a127fb110f596"
+GLAZE_SOURCE_ANCHOR = GLAZE_REVISION
+GLAZE_ROLLBACK = "1.3.0"
 
 
 def require(value: bool, message: str) -> None:
@@ -32,7 +33,7 @@ def main() -> None:
     catalog = json.loads(read("catalog/development-catalog.json"))
     adoption = json.loads(read("contracts/glaze-ui-adoption.json"))
 
-    require(contract["schemaVersion"] == 2, "contract schemaVersion mismatch")
+    require(contract["schemaVersion"] == 3, "contract schemaVersion mismatch")
     require(contract["application"] == "goreecloud-app-store", "application mismatch")
     require(contract["platform"] == "web", "platform mismatch")
     require(contract["lifecycle"] == "development", "lifecycle must remain development")
@@ -51,11 +52,14 @@ def main() -> None:
     require(glaze["target"] == GLAZE_VERSION, "GLAZE target mismatch")
     require(glaze["stableReleaseTag"] == GLAZE_TAG, "GLAZE release tag mismatch")
     require(glaze["stableReleaseRevision"] == GLAZE_REVISION, "GLAZE release revision mismatch")
-    require(glaze["sourceQualificationAnchor"] == GLAZE_SOURCE_ANCHOR, "GLAZE source qualification anchor mismatch")
-    require(glaze["rollbackVersion"] == "1.2.0", "GLAZE rollback version mismatch")
+    require(glaze["sourceQualificationAnchor"] == GLAZE_SOURCE_ANCHOR, "GLAZE source pin mismatch")
+    require(glaze["rollbackVersion"] == GLAZE_ROLLBACK, "GLAZE rollback version mismatch")
     require(glaze["systemShellScope"] == "Application", "GLAZE shell scope mismatch")
     require(glaze["environmentalSampling"] is False, "environmental sampling must remain disabled")
+    require(glaze["environmentalMemoryInfluence"] == 0.0, "App Store environmental memory must remain disabled")
     require(glaze["adaptiveColorCarriesSemanticAuthority"] is False, "adaptive color must not carry semantic authority")
+    require(glaze["reducedTransparencySolidAccessible"] is True, "Reduced Transparency must collapse trusted chrome to solid")
+    require(glaze["forcedColorsSolidAccessible"] is True, "Forced Colors must collapse trusted chrome to solid")
     require(glaze["conformanceAccepted"] is False, "GLAZE conformance must remain unaccepted")
 
     acceptance = contract["acceptance"]
@@ -66,12 +70,12 @@ def main() -> None:
         "rtlStructuralResilience",
         "allViewports200PercentTextReflow",
     ):
-        require(acceptance[key] == "pending-v1.3-revalidation", f"{key} must require fresh V1.3 revalidation")
-    require(acceptance["renderedBrowserEvidence"] is None, "historical V1.1 rendered evidence must not transfer to V1.3")
+        require(acceptance[key] == "pending-v1.4-revalidation", f"{key} must require fresh V1.4 revalidation")
+    require(acceptance["renderedBrowserEvidence"] is None, "prior rendered evidence must not transfer to V1.4")
     require(acceptance["localizationAcceptance"] == "pending", "RTL structure automation must not be represented as localization acceptance")
     require(acceptance["accessibilityAssistiveTechnology"] == "pending", "assistive-technology acceptance must not be inferred from browser automation")
     require(acceptance["crossBrowserAcceptance"] == "pending", "Chrome automation must not be represented as cross-browser acceptance")
-    require(acceptance["humanVisualExcellence"] == "pending", "Human Visual Excellence must remain pending")
+    require(acceptance["humanVisualExcellence"] == "deferred-v1.4.1", "Human Visual Excellence must remain assigned to V1.4.1")
     require(acceptance["representativeTargetEnvironment"] == "pending", "representative Web target acceptance must remain pending")
     require(acceptance["productionHostingHeaders"] == "pending", "production hosting/header acceptance must remain pending")
     require(acceptance["rollbackAcceptance"] == "pending", "rollback acceptance must remain pending")
@@ -97,7 +101,10 @@ def main() -> None:
     require("--target-min: 48px" in styles, "48px interaction floor missing")
     require(":focus-visible" in styles, "keyboard focus styling missing")
     require("prefers-reduced-motion: reduce" in styles, "Reduced Motion mapping missing")
+    require("prefers-reduced-transparency: reduce" in styles, "Reduced Transparency mapping missing")
     require("forced-colors: active" in styles, "Forced Colors mapping missing")
+    require("--glaze-optical-memory-influence: 0" in styles, "App Store environmental memory must remain zero")
+    require("--glaze-optical-warmth: 0" in styles, "App Store decorative warmth must remain zero")
     require(".topbar { position: static;" in styles, "compact topbar must remain non-sticky so navigation cannot be obscured after scrolling")
     require("backdrop-filter: blur(4px)" not in styles, "nested dialog backdrop blur must remain absent")
     require("forcedColorsAutomation" in rendered, "rendered browser report must retain Forced Colors evidence")
@@ -113,7 +120,7 @@ def main() -> None:
         "--gc-development-amber: #D9A35F",
         "--gc-deep-dark-canvas: #05070A",
     ):
-        require(literal in styles, f"GLAZE V1.3 source primitive missing: {literal}")
+        require(literal in styles, f"GLAZE V1.4 inherited source primitive missing: {literal}")
     require("--gc-deep-teal" not in styles, "historical Deep Teal substrate mapping must remain absent")
 
     web_mapping = adoption.get("webMapping", {})
@@ -122,11 +129,11 @@ def main() -> None:
     require(web_mapping.get("platform") == "Web", "GLAZE adoption web mapping missing")
     require(web_mapping.get("externalRuntimeDependencies") is False, "GLAZE web mapping must remain dependency-light")
     require(web_mapping.get("generalTargetFloorPx") == 48, "GLAZE web target floor mismatch")
-    require(web_mapping.get("neutralMaterial") is True, "GLAZE V1.3 Web neutral material mapping missing")
-    require(web_mapping.get("adaptiveColorCarriesSemanticAuthority") is False, "GLAZE V1.3 Web color authority boundary missing")
+    require(web_mapping.get("neutralMaterial") is True, "GLAZE V1.4 Web neutral material mapping missing")
+    require(web_mapping.get("adaptiveColorCarriesSemanticAuthority") is False, "GLAZE V1.4 Web color authority boundary missing")
     print(
         "Web Development source contract validated: shared 12-item audience+release-channel entitlement-safe catalog, "
-        "current canonical App Store identity, local runtime, GLAZE UI V1.3 source mapping, fresh rendered revalidation required, production=false"
+        "current canonical App Store identity, local runtime, GLAZE UI V1.4 source mapping, fresh rendered revalidation required, production=false"
     )
 
 
