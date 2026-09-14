@@ -123,9 +123,15 @@ class AndroidInstalledPackageLookup(context: Context) : InstalledPackageLookup {
             @Suppress("DEPRECATION")
             packageManager.getPackageInfo(packageName, 0)
         }
+        val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            info.longVersionCode
+        } else {
+            @Suppress("DEPRECATION")
+            info.versionCode.toLong()
+        }
         InstalledPackageLookupResult.Installed(
             packageName = info.packageName,
-            versionCode = info.longVersionCode,
+            versionCode = versionCode,
         )
     } catch (_: PackageManager.NameNotFoundException) {
         InstalledPackageLookupResult.NotObserved
