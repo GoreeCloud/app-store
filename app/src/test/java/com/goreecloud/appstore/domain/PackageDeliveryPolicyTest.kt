@@ -48,18 +48,54 @@ class PackageDeliveryPolicyTest {
     )
 
     @Test
-    fun installIsEligibleOnlyWhenEveryRequiredFactIsAccepted() {
+    fun installIsEligibleOnlyWhenEveryRequiredFactIncludingAbsenceIsAccepted() {
         val decision = PackageDeliveryPolicy.evaluate(
             session = session,
             item = item,
             artifact = artifact,
-            device = DeviceState(sdkInt = 35),
+            device = DeviceState.observedAbsent(sdkInt = 35),
             evidence = accepted,
             action = Action.INSTALL,
         )
 
         assertTrue(decision.eligibleForHandoff)
         assertTrue(decision.blockers.isEmpty())
+    }
+
+    @Test
+    fun unknownInstallationStateCannotBeTreatedAsVerifiedAbsence() {
+        val decision = PackageDeliveryPolicy.evaluate(
+            session = session,
+            item = item,
+            artifact = artifact,
+            device = DeviceState.unobserved(sdkInt = 35),
+            evidence = accepted,
+            action = Action.INSTALL,
+        )
+
+        assertFalse(decision.eligibleForHandoff)
+        assertTrue(Blocker.INSTALLATION_STATE_NOT_ACCEPTED in decision.blockers)
+        assertFalse(Blocker.ALREADY_INSTALLED in decision.blockers)
+    }
+
+    @Test
+    fun partialInstallationStateIsRejectedAsInconsistent() {
+        val decision = PackageDeliveryPolicy.evaluate(
+            session = session,
+            item = item,
+            artifact = artifact,
+            device = DeviceState(
+                sdkInt = 35,
+                installedPackageName = artifact.packageName,
+                installedVersionCode = null,
+                installationState = AcceptanceState.ACCEPTED,
+            ),
+            evidence = accepted,
+            action = Action.UPDATE,
+        )
+
+        assertFalse(decision.eligibleForHandoff)
+        assertTrue(Blocker.INSTALLATION_STATE_INCONSISTENT in decision.blockers)
     }
 
     @Test
@@ -76,7 +112,7 @@ class PackageDeliveryPolicyTest {
                 session,
                 item,
                 artifact,
-                DeviceState(sdkInt = 35),
+                DeviceState.observedAbsent(sdkInt = 35),
                 evidence,
                 Action.INSTALL,
             )
@@ -94,7 +130,7 @@ class PackageDeliveryPolicyTest {
             session,
             rcItem,
             rcArtifact,
-            DeviceState(sdkInt = 35),
+            DeviceState.observedAbsent(sdkInt = 35),
             accepted,
             Action.INSTALL,
         )
@@ -109,7 +145,7 @@ class PackageDeliveryPolicyTest {
             session,
             item,
             artifact.copy(packageName = "com.example.other", versionName = "9.9.9", releaseChannel = ReleaseChannel.BETA),
-            DeviceState(sdkInt = 35),
+            DeviceState.observedAbsent(sdkInt = 35),
             accepted,
             Action.INSTALL,
         )
@@ -126,7 +162,7 @@ class PackageDeliveryPolicyTest {
             session,
             item,
             artifact.copy(minSdk = 36),
-            DeviceState(sdkInt = 35),
+            DeviceState.observedAbsent(sdkInt = 35),
             accepted,
             Action.INSTALL,
         )
@@ -141,10 +177,10 @@ class PackageDeliveryPolicyTest {
             session,
             item,
             artifact,
-            DeviceState(
+            DeviceState.observedInstalled(
                 sdkInt = 35,
-                installedPackageName = artifact.packageName,
-                installedVersionCode = 100,
+                packageName = artifact.packageName,
+                versionCode = 100,
             ),
             accepted,
             Action.INSTALL,
@@ -160,7 +196,7 @@ class PackageDeliveryPolicyTest {
             session,
             item,
             artifact.copy(versionCode = 100),
-            DeviceState(35, artifact.packageName, 100),
+            DeviceState.observedInstalled(35, artifact.packageName, 100),
             accepted,
             Action.UPDATE,
         )
@@ -171,7 +207,7 @@ class PackageDeliveryPolicyTest {
             session,
             item,
             artifact,
-            DeviceState(35, "com.example.other", 100),
+            DeviceState.observedInstalled(35, "com.example.other", 100),
             accepted,
             Action.UPDATE,
         )
@@ -182,7 +218,7 @@ class PackageDeliveryPolicyTest {
             session,
             item,
             artifact,
-            DeviceState(35, artifact.packageName, 100),
+            DeviceState.observedInstalled(35, artifact.packageName, 100),
             accepted,
             Action.UPDATE,
         )
@@ -195,7 +231,7 @@ class PackageDeliveryPolicyTest {
             session,
             item,
             artifact.copy(versionCode = 90),
-            DeviceState(35, artifact.packageName, 100),
+            DeviceState.observedInstalled(35, artifact.packageName, 100),
             accepted.copy(rollback = AcceptanceState.UNKNOWN),
             Action.ROLLBACK,
         )
@@ -206,7 +242,7 @@ class PackageDeliveryPolicyTest {
             session,
             item,
             artifact.copy(versionCode = 100),
-            DeviceState(35, artifact.packageName, 100),
+            DeviceState.observedInstalled(35, artifact.packageName, 100),
             accepted,
             Action.ROLLBACK,
         )
@@ -217,7 +253,7 @@ class PackageDeliveryPolicyTest {
             session,
             item,
             artifact.copy(versionCode = 90),
-            DeviceState(35, artifact.packageName, 100),
+            DeviceState.observedInstalled(35, artifact.packageName, 100),
             accepted,
             Action.ROLLBACK,
         )
@@ -236,7 +272,7 @@ class PackageDeliveryPolicyTest {
             session,
             service,
             artifact,
-            DeviceState(sdkInt = 35),
+            DeviceState.observedAbsent(sdkInt = 35),
             accepted,
             Action.INSTALL,
         )
