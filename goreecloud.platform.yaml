@@ -1,4 +1,4 @@
-schema_version: "0.2"
+schema_version: "0.3"
 
 component:
   type: application
@@ -82,6 +82,13 @@ platform_systems:
       - app/src/main/java/com/goreecloud/appstore/identity/IdentityGateway.kt
       - web/entitlements.mjs
     notes: Development-only Identity fixtures exist, but production GoreeCloud Identity authentication, session, authorization, account-disablement, revocation, and server-authoritative entitled-catalog delivery are not established.
+  sync:
+    result: applicable-blocked
+    version: null
+    evidence:
+      - SPECIFICATIONS.md
+      - contracts/platform-integrations.json
+    notes: Cross-device Library/history and catalog-state synchronization are product requirements, but no accepted GoreeCloud Sync change-tracking, version reconciliation, conflict handling, offline-resume, or cross-device runtime integration is established. Synchronization must remain separate from Everkeep backup/recovery authority.
 
 health:
   health_endpoint: null
@@ -124,10 +131,10 @@ external_dependencies:
     version_constraint: "modern standards browser"
 
 compatibility:
-  platform_contract: "0.2"
+  platform_contract: "0.3"
   glaze_ui_required: "1.4.0"
   requires:
-    - goreecloud-platform-contract==0.2
+    - goreecloud-platform-contract==0.3
     - glaze-ui==1.4.0
     - android-api>=26
     - linux-native-client
@@ -253,6 +260,7 @@ conformance:
     - GLAZE UI V1.4 source mappings are present for Android, Linux, and Web, but fresh V1.4 rendered, interaction, accessibility, form-factor, representative-device/target, performance, rollback, release, and production acceptance remain outstanding. Human/manual/physical-device/subjective Glaze validation is assigned to V1.4.1 and is not represented as passed here.
     - GoreeCloud Mesh registration, capability publication, event transport, and runtime acceptance are not established.
     - GoreeCloud Identity production authentication, session, entitlement, disablement, revocation, and server-authoritative entitled-catalog delivery are not established.
+    - GoreeCloud Sync change tracking, cross-device state synchronization, version reconciliation, conflict handling, and offline-resume acceptance are not established.
     - Linux Development packages are build candidates only; production package publication, protected signing, representative Linux target acceptance, upgrade/rollback, and supported release procedures remain outstanding.
     - Web V1.4 source/build/rendered revalidation, actual assistive-technology, localization, cross-browser where required, representative target environment, production hosting/security headers, deployment, release, and Stable acceptance remain outstanding.
     - Production catalog delivery, package install/update, service launch, rollback/failure validation, protected production signing and key recovery, deployment, release approval, Release Candidate qualification, and Stable qualification remain outstanding.
