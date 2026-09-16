@@ -13,6 +13,13 @@ object PackageDeliveryPolicy {
 
     enum class Action { INSTALL, UPDATE, ROLLBACK }
 
+    enum class ReleaseEvidenceType {
+        BUILD_PROVENANCE,
+        SBOM,
+        RELEASE_APPROVAL,
+        REVOCATION_STATUS,
+    }
+
     enum class Blocker {
         NOT_AN_APPLICATION,
         RELEASE_CHANNEL_NOT_AUTHORIZED,
@@ -30,8 +37,19 @@ object PackageDeliveryPolicy {
         SBOM_NOT_ACCEPTED,
         RELEASE_APPROVAL_NOT_ACCEPTED,
         REVOCATION_STATUS_NOT_ACCEPTED,
+        RELEASE_EVIDENCE_TYPE_MISMATCH,
+        RELEASE_EVIDENCE_PRODUCER_IDENTITY_MISSING,
+        RELEASE_EVIDENCE_AUTHORITY_DOMAIN_MISSING,
+        RELEASE_EVIDENCE_PRODUCER_AUTHORITY_NOT_ACCEPTED,
+        RELEASE_EVIDENCE_SUBJECT_SCOPE_MISSING,
+        RELEASE_EVIDENCE_SUBJECT_SCOPE_MISMATCH,
+        RELEASE_EVIDENCE_CONTRACT_VERSION_MISSING,
+        RELEASE_EVIDENCE_SOURCE_REFERENCE_MISSING,
         RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISSING,
         RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISMATCH,
+        EVIDENCE_EVALUATION_TIME_INVALID,
+        RELEASE_EVIDENCE_TIME_INVALID,
+        RELEASE_EVIDENCE_EXPIRED,
         INSTALLATION_STATE_NOT_ACCEPTED,
         INSTALLATION_STATE_INCONSISTENT,
         ALREADY_INSTALLED,
@@ -86,29 +104,43 @@ object PackageDeliveryPolicy {
     }
 
     /**
-     * Release evidence is intentionally fail-closed and bound to one exact artifact identity.
+     * One producer-attributed release-evidence result.
      *
-     * These states represent acceptance results produced by future authoritative release,
-     * provenance, SBOM, and revocation integrations. This policy consumes those results only; it
-     * does not manufacture or validate the underlying evidence itself or hash package bytes.
+     * The App Store does not authenticate the producer or manufacture acceptance. It consumes the
+     * explicit [producerAuthority] acceptance supplied by a future governed evidence integration
+     * and independently verifies only the local envelope invariants represented here.
+     */
+    data class ReleaseEvidenceRecord(
+        val type: ReleaseEvidenceType,
+        val state: AcceptanceState = AcceptanceState.UNKNOWN,
+        val producerId: String? = null,
+        val authorityDomain: String? = null,
+        val producerAuthority: AcceptanceState = AcceptanceState.UNKNOWN,
+        val subjectPackageName: String? = null,
+        val artifactSha256: String? = null,
+        val contractVersion: String? = null,
+        val createdAtEpochSeconds: Long? = null,
+        val expiresAtEpochSeconds: Long? = null,
+        val sourceReference: String? = null,
+    )
+
+    /**
+     * Release evidence is intentionally fail-closed and keeps independent producer results.
+     *
+     * Missing records remain missing rather than becoming implicitly accepted. Future release,
+     * provenance, SBOM, revocation, Identity, Mesh, or Wardveil integrations remain responsible for
+     * producing and authenticating the underlying evidence and producer authority.
      */
     data class ReleaseEvidence(
-        val buildProvenance: AcceptanceState = AcceptanceState.UNKNOWN,
-        val sbom: AcceptanceState = AcceptanceState.UNKNOWN,
-        val releaseApproval: AcceptanceState = AcceptanceState.UNKNOWN,
-        val revocationStatus: AcceptanceState = AcceptanceState.UNKNOWN,
-        val artifactSha256: String? = null,
-    ) {
-        companion object {
-            fun acceptedFor(artifact: ArtifactCandidate): ReleaseEvidence = ReleaseEvidence(
-                buildProvenance = AcceptanceState.ACCEPTED,
-                sbom = AcceptanceState.ACCEPTED,
-                releaseApproval = AcceptanceState.ACCEPTED,
-                revocationStatus = AcceptanceState.ACCEPTED,
-                artifactSha256 = artifact.sha256,
-            )
-        }
-    }
+        val buildProvenance: ReleaseEvidenceRecord? = null,
+        val sbom: ReleaseEvidenceRecord? = null,
+        val releaseApproval: ReleaseEvidenceRecord? = null,
+        val revocationStatus: ReleaseEvidenceRecord? = null,
+    )
+
+    data class EvidenceEvaluationContext(
+        val evaluatedAtEpochSeconds: Long,
+    )
 
     data class Evidence(
         val catalogBinding: AcceptanceState,
@@ -133,6 +165,7 @@ object PackageDeliveryPolicy {
         device: DeviceState,
         evidence: Evidence,
         action: Action,
+        context: EvidenceEvaluationContext,
     ): Decision {
         val blockers = linkedSetOf<Blocker>()
 
@@ -176,28 +209,43 @@ object PackageDeliveryPolicy {
         if (evidence.wardveil != AcceptanceState.ACCEPTED) {
             blockers += Blocker.WARDVEIL_NOT_ACCEPTED
         }
-        if (evidence.release.buildProvenance != AcceptanceState.ACCEPTED) {
-            blockers += Blocker.BUILD_PROVENANCE_NOT_ACCEPTED
-        }
-        if (evidence.release.sbom != AcceptanceState.ACCEPTED) {
-            blockers += Blocker.SBOM_NOT_ACCEPTED
-        }
-        if (evidence.release.releaseApproval != AcceptanceState.ACCEPTED) {
-            blockers += Blocker.RELEASE_APPROVAL_NOT_ACCEPTED
-        }
-        if (evidence.release.revocationStatus != AcceptanceState.ACCEPTED) {
-            blockers += Blocker.REVOCATION_STATUS_NOT_ACCEPTED
+
+        if (context.evaluatedAtEpochSeconds < 0) {
+            blockers += Blocker.EVIDENCE_EVALUATION_TIME_INVALID
         }
 
-        val releaseArtifactSha256 = evidence.release.artifactSha256
-        if (releaseArtifactSha256.isNullOrBlank()) {
-            blockers += Blocker.RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISSING
-        } else if (
-            !canonicalSha256.matches(releaseArtifactSha256) ||
-            releaseArtifactSha256 != artifact.sha256
-        ) {
-            blockers += Blocker.RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISMATCH
-        }
+        validateReleaseEvidenceRecord(
+            record = evidence.release.buildProvenance,
+            expectedType = ReleaseEvidenceType.BUILD_PROVENANCE,
+            notAcceptedBlocker = Blocker.BUILD_PROVENANCE_NOT_ACCEPTED,
+            artifact = artifact,
+            context = context,
+            blockers = blockers,
+        )
+        validateReleaseEvidenceRecord(
+            record = evidence.release.sbom,
+            expectedType = ReleaseEvidenceType.SBOM,
+            notAcceptedBlocker = Blocker.SBOM_NOT_ACCEPTED,
+            artifact = artifact,
+            context = context,
+            blockers = blockers,
+        )
+        validateReleaseEvidenceRecord(
+            record = evidence.release.releaseApproval,
+            expectedType = ReleaseEvidenceType.RELEASE_APPROVAL,
+            notAcceptedBlocker = Blocker.RELEASE_APPROVAL_NOT_ACCEPTED,
+            artifact = artifact,
+            context = context,
+            blockers = blockers,
+        )
+        validateReleaseEvidenceRecord(
+            record = evidence.release.revocationStatus,
+            expectedType = ReleaseEvidenceType.REVOCATION_STATUS,
+            notAcceptedBlocker = Blocker.REVOCATION_STATUS_NOT_ACCEPTED,
+            artifact = artifact,
+            context = context,
+            blockers = blockers,
+        )
 
         val installedName = device.installedPackageName
         val installedCode = device.installedVersionCode
@@ -255,5 +303,72 @@ object PackageDeliveryPolicy {
             eligibleForHandoff = blockers.isEmpty(),
             blockers = blockers,
         )
+    }
+
+    private fun validateReleaseEvidenceRecord(
+        record: ReleaseEvidenceRecord?,
+        expectedType: ReleaseEvidenceType,
+        notAcceptedBlocker: Blocker,
+        artifact: ArtifactCandidate,
+        context: EvidenceEvaluationContext,
+        blockers: MutableSet<Blocker>,
+    ) {
+        if (record == null) {
+            blockers += notAcceptedBlocker
+            return
+        }
+
+        if (record.state != AcceptanceState.ACCEPTED) {
+            blockers += notAcceptedBlocker
+        }
+        if (record.type != expectedType) {
+            blockers += Blocker.RELEASE_EVIDENCE_TYPE_MISMATCH
+        }
+        if (record.producerId.isNullOrBlank()) {
+            blockers += Blocker.RELEASE_EVIDENCE_PRODUCER_IDENTITY_MISSING
+        }
+        if (record.authorityDomain.isNullOrBlank()) {
+            blockers += Blocker.RELEASE_EVIDENCE_AUTHORITY_DOMAIN_MISSING
+        }
+        if (record.producerAuthority != AcceptanceState.ACCEPTED) {
+            blockers += Blocker.RELEASE_EVIDENCE_PRODUCER_AUTHORITY_NOT_ACCEPTED
+        }
+
+        val subjectPackageName = record.subjectPackageName
+        if (subjectPackageName.isNullOrBlank()) {
+            blockers += Blocker.RELEASE_EVIDENCE_SUBJECT_SCOPE_MISSING
+        } else if (subjectPackageName != artifact.packageName) {
+            blockers += Blocker.RELEASE_EVIDENCE_SUBJECT_SCOPE_MISMATCH
+        }
+        if (record.contractVersion.isNullOrBlank()) {
+            blockers += Blocker.RELEASE_EVIDENCE_CONTRACT_VERSION_MISSING
+        }
+        if (record.sourceReference.isNullOrBlank()) {
+            blockers += Blocker.RELEASE_EVIDENCE_SOURCE_REFERENCE_MISSING
+        }
+
+        val releaseArtifactSha256 = record.artifactSha256
+        if (releaseArtifactSha256.isNullOrBlank()) {
+            blockers += Blocker.RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISSING
+        } else if (
+            !canonicalSha256.matches(releaseArtifactSha256) ||
+            releaseArtifactSha256 != artifact.sha256
+        ) {
+            blockers += Blocker.RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISMATCH
+        }
+
+        val createdAt = record.createdAtEpochSeconds
+        val expiresAt = record.expiresAtEpochSeconds
+        if (
+            createdAt == null ||
+            expiresAt == null ||
+            createdAt < 0 ||
+            expiresAt <= createdAt ||
+            context.evaluatedAtEpochSeconds < createdAt
+        ) {
+            blockers += Blocker.RELEASE_EVIDENCE_TIME_INVALID
+        } else if (context.evaluatedAtEpochSeconds >= expiresAt) {
+            blockers += Blocker.RELEASE_EVIDENCE_EXPIRED
+        }
     }
 }

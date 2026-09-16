@@ -6,7 +6,10 @@ import com.goreecloud.appstore.domain.PackageDeliveryPolicy.ArtifactCandidate
 import com.goreecloud.appstore.domain.PackageDeliveryPolicy.Blocker
 import com.goreecloud.appstore.domain.PackageDeliveryPolicy.DeviceState
 import com.goreecloud.appstore.domain.PackageDeliveryPolicy.Evidence
+import com.goreecloud.appstore.domain.PackageDeliveryPolicy.EvidenceEvaluationContext
 import com.goreecloud.appstore.domain.PackageDeliveryPolicy.ReleaseEvidence
+import com.goreecloud.appstore.domain.PackageDeliveryPolicy.ReleaseEvidenceRecord
+import com.goreecloud.appstore.domain.PackageDeliveryPolicy.ReleaseEvidenceType
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -41,12 +44,40 @@ class PackageDeliveryPolicyTest {
         sha256 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     )
 
+    private val evaluationContext = EvidenceEvaluationContext(
+        evaluatedAtEpochSeconds = 1_700_000_100L,
+    )
+
+    private fun acceptedRecord(
+        type: ReleaseEvidenceType,
+        candidate: ArtifactCandidate,
+    ): ReleaseEvidenceRecord = ReleaseEvidenceRecord(
+        type = type,
+        state = AcceptanceState.ACCEPTED,
+        producerId = "development.release-evidence-fixture",
+        authorityDomain = "development.release-evidence",
+        producerAuthority = AcceptanceState.ACCEPTED,
+        subjectPackageName = candidate.packageName,
+        artifactSha256 = candidate.sha256,
+        contractVersion = "development-evidence-v1",
+        createdAtEpochSeconds = 1_700_000_000L,
+        expiresAtEpochSeconds = 1_700_003_600L,
+        sourceReference = "development-fixture:${type.name.lowercase()}",
+    )
+
+    private fun acceptedReleaseFor(candidate: ArtifactCandidate): ReleaseEvidence = ReleaseEvidence(
+        buildProvenance = acceptedRecord(ReleaseEvidenceType.BUILD_PROVENANCE, candidate),
+        sbom = acceptedRecord(ReleaseEvidenceType.SBOM, candidate),
+        releaseApproval = acceptedRecord(ReleaseEvidenceType.RELEASE_APPROVAL, candidate),
+        revocationStatus = acceptedRecord(ReleaseEvidenceType.REVOCATION_STATUS, candidate),
+    )
+
     private val accepted = Evidence(
         catalogBinding = AcceptanceState.ACCEPTED,
         digest = AcceptanceState.ACCEPTED,
         signature = AcceptanceState.ACCEPTED,
         wardveil = AcceptanceState.ACCEPTED,
-        release = ReleaseEvidence.acceptedFor(artifact),
+        release = acceptedReleaseFor(artifact),
         rollback = AcceptanceState.ACCEPTED,
     )
 
@@ -59,6 +90,7 @@ class PackageDeliveryPolicyTest {
             device = DeviceState.observedAbsent(sdkInt = 35),
             evidence = accepted,
             action = Action.INSTALL,
+            context = evaluationContext,
         )
 
         assertTrue(decision.eligibleForHandoff)
@@ -74,6 +106,7 @@ class PackageDeliveryPolicyTest {
             device = DeviceState.unobserved(sdkInt = 35),
             evidence = accepted,
             action = Action.INSTALL,
+            context = evaluationContext,
         )
 
         assertFalse(decision.eligibleForHandoff)
@@ -95,6 +128,7 @@ class PackageDeliveryPolicyTest {
             ),
             evidence = accepted,
             action = Action.UPDATE,
+            context = evaluationContext,
         )
 
         assertFalse(decision.eligibleForHandoff)
@@ -109,16 +143,30 @@ class PackageDeliveryPolicyTest {
             accepted.copy(signature = AcceptanceState.UNKNOWN) to Blocker.SIGNATURE_NOT_ACCEPTED,
             accepted.copy(wardveil = AcceptanceState.REJECTED) to Blocker.WARDVEIL_NOT_ACCEPTED,
             accepted.copy(
-                release = accepted.release.copy(buildProvenance = AcceptanceState.UNKNOWN),
+                release = accepted.release.copy(
+                    buildProvenance = accepted.release.buildProvenance!!.copy(
+                        state = AcceptanceState.UNKNOWN,
+                    ),
+                ),
             ) to Blocker.BUILD_PROVENANCE_NOT_ACCEPTED,
             accepted.copy(
-                release = accepted.release.copy(sbom = AcceptanceState.REJECTED),
+                release = accepted.release.copy(
+                    sbom = accepted.release.sbom!!.copy(state = AcceptanceState.REJECTED),
+                ),
             ) to Blocker.SBOM_NOT_ACCEPTED,
             accepted.copy(
-                release = accepted.release.copy(releaseApproval = AcceptanceState.UNKNOWN),
+                release = accepted.release.copy(
+                    releaseApproval = accepted.release.releaseApproval!!.copy(
+                        state = AcceptanceState.UNKNOWN,
+                    ),
+                ),
             ) to Blocker.RELEASE_APPROVAL_NOT_ACCEPTED,
             accepted.copy(
-                release = accepted.release.copy(revocationStatus = AcceptanceState.REJECTED),
+                release = accepted.release.copy(
+                    revocationStatus = accepted.release.revocationStatus!!.copy(
+                        state = AcceptanceState.REJECTED,
+                    ),
+                ),
             ) to Blocker.REVOCATION_STATUS_NOT_ACCEPTED,
         )
 
@@ -130,6 +178,7 @@ class PackageDeliveryPolicyTest {
                 DeviceState.observedAbsent(sdkInt = 35),
                 evidence,
                 Action.INSTALL,
+                evaluationContext,
             )
             assertFalse(decision.eligibleForHandoff)
             assertTrue(blocker in decision.blockers)
@@ -137,7 +186,7 @@ class PackageDeliveryPolicyTest {
     }
 
     @Test
-    fun missingReleaseEvidenceDefaultsUnknownAndFailsClosed() {
+    fun missingReleaseEvidenceDefaultsMissingAndFailsClosed() {
         val missingReleaseEvidence = Evidence(
             catalogBinding = AcceptanceState.ACCEPTED,
             digest = AcceptanceState.ACCEPTED,
@@ -152,6 +201,7 @@ class PackageDeliveryPolicyTest {
             DeviceState.observedAbsent(sdkInt = 35),
             missingReleaseEvidence,
             Action.INSTALL,
+            evaluationContext,
         )
 
         assertFalse(decision.eligibleForHandoff)
@@ -159,7 +209,6 @@ class PackageDeliveryPolicyTest {
         assertTrue(Blocker.SBOM_NOT_ACCEPTED in decision.blockers)
         assertTrue(Blocker.RELEASE_APPROVAL_NOT_ACCEPTED in decision.blockers)
         assertTrue(Blocker.REVOCATION_STATUS_NOT_ACCEPTED in decision.blockers)
-        assertTrue(Blocker.RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISSING in decision.blockers)
     }
 
     @Test
@@ -172,8 +221,9 @@ class PackageDeliveryPolicyTest {
             item,
             invalidArtifact,
             DeviceState.observedAbsent(sdkInt = 35),
-            accepted.copy(release = ReleaseEvidence.acceptedFor(invalidArtifact)),
+            accepted.copy(release = acceptedReleaseFor(invalidArtifact)),
             Action.INSTALL,
+            evaluationContext,
         )
 
         assertFalse(decision.eligibleForHandoff)
@@ -183,13 +233,17 @@ class PackageDeliveryPolicyTest {
 
     @Test
     fun releaseEvidenceRequiresBoundArtifactDigest() {
+        val release = accepted.release.copy(
+            buildProvenance = accepted.release.buildProvenance!!.copy(artifactSha256 = null),
+        )
         val decision = PackageDeliveryPolicy.evaluate(
             session,
             item,
             artifact,
             DeviceState.observedAbsent(sdkInt = 35),
-            accepted.copy(release = accepted.release.copy(artifactSha256 = null)),
+            accepted.copy(release = release),
             Action.INSTALL,
+            evaluationContext,
         )
 
         assertFalse(decision.eligibleForHandoff)
@@ -208,10 +262,119 @@ class PackageDeliveryPolicyTest {
             DeviceState.observedAbsent(sdkInt = 35),
             accepted,
             Action.INSTALL,
+            evaluationContext,
         )
 
         assertFalse(decision.eligibleForHandoff)
         assertTrue(Blocker.RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISMATCH in decision.blockers)
+    }
+
+    @Test
+    fun releaseEvidenceRequiresProducerAttributionScopeContractAndSource() {
+        val incomplete = accepted.release.buildProvenance!!.copy(
+            producerId = null,
+            authorityDomain = null,
+            producerAuthority = AcceptanceState.UNKNOWN,
+            subjectPackageName = null,
+            contractVersion = null,
+            sourceReference = null,
+        )
+        val decision = PackageDeliveryPolicy.evaluate(
+            session,
+            item,
+            artifact,
+            DeviceState.observedAbsent(sdkInt = 35),
+            accepted.copy(
+                release = accepted.release.copy(buildProvenance = incomplete),
+            ),
+            Action.INSTALL,
+            evaluationContext,
+        )
+
+        assertFalse(decision.eligibleForHandoff)
+        assertTrue(Blocker.RELEASE_EVIDENCE_PRODUCER_IDENTITY_MISSING in decision.blockers)
+        assertTrue(Blocker.RELEASE_EVIDENCE_AUTHORITY_DOMAIN_MISSING in decision.blockers)
+        assertTrue(Blocker.RELEASE_EVIDENCE_PRODUCER_AUTHORITY_NOT_ACCEPTED in decision.blockers)
+        assertTrue(Blocker.RELEASE_EVIDENCE_SUBJECT_SCOPE_MISSING in decision.blockers)
+        assertTrue(Blocker.RELEASE_EVIDENCE_CONTRACT_VERSION_MISSING in decision.blockers)
+        assertTrue(Blocker.RELEASE_EVIDENCE_SOURCE_REFERENCE_MISSING in decision.blockers)
+    }
+
+    @Test
+    fun releaseEvidenceTypeAndSubjectScopeMustMatchSlotAndCandidate() {
+        val wrong = accepted.release.buildProvenance!!.copy(
+            type = ReleaseEvidenceType.SBOM,
+            subjectPackageName = "com.example.other",
+        )
+        val decision = PackageDeliveryPolicy.evaluate(
+            session,
+            item,
+            artifact,
+            DeviceState.observedAbsent(sdkInt = 35),
+            accepted.copy(
+                release = accepted.release.copy(buildProvenance = wrong),
+            ),
+            Action.INSTALL,
+            evaluationContext,
+        )
+
+        assertFalse(decision.eligibleForHandoff)
+        assertTrue(Blocker.RELEASE_EVIDENCE_TYPE_MISMATCH in decision.blockers)
+        assertTrue(Blocker.RELEASE_EVIDENCE_SUBJECT_SCOPE_MISMATCH in decision.blockers)
+    }
+
+    @Test
+    fun expiredAndFutureDatedReleaseEvidenceFailsClosed() {
+        val expiredRelease = accepted.release.copy(
+            revocationStatus = accepted.release.revocationStatus!!.copy(
+                expiresAtEpochSeconds = evaluationContext.evaluatedAtEpochSeconds,
+            ),
+        )
+        val expiredDecision = PackageDeliveryPolicy.evaluate(
+            session,
+            item,
+            artifact,
+            DeviceState.observedAbsent(sdkInt = 35),
+            accepted.copy(release = expiredRelease),
+            Action.INSTALL,
+            evaluationContext,
+        )
+        assertFalse(expiredDecision.eligibleForHandoff)
+        assertTrue(Blocker.RELEASE_EVIDENCE_EXPIRED in expiredDecision.blockers)
+
+        val futureDatedRelease = accepted.release.copy(
+            buildProvenance = accepted.release.buildProvenance!!.copy(
+                createdAtEpochSeconds = evaluationContext.evaluatedAtEpochSeconds + 1,
+                expiresAtEpochSeconds = evaluationContext.evaluatedAtEpochSeconds + 101,
+            ),
+        )
+        val futureDecision = PackageDeliveryPolicy.evaluate(
+            session,
+            item,
+            artifact,
+            DeviceState.observedAbsent(sdkInt = 35),
+            accepted.copy(release = futureDatedRelease),
+            Action.INSTALL,
+            evaluationContext,
+        )
+        assertFalse(futureDecision.eligibleForHandoff)
+        assertTrue(Blocker.RELEASE_EVIDENCE_TIME_INVALID in futureDecision.blockers)
+    }
+
+    @Test
+    fun evaluationTimeMustBeExplicitAndNonNegative() {
+        val decision = PackageDeliveryPolicy.evaluate(
+            session,
+            item,
+            artifact,
+            DeviceState.observedAbsent(sdkInt = 35),
+            accepted,
+            Action.INSTALL,
+            EvidenceEvaluationContext(evaluatedAtEpochSeconds = -1),
+        )
+
+        assertFalse(decision.eligibleForHandoff)
+        assertTrue(Blocker.EVIDENCE_EVALUATION_TIME_INVALID in decision.blockers)
     }
 
     @Test
@@ -226,6 +389,7 @@ class PackageDeliveryPolicyTest {
             DeviceState.observedAbsent(sdkInt = 35),
             accepted,
             Action.INSTALL,
+            evaluationContext,
         )
 
         assertFalse(decision.eligibleForHandoff)
@@ -237,10 +401,15 @@ class PackageDeliveryPolicyTest {
         val mismatch = PackageDeliveryPolicy.evaluate(
             session,
             item,
-            artifact.copy(packageName = "com.example.other", versionName = "9.9.9", releaseChannel = ReleaseChannel.BETA),
+            artifact.copy(
+                packageName = "com.example.other",
+                versionName = "9.9.9",
+                releaseChannel = ReleaseChannel.BETA,
+            ),
             DeviceState.observedAbsent(sdkInt = 35),
             accepted,
             Action.INSTALL,
+            evaluationContext,
         )
 
         assertFalse(mismatch.eligibleForHandoff)
@@ -258,6 +427,7 @@ class PackageDeliveryPolicyTest {
             DeviceState.observedAbsent(sdkInt = 35),
             accepted,
             Action.INSTALL,
+            evaluationContext,
         )
 
         assertFalse(decision.eligibleForHandoff)
@@ -277,6 +447,7 @@ class PackageDeliveryPolicyTest {
             ),
             accepted,
             Action.INSTALL,
+            evaluationContext,
         )
 
         assertFalse(decision.eligibleForHandoff)
@@ -292,6 +463,7 @@ class PackageDeliveryPolicyTest {
             DeviceState.observedInstalled(35, artifact.packageName, 100),
             accepted,
             Action.UPDATE,
+            evaluationContext,
         )
         assertFalse(oldOrSame.eligibleForHandoff)
         assertTrue(Blocker.UPDATE_VERSION_NOT_NEWER in oldOrSame.blockers)
@@ -303,6 +475,7 @@ class PackageDeliveryPolicyTest {
             DeviceState.observedInstalled(35, "com.example.other", 100),
             accepted,
             Action.UPDATE,
+            evaluationContext,
         )
         assertFalse(wrongPackage.eligibleForHandoff)
         assertTrue(Blocker.INSTALLED_PACKAGE_MISMATCH in wrongPackage.blockers)
@@ -314,6 +487,7 @@ class PackageDeliveryPolicyTest {
             DeviceState.observedInstalled(35, artifact.packageName, 100),
             accepted,
             Action.UPDATE,
+            evaluationContext,
         )
         assertTrue(acceptedUpdate.eligibleForHandoff)
     }
@@ -327,6 +501,7 @@ class PackageDeliveryPolicyTest {
             DeviceState.observedInstalled(35, artifact.packageName, 100),
             accepted.copy(rollback = AcceptanceState.UNKNOWN),
             Action.ROLLBACK,
+            evaluationContext,
         )
         assertFalse(missingAcceptance.eligibleForHandoff)
         assertTrue(Blocker.ROLLBACK_NOT_ACCEPTED in missingAcceptance.blockers)
@@ -338,6 +513,7 @@ class PackageDeliveryPolicyTest {
             DeviceState.observedInstalled(35, artifact.packageName, 100),
             accepted,
             Action.ROLLBACK,
+            evaluationContext,
         )
         assertFalse(notOlder.eligibleForHandoff)
         assertTrue(Blocker.ROLLBACK_VERSION_NOT_OLDER in notOlder.blockers)
@@ -349,6 +525,7 @@ class PackageDeliveryPolicyTest {
             DeviceState.observedInstalled(35, artifact.packageName, 100),
             accepted,
             Action.ROLLBACK,
+            evaluationContext,
         )
         assertTrue(acceptedRollback.eligibleForHandoff)
     }
@@ -368,6 +545,7 @@ class PackageDeliveryPolicyTest {
             DeviceState.observedAbsent(sdkInt = 35),
             accepted,
             Action.INSTALL,
+            evaluationContext,
         )
 
         assertFalse(decision.eligibleForHandoff)
