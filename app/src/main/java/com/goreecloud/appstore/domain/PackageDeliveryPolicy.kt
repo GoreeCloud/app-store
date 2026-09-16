@@ -5,8 +5,8 @@ package com.goreecloud.appstore.domain
  *
  * A positive result means only that the candidate may be handed to a future package-delivery
  * implementation. It does not install, update, downgrade, or roll back a package and does not
- * replace backend re-authorization, Wardveil inspection, Android PackageInstaller acceptance,
- * signing authority, or release acceptance.
+ * replace backend re-authorization, authoritative release-evidence production, Wardveil
+ * inspection, Android PackageInstaller acceptance, signing authority, or release acceptance.
  */
 object PackageDeliveryPolicy {
     enum class AcceptanceState { ACCEPTED, REJECTED, UNKNOWN }
@@ -25,6 +25,10 @@ object PackageDeliveryPolicy {
         DIGEST_NOT_ACCEPTED,
         SIGNATURE_NOT_ACCEPTED,
         WARDVEIL_NOT_ACCEPTED,
+        BUILD_PROVENANCE_NOT_ACCEPTED,
+        SBOM_NOT_ACCEPTED,
+        RELEASE_APPROVAL_NOT_ACCEPTED,
+        REVOCATION_STATUS_NOT_ACCEPTED,
         INSTALLATION_STATE_NOT_ACCEPTED,
         INSTALLATION_STATE_INCONSISTENT,
         ALREADY_INSTALLED,
@@ -77,11 +81,35 @@ object PackageDeliveryPolicy {
         }
     }
 
+    /**
+     * Release evidence is intentionally fail-closed.
+     *
+     * These states represent acceptance results produced by future authoritative release,
+     * provenance, SBOM, and revocation integrations. This policy consumes those results only; it
+     * does not manufacture or validate the underlying evidence itself.
+     */
+    data class ReleaseEvidence(
+        val buildProvenance: AcceptanceState = AcceptanceState.UNKNOWN,
+        val sbom: AcceptanceState = AcceptanceState.UNKNOWN,
+        val releaseApproval: AcceptanceState = AcceptanceState.UNKNOWN,
+        val revocationStatus: AcceptanceState = AcceptanceState.UNKNOWN,
+    ) {
+        companion object {
+            fun accepted(): ReleaseEvidence = ReleaseEvidence(
+                buildProvenance = AcceptanceState.ACCEPTED,
+                sbom = AcceptanceState.ACCEPTED,
+                releaseApproval = AcceptanceState.ACCEPTED,
+                revocationStatus = AcceptanceState.ACCEPTED,
+            )
+        }
+    }
+
     data class Evidence(
         val catalogBinding: AcceptanceState,
         val digest: AcceptanceState,
         val signature: AcceptanceState,
         val wardveil: AcceptanceState,
+        val release: ReleaseEvidence = ReleaseEvidence(),
         val rollback: AcceptanceState = AcceptanceState.UNKNOWN,
     )
 
@@ -136,6 +164,18 @@ object PackageDeliveryPolicy {
         }
         if (evidence.wardveil != AcceptanceState.ACCEPTED) {
             blockers += Blocker.WARDVEIL_NOT_ACCEPTED
+        }
+        if (evidence.release.buildProvenance != AcceptanceState.ACCEPTED) {
+            blockers += Blocker.BUILD_PROVENANCE_NOT_ACCEPTED
+        }
+        if (evidence.release.sbom != AcceptanceState.ACCEPTED) {
+            blockers += Blocker.SBOM_NOT_ACCEPTED
+        }
+        if (evidence.release.releaseApproval != AcceptanceState.ACCEPTED) {
+            blockers += Blocker.RELEASE_APPROVAL_NOT_ACCEPTED
+        }
+        if (evidence.release.revocationStatus != AcceptanceState.ACCEPTED) {
+            blockers += Blocker.REVOCATION_STATUS_NOT_ACCEPTED
         }
 
         val installedName = device.installedPackageName

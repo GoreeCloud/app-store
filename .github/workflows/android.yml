@@ -31,6 +31,8 @@ jobs:
         run: python3 scripts/validate_glaze_ui_adoption.py | tee build-evidence/glaze-ui-adoption.txt
       - name: Validate installed-state observation boundary
         run: python3 scripts/validate_android_installed_state_observation.py | tee build-evidence/installed-state-observation.txt
+      - name: Validate release-evidence gate
+        run: python3 scripts/validate_release_evidence_gate.py | tee build-evidence/release-evidence-gate.txt
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -72,6 +74,7 @@ jobs:
             build-evidence/branding.txt
             build-evidence/glaze-ui-adoption.txt
             build-evidence/installed-state-observation.txt
+            build-evidence/release-evidence-gate.txt
             build-evidence/app-debug.apk.sha256
             build-evidence/app-debug.badging.txt
             build-evidence/app-debug.signing.txt

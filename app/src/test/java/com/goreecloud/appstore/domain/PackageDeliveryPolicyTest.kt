@@ -6,6 +6,7 @@ import com.goreecloud.appstore.domain.PackageDeliveryPolicy.ArtifactCandidate
 import com.goreecloud.appstore.domain.PackageDeliveryPolicy.Blocker
 import com.goreecloud.appstore.domain.PackageDeliveryPolicy.DeviceState
 import com.goreecloud.appstore.domain.PackageDeliveryPolicy.Evidence
+import com.goreecloud.appstore.domain.PackageDeliveryPolicy.ReleaseEvidence
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -44,6 +45,7 @@ class PackageDeliveryPolicyTest {
         digest = AcceptanceState.ACCEPTED,
         signature = AcceptanceState.ACCEPTED,
         wardveil = AcceptanceState.ACCEPTED,
+        release = ReleaseEvidence.accepted(),
         rollback = AcceptanceState.ACCEPTED,
     )
 
@@ -105,6 +107,18 @@ class PackageDeliveryPolicyTest {
             accepted.copy(digest = AcceptanceState.REJECTED) to Blocker.DIGEST_NOT_ACCEPTED,
             accepted.copy(signature = AcceptanceState.UNKNOWN) to Blocker.SIGNATURE_NOT_ACCEPTED,
             accepted.copy(wardveil = AcceptanceState.REJECTED) to Blocker.WARDVEIL_NOT_ACCEPTED,
+            accepted.copy(
+                release = accepted.release.copy(buildProvenance = AcceptanceState.UNKNOWN),
+            ) to Blocker.BUILD_PROVENANCE_NOT_ACCEPTED,
+            accepted.copy(
+                release = accepted.release.copy(sbom = AcceptanceState.REJECTED),
+            ) to Blocker.SBOM_NOT_ACCEPTED,
+            accepted.copy(
+                release = accepted.release.copy(releaseApproval = AcceptanceState.UNKNOWN),
+            ) to Blocker.RELEASE_APPROVAL_NOT_ACCEPTED,
+            accepted.copy(
+                release = accepted.release.copy(revocationStatus = AcceptanceState.REJECTED),
+            ) to Blocker.REVOCATION_STATUS_NOT_ACCEPTED,
         )
 
         fields.forEach { (evidence, blocker) ->
@@ -119,6 +133,31 @@ class PackageDeliveryPolicyTest {
             assertFalse(decision.eligibleForHandoff)
             assertTrue(blocker in decision.blockers)
         }
+    }
+
+    @Test
+    fun missingReleaseEvidenceDefaultsUnknownAndFailsClosed() {
+        val missingReleaseEvidence = Evidence(
+            catalogBinding = AcceptanceState.ACCEPTED,
+            digest = AcceptanceState.ACCEPTED,
+            signature = AcceptanceState.ACCEPTED,
+            wardveil = AcceptanceState.ACCEPTED,
+        )
+
+        val decision = PackageDeliveryPolicy.evaluate(
+            session,
+            item,
+            artifact,
+            DeviceState.observedAbsent(sdkInt = 35),
+            missingReleaseEvidence,
+            Action.INSTALL,
+        )
+
+        assertFalse(decision.eligibleForHandoff)
+        assertTrue(Blocker.BUILD_PROVENANCE_NOT_ACCEPTED in decision.blockers)
+        assertTrue(Blocker.SBOM_NOT_ACCEPTED in decision.blockers)
+        assertTrue(Blocker.RELEASE_APPROVAL_NOT_ACCEPTED in decision.blockers)
+        assertTrue(Blocker.REVOCATION_STATUS_NOT_ACCEPTED in decision.blockers)
     }
 
     @Test
