@@ -6,6 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "app/src/main/AndroidManifest.xml"
 POLICY = ROOT / "app/src/main/java/com/goreecloud/appstore/domain/PackageDeliveryPolicy.kt"
 TEST = ROOT / "app/src/test/java/com/goreecloud/appstore/domain/PackageDeliveryPolicyTest.kt"
+CORRELATION_TEST = ROOT / "app/src/test/java/com/goreecloud/appstore/domain/ReleaseEvidenceSetCorrelationTest.kt"
 DOC = ROOT / "docs/release-evidence-policy.md"
 
 
@@ -23,6 +24,7 @@ def main() -> None:
     manifest = MANIFEST.read_text(encoding="utf-8")
     policy = POLICY.read_text(encoding="utf-8")
     test = TEST.read_text(encoding="utf-8")
+    correlation_test = CORRELATION_TEST.read_text(encoding="utf-8")
     doc = DOC.read_text(encoding="utf-8")
 
     require(policy, "data class ReleaseEvidenceRecord(", "delivery policy")
@@ -41,6 +43,7 @@ def main() -> None:
         "val producerAuthority: AcceptanceState = AcceptanceState.UNKNOWN",
         "val subjectPackageName: String? = null",
         "val artifactSha256: String? = null",
+        "val evidenceSetId: String? = null",
         "val contractVersion: String? = null",
         "val createdAtEpochSeconds: Long? = null",
         "val expiresAtEpochSeconds: Long? = null",
@@ -75,13 +78,39 @@ def main() -> None:
         "RELEASE_EVIDENCE_SOURCE_REFERENCE_MISSING",
         "RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISSING",
         "RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISMATCH",
+        "RELEASE_EVIDENCE_SET_ID_MISSING",
+        "RELEASE_EVIDENCE_SET_ID_MISMATCH",
         "EVIDENCE_EVALUATION_TIME_INVALID",
         "RELEASE_EVIDENCE_TIME_INVALID",
         "RELEASE_EVIDENCE_EXPIRED",
     ]
     for blocker in blockers:
         require(policy, blocker, "delivery policy")
+
+    for blocker in [
+        "BUILD_PROVENANCE_NOT_ACCEPTED",
+        "SBOM_NOT_ACCEPTED",
+        "RELEASE_APPROVAL_NOT_ACCEPTED",
+        "REVOCATION_STATUS_NOT_ACCEPTED",
+        "ARTIFACT_DIGEST_IDENTITY_INVALID",
+        "RELEASE_EVIDENCE_TYPE_MISMATCH",
+        "RELEASE_EVIDENCE_PRODUCER_IDENTITY_MISSING",
+        "RELEASE_EVIDENCE_AUTHORITY_DOMAIN_MISSING",
+        "RELEASE_EVIDENCE_PRODUCER_AUTHORITY_NOT_ACCEPTED",
+        "RELEASE_EVIDENCE_SUBJECT_SCOPE_MISSING",
+        "RELEASE_EVIDENCE_SUBJECT_SCOPE_MISMATCH",
+        "RELEASE_EVIDENCE_CONTRACT_VERSION_MISSING",
+        "RELEASE_EVIDENCE_SOURCE_REFERENCE_MISSING",
+        "RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISSING",
+        "RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISMATCH",
+        "EVIDENCE_EVALUATION_TIME_INVALID",
+        "RELEASE_EVIDENCE_TIME_INVALID",
+        "RELEASE_EVIDENCE_EXPIRED",
+    ]:
         require(test, blocker, "unit tests")
+
+    require(correlation_test, "RELEASE_EVIDENCE_SET_ID_MISSING", "correlation unit tests")
+    require(correlation_test, "RELEASE_EVIDENCE_SET_ID_MISMATCH", "correlation unit tests")
 
     invariants = [
         "record.state != AcceptanceState.ACCEPTED",
@@ -95,6 +124,9 @@ def main() -> None:
         "releaseArtifactSha256 != artifact.sha256",
         "context.evaluatedAtEpochSeconds < createdAt",
         "context.evaluatedAtEpochSeconds >= expiresAt",
+        "validateReleaseEvidenceSet(",
+        "record?.evidenceSetId.isNullOrBlank()",
+        "evidenceSetIds.size > 1",
     ]
     for invariant in invariants:
         require(policy, invariant, "delivery policy")
@@ -112,8 +144,18 @@ def main() -> None:
     for name in tests:
         require(test, name, "unit tests")
 
+    correlation_tests = [
+        "oneCorrelatedEvidenceSetCanPass",
+        "missingEvidenceSetIdentityFailsClosed",
+        "recordsFromDifferentEvidenceSetsCannotBeMixed",
+    ]
+    for name in correlation_tests:
+        require(correlation_test, name, "correlation unit tests")
+
     require(test, "development.release-evidence-fixture", "unit tests")
     require(test, "development-evidence-v1", "unit tests")
+    require(test, "development-release-set-1", "unit tests")
+    require(correlation_test, "development-release-set-1", "correlation unit tests")
     forbid(policy, "fun acceptedFor(", "delivery policy")
     forbid(policy, "fun accepted(): ReleaseEvidence", "delivery policy")
     forbid(policy, "System.currentTimeMillis", "delivery policy")
@@ -128,7 +170,10 @@ def main() -> None:
         "creation time",
         "expiry time",
         "evidence/source reference",
+        "evidence-set correlation",
+        "mix-and-match",
         "does not authenticate a producer",
+        "does not authenticate or mint an evidence-set identity",
         "does not read the Android/system wall clock",
         "production package delivery remains unavailable",
         "Platform Evidence Plane v1 — Integral Platform Systems",
@@ -144,7 +189,7 @@ def main() -> None:
         "artifact-sha256=canonical-and-bound producer-attribution=required "
         "producer-authority=required contract-and-source=required "
         "freshness-and-expiry=required explicit-time-context=true "
-        "delivery-authority=false"
+        "evidence-set-correlation=required delivery-authority=false"
     )
 
 
