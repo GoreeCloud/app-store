@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This Development control adds fail-closed release-evidence prerequisites to GoreeCloud App Store package-delivery eligibility. It implements a bounded part of the September 16, 2026 App Store roadmap covering software supply-chain transparency, release transparency and revocation, release-evidence inspection, content-addressed package identity, explainable install/update decisions, and evidence provenance/freshness.
+This Development control adds fail-closed release-evidence prerequisites to GoreeCloud App Store package-delivery eligibility. It implements a bounded part of the September 16, 2026 App Store roadmap covering software supply-chain transparency, release transparency and revocation, release-evidence inspection, content-addressed package identity, explainable install/update decisions, evidence provenance/freshness, and evidence-set correlation.
 
 A package candidate may become eligible for a future delivery handoff only when the package-delivery policy receives explicit accepted evidence for all of the following release facts:
 
@@ -31,6 +31,7 @@ Each of the four required release facts is carried as an independent `ReleaseEvi
 - an explicit accepted producer-authority result supplied by a governed integration;
 - the subject package identity;
 - the exact artifact SHA-256 scope;
+- an opaque evidence-set correlation identity;
 - the evidence contract/version;
 - creation time;
 - expiry time;
@@ -39,6 +40,14 @@ Each of the four required release facts is carried as an independent `ReleaseEvi
 The App Store does not authenticate a producer merely because a string identifies one, and it does not decide that a producer owns an authority domain. `producerAuthority` is itself an acceptance result that must come from a future governed Identity/Mesh/security/release-evidence integration. The policy only fails closed when that acceptance is missing or non-passing and checks that the remaining envelope fields are present and consistent with the candidate.
 
 The four release facts remain independent records. A passing build-provenance record does not upgrade a missing, rejected, unknown, stale, expired, or malformed SBOM, release-approval, or revocation-status record.
+
+## Evidence-set correlation boundary
+
+Independence of the four release facts does not permit mix-and-match assembly from unrelated release-evidence evaluations. Every required record must carry a non-empty opaque `evidenceSetId`, and all four records must carry the same exact value before package-delivery handoff can become eligible.
+
+This correlation check prevents a locally valid build-provenance result from one evidence decision from being combined with an SBOM, release approval, or revocation-status result from a different evidence decision merely because every record independently names the same package and artifact digest.
+
+The App Store treats `evidenceSetId` only as a correlation value. It does not authenticate or mint an evidence-set identity, establish its global uniqueness, decide which producer is allowed to create it, or prove that records sharing the value were actually issued atomically. A future governed evidence integration remains responsible for producing an authoritative correlation identity and authenticating the relationship among records. The local policy fails closed when the identity is missing or when required records disagree.
 
 ## Freshness and time boundary
 
@@ -57,7 +66,7 @@ This prevents stale evidence replay inside the policy boundary while keeping clo
 
 ## Explainable blockers
 
-The pure policy exposes distinct blockers for release-fact acceptance, content identity, producer attribution, authority, scope, contract/source metadata, and freshness failures. They include:
+The pure policy exposes distinct blockers for release-fact acceptance, content identity, producer attribution, authority, scope, evidence-set correlation, contract/source metadata, and freshness failures. They include:
 
 - `BUILD_PROVENANCE_NOT_ACCEPTED`
 - `SBOM_NOT_ACCEPTED`
@@ -74,15 +83,17 @@ The pure policy exposes distinct blockers for release-fact acceptance, content i
 - `RELEASE_EVIDENCE_SOURCE_REFERENCE_MISSING`
 - `RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISSING`
 - `RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISMATCH`
+- `RELEASE_EVIDENCE_SET_ID_MISSING`
+- `RELEASE_EVIDENCE_SET_ID_MISMATCH`
 - `EVIDENCE_EVALUATION_TIME_INVALID`
 - `RELEASE_EVIDENCE_TIME_INVALID`
 - `RELEASE_EVIDENCE_EXPIRED`
 
-These blockers are intended to support future user-visible and operator-visible explanations without converting the client into the authority that produces, authenticates, or approves the underlying evidence.
+These blockers are intended to support future user-visible and operator-visible explanations without converting the client into the authority that produces, authenticates, correlates, or approves the underlying evidence.
 
 ## Authority boundary
 
-This increment consumes producer-attributed release-evidence acceptance results, exact artifact identity, and explicit time context only. It does **not**:
+This increment consumes producer-attributed release-evidence acceptance results, exact artifact identity, evidence-set correlation identity, and explicit time context only. It does **not**:
 
 - hash or download package bytes;
 - generate or validate build provenance;
@@ -91,6 +102,8 @@ This increment consumes producer-attributed release-evidence acceptance results,
 - query an authoritative revocation service;
 - authenticate an evidence producer;
 - grant producer authority or establish that an authority-domain label is truthful;
+- authenticate or mint an evidence-set identity;
+- prove that records sharing one evidence-set identity were issued atomically or by one trusted transaction;
 - obtain trusted time or prove that caller-supplied time is authoritative;
 - dereference, retrieve, or validate an evidence source reference;
 - replace digest, signature, catalog-binding, or Wardveil checks;
@@ -102,13 +115,13 @@ This increment consumes producer-attributed release-evidence acceptance results,
 - establish production GoreeCloud Identity, Wardveil, Privacy Shield, Everkeep, Mesh, Manager, or Platform Evidence Plane acceptance;
 - establish Release Candidate, Production, or Stable status.
 
-Future authoritative integrations must produce and authenticate evidence, establish producer authority, calculate/verify the exact artifact digest, provide appropriate source references and trusted-time context, and supply accepted results from governed GoreeCloud release infrastructure and Platform Systems. Until those integrations exist and are accepted, production package delivery remains unavailable.
+Future authoritative integrations must produce and authenticate evidence, establish producer authority, calculate/verify the exact artifact digest, produce and authenticate an evidence-set correlation identity, provide appropriate source references and trusted-time context, and supply accepted results from governed GoreeCloud release infrastructure and Platform Systems. Until those integrations exist and are accepted, production package delivery remains unavailable.
 
 ## Platform Evidence Plane relationship
 
-This Development model consumes a bounded subset of the envelope properties defined by `Platform Evidence Plane v1 — Integral Platform Systems` v1.1: producer identity/authority domain, subject scope, evidence type, contract/version, result, creation/expiry, and source reference.
+This Development model consumes a bounded subset of the envelope properties defined by `Platform Evidence Plane v1 — Integral Platform Systems` v1.1: producer identity/authority domain, subject scope, evidence type, contract/version, result, creation/expiry, source reference, plus a local correlation identity that prevents the App Store from treating unrelated accepted records as one coherent release decision.
 
-It does not claim full Platform Evidence Plane runtime integration. There is no authenticated evidence transport, GoreeCloud Mesh production delivery, GoreeCloud Identity producer verification, GoreeCloud Manager aggregation, or production producer adapter in this increment. The local model exists so future integrations cannot pass a bare favorable boolean into package-delivery eligibility without preserving the evidence context required to evaluate it safely.
+It does not claim full Platform Evidence Plane runtime integration. There is no authenticated evidence transport, GoreeCloud Mesh production delivery, GoreeCloud Identity producer verification, GoreeCloud Manager aggregation, or production producer adapter in this increment. The local model exists so future integrations cannot pass a bare favorable boolean or an uncorrelated collection of favorable records into package-delivery eligibility without preserving the evidence context required to evaluate it safely.
 
 ## Roadmap relationship
 
@@ -118,17 +131,18 @@ This control advances the planned App Store capability areas for:
 - release transparency and revocation;
 - release-evidence inspection;
 - immutable/content-addressed package identity;
-- evidence provenance and freshness; and
+- evidence provenance and freshness;
+- evidence-set correlation; and
 - explainable install/update decisions.
 
 The broader roadmap remains in progress and is not represented as implemented by this bounded policy change.
 
 ## Validation
 
-The Development source validator `scripts/validate_release_evidence_gate.py` fails closed if the four independent release-evidence records, producer attribution, accepted producer authority, contract/source metadata, package/digest scope, explicit evaluation-time model, freshness/expiry checks, documentation boundary, or no-install-authority boundary drift from this design.
+The Development source validator `scripts/validate_release_evidence_gate.py` fails closed if the four independent release-evidence records, producer attribution, accepted producer authority, contract/source metadata, package/digest scope, evidence-set correlation, explicit evaluation-time model, freshness/expiry checks, documentation boundary, or no-install-authority boundary drift from this design.
 
-Unit tests prove that each missing or rejected release fact blocks handoff; omitted release evidence blocks all four required facts; malformed artifact SHA-256 identities are rejected; release evidence for one content digest cannot be reused for another; producer identity/domain/authority, subject scope, contract version, and source references are mandatory; type/scope mismatches fail closed; future-dated and expired records fail closed; and evaluation time must be explicit and non-negative.
+Unit tests prove that each missing or rejected release fact blocks handoff; omitted release evidence blocks all four required facts; malformed artifact SHA-256 identities are rejected; release evidence for one content digest cannot be reused for another; producer identity/domain/authority, subject scope, contract version, source references, and evidence-set identity are mandatory; records from different evidence sets cannot be mixed; type/scope mismatches fail closed; future-dated and expired records fail closed; and evaluation time must be explicit and non-negative.
 
 ## Rollback
 
-The exact parent baseline for this evidence-envelope increment is App Store Draft PR #21 head `8b24d12c643fc8f9bb74a99cb59e6a566a8fde47`. Reverting this bounded child change restores the prior validated artifact-bound release-evidence policy without altering PR #21 or its parent stack.
+The exact parent baseline for this evidence-set-correlation increment is App Store Draft PR #23 head `203b6f3625f978fa5146c0f425e00f4a9e9adc8b`. Reverting this bounded child change restores the prior validated producer-, scope-, and freshness-bound release-evidence policy without altering PR #23 or its parent stack.
