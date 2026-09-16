@@ -133,3 +133,13 @@ Stable qualification requires all of the following for the exact release revisio
 - Android device/runtime validation for supported API levels, font scales, and form factors;
 - documented installation/update rollback and failure behavior;
 - canonical project specification, changelog, README, and user documentation reconciled to the validated revision.
+
+## Planned first-party software control center direction
+
+The detailed September 16, 2026 App Store expansion is maintained in the canonical GoreeCloud feature-roadmap record `GoreeCloud/Feature Roadmap/GoreeCloud App Store/goreecloud-app-store-update.md` and summarized by FR-004 in `FEATURE-ROADMAP.md`.
+
+The planned product direction keeps the dedicated App Store **first-party only**. Its catalog is intended for official GoreeCloud applications, services, system components, operating-system components, desktop/web/TV/server software, self-hosted services, networking software, extensions, plugins, integrations, developer tools, command-line utilities, background services, firmware, device components, themes, optional feature packages, and official preview/beta software. It is not intended to become a Google Play, F-Droid, Samsung Galaxy Store, community-repository, third-party APK-catalog, or general external-developer marketplace replacement.
+
+Planned scope includes a canonical GoreeCloud software catalog and GoreeCloud Verified authenticity model; Glaze UI Today, Apps, Services, System, Discover, Search, Updates, and Library experiences; rich product, privacy, security, lifecycle, accessibility, documentation, and support metadata; platform-aware and device-aware software delivery; Privacy Shield and Wardveil intelligence; cryptographic package verification; dependency-aware Safe Update Mode; rollback; staged rollout; official release channels and beta programs; Everkeep-backed restoration; multi-device library and GoreeCloud Identity-authorized remote installation; GoreeCloud Manager administration; self-hosted mirrors and offline operation; download management and security alerts; centralized release infrastructure; automated quality validation; GoreeCloud Mesh-assisted trusted local distribution; one-product/multiple-platform identity; and GoreeCloud ecosystem-graph relationships.
+
+This planned direction is not implementation evidence. A capability remains Planned until the applicable source, tests, integration evidence, runtime behavior, security/privacy acceptance, release evidence, and production gates establish a stronger state. Repository documentation must not convert the roadmap into a shipped, Production-accepted, Release Candidate, or Stable claim merely by describing it here.
