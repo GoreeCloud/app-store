@@ -38,6 +38,7 @@ class PackageDeliveryPolicyTest {
         versionCode = 123,
         releaseChannel = ReleaseChannel.STABLE,
         minSdk = 29,
+        sha256 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
     )
 
     private val accepted = Evidence(
@@ -45,7 +46,7 @@ class PackageDeliveryPolicyTest {
         digest = AcceptanceState.ACCEPTED,
         signature = AcceptanceState.ACCEPTED,
         wardveil = AcceptanceState.ACCEPTED,
-        release = ReleaseEvidence.accepted(),
+        release = ReleaseEvidence.acceptedFor(artifact),
         rollback = AcceptanceState.ACCEPTED,
     )
 
@@ -158,6 +159,59 @@ class PackageDeliveryPolicyTest {
         assertTrue(Blocker.SBOM_NOT_ACCEPTED in decision.blockers)
         assertTrue(Blocker.RELEASE_APPROVAL_NOT_ACCEPTED in decision.blockers)
         assertTrue(Blocker.REVOCATION_STATUS_NOT_ACCEPTED in decision.blockers)
+        assertTrue(Blocker.RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISSING in decision.blockers)
+    }
+
+    @Test
+    fun invalidArtifactDigestIdentityFailsClosed() {
+        val invalidArtifact = artifact.copy(
+            sha256 = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        )
+        val decision = PackageDeliveryPolicy.evaluate(
+            session,
+            item,
+            invalidArtifact,
+            DeviceState.observedAbsent(sdkInt = 35),
+            accepted.copy(release = ReleaseEvidence.acceptedFor(invalidArtifact)),
+            Action.INSTALL,
+        )
+
+        assertFalse(decision.eligibleForHandoff)
+        assertTrue(Blocker.ARTIFACT_DIGEST_IDENTITY_INVALID in decision.blockers)
+        assertTrue(Blocker.RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISMATCH in decision.blockers)
+    }
+
+    @Test
+    fun releaseEvidenceRequiresBoundArtifactDigest() {
+        val decision = PackageDeliveryPolicy.evaluate(
+            session,
+            item,
+            artifact,
+            DeviceState.observedAbsent(sdkInt = 35),
+            accepted.copy(release = accepted.release.copy(artifactSha256 = null)),
+            Action.INSTALL,
+        )
+
+        assertFalse(decision.eligibleForHandoff)
+        assertTrue(Blocker.RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISSING in decision.blockers)
+    }
+
+    @Test
+    fun releaseEvidenceCannotBeReusedForDifferentArtifact() {
+        val differentArtifact = artifact.copy(
+            sha256 = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        )
+        val decision = PackageDeliveryPolicy.evaluate(
+            session,
+            item,
+            differentArtifact,
+            DeviceState.observedAbsent(sdkInt = 35),
+            accepted,
+            Action.INSTALL,
+        )
+
+        assertFalse(decision.eligibleForHandoff)
+        assertTrue(Blocker.RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISMATCH in decision.blockers)
     }
 
     @Test

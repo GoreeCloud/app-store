@@ -20,6 +20,7 @@ object PackageDeliveryPolicy {
         ARTIFACT_PACKAGE_MISMATCH,
         ARTIFACT_VERSION_MISMATCH,
         ARTIFACT_CHANNEL_MISMATCH,
+        ARTIFACT_DIGEST_IDENTITY_INVALID,
         DEVICE_INCOMPATIBLE,
         CATALOG_BINDING_NOT_ACCEPTED,
         DIGEST_NOT_ACCEPTED,
@@ -29,6 +30,8 @@ object PackageDeliveryPolicy {
         SBOM_NOT_ACCEPTED,
         RELEASE_APPROVAL_NOT_ACCEPTED,
         REVOCATION_STATUS_NOT_ACCEPTED,
+        RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISSING,
+        RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISMATCH,
         INSTALLATION_STATE_NOT_ACCEPTED,
         INSTALLATION_STATE_INCONSISTENT,
         ALREADY_INSTALLED,
@@ -45,6 +48,7 @@ object PackageDeliveryPolicy {
         val versionCode: Long,
         val releaseChannel: ReleaseChannel,
         val minSdk: Int,
+        val sha256: String,
     )
 
     /**
@@ -82,24 +86,26 @@ object PackageDeliveryPolicy {
     }
 
     /**
-     * Release evidence is intentionally fail-closed.
+     * Release evidence is intentionally fail-closed and bound to one exact artifact identity.
      *
      * These states represent acceptance results produced by future authoritative release,
      * provenance, SBOM, and revocation integrations. This policy consumes those results only; it
-     * does not manufacture or validate the underlying evidence itself.
+     * does not manufacture or validate the underlying evidence itself or hash package bytes.
      */
     data class ReleaseEvidence(
         val buildProvenance: AcceptanceState = AcceptanceState.UNKNOWN,
         val sbom: AcceptanceState = AcceptanceState.UNKNOWN,
         val releaseApproval: AcceptanceState = AcceptanceState.UNKNOWN,
         val revocationStatus: AcceptanceState = AcceptanceState.UNKNOWN,
+        val artifactSha256: String? = null,
     ) {
         companion object {
-            fun accepted(): ReleaseEvidence = ReleaseEvidence(
+            fun acceptedFor(artifact: ArtifactCandidate): ReleaseEvidence = ReleaseEvidence(
                 buildProvenance = AcceptanceState.ACCEPTED,
                 sbom = AcceptanceState.ACCEPTED,
                 releaseApproval = AcceptanceState.ACCEPTED,
                 revocationStatus = AcceptanceState.ACCEPTED,
+                artifactSha256 = artifact.sha256,
             )
         }
     }
@@ -117,6 +123,8 @@ object PackageDeliveryPolicy {
         val eligibleForHandoff: Boolean,
         val blockers: Set<Blocker>,
     )
+
+    private val canonicalSha256 = Regex("^[0-9a-f]{64}$")
 
     fun evaluate(
         session: IdentitySession,
@@ -149,6 +157,9 @@ object PackageDeliveryPolicy {
         if (artifact.releaseChannel != item.releaseChannel) {
             blockers += Blocker.ARTIFACT_CHANNEL_MISMATCH
         }
+        if (!canonicalSha256.matches(artifact.sha256)) {
+            blockers += Blocker.ARTIFACT_DIGEST_IDENTITY_INVALID
+        }
         if (artifact.minSdk < 1 || device.sdkInt < artifact.minSdk) {
             blockers += Blocker.DEVICE_INCOMPATIBLE
         }
@@ -176,6 +187,16 @@ object PackageDeliveryPolicy {
         }
         if (evidence.release.revocationStatus != AcceptanceState.ACCEPTED) {
             blockers += Blocker.REVOCATION_STATUS_NOT_ACCEPTED
+        }
+
+        val releaseArtifactSha256 = evidence.release.artifactSha256
+        if (releaseArtifactSha256.isNullOrBlank()) {
+            blockers += Blocker.RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISSING
+        } else if (
+            !canonicalSha256.matches(releaseArtifactSha256) ||
+            releaseArtifactSha256 != artifact.sha256
+        ) {
+            blockers += Blocker.RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISMATCH
         }
 
         val installedName = device.installedPackageName

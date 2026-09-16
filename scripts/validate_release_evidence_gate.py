@@ -30,7 +30,17 @@ def main() -> None:
     require(policy, "sbom: AcceptanceState = AcceptanceState.UNKNOWN", "delivery policy")
     require(policy, "releaseApproval: AcceptanceState = AcceptanceState.UNKNOWN", "delivery policy")
     require(policy, "revocationStatus: AcceptanceState = AcceptanceState.UNKNOWN", "delivery policy")
+    require(policy, "artifactSha256: String? = null", "delivery policy")
     require(policy, "release: ReleaseEvidence = ReleaseEvidence()", "delivery policy")
+    require(policy, "val sha256: String", "artifact candidate")
+    require(policy, "Regex(\"^[0-9a-f]{64}$\")", "delivery policy")
+    require(policy, "ARTIFACT_DIGEST_IDENTITY_INVALID", "delivery policy")
+    require(policy, "RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISSING", "delivery policy")
+    require(policy, "RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISMATCH", "delivery policy")
+    require(policy, "fun acceptedFor(artifact: ArtifactCandidate): ReleaseEvidence", "delivery policy")
+    require(policy, "artifactSha256 = artifact.sha256", "delivery policy")
+    require(policy, "releaseArtifactSha256 != artifact.sha256", "delivery policy")
+    forbid(policy, "fun accepted(): ReleaseEvidence", "delivery policy")
 
     checks = {
         "evidence.release.buildProvenance != AcceptanceState.ACCEPTED": "BUILD_PROVENANCE_NOT_ACCEPTED",
@@ -44,9 +54,17 @@ def main() -> None:
         require(test, blocker, "unit tests")
 
     require(test, "missingReleaseEvidenceDefaultsUnknownAndFailsClosed", "unit tests")
-    require(test, "release = ReleaseEvidence.accepted()", "unit tests")
+    require(test, "ReleaseEvidence.acceptedFor(artifact)", "unit tests")
+    require(test, "invalidArtifactDigestIdentityFailsClosed", "unit tests")
+    require(test, "releaseEvidenceRequiresBoundArtifactDigest", "unit tests")
+    require(test, "releaseEvidenceCannotBeReusedForDifferentArtifact", "unit tests")
+    require(test, "RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISSING", "unit tests")
+    require(test, "RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISMATCH", "unit tests")
 
     require(doc, "`UNKNOWN` and `REJECTED` both fail closed", "documentation")
+    require(doc, "exact artifact SHA-256", "documentation")
+    require(doc, "content-addressed identity", "documentation")
+    require(doc, "does not hash package bytes", "documentation")
     require(doc, "generate or validate build provenance", "documentation")
     require(doc, "query an authoritative revocation service", "documentation")
     require(doc, "production package delivery remains unavailable", "documentation")
@@ -56,7 +74,8 @@ def main() -> None:
 
     print(
         "Release evidence gate validated: provenance=required sbom=required "
-        "release-approval=required revocation-status=required delivery-authority=false"
+        "release-approval=required revocation-status=required "
+        "artifact-sha256=canonical-and-bound delivery-authority=false"
     )
 
 
