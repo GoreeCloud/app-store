@@ -20,7 +20,17 @@ The detailed App Store update is maintained as a planned feature-and-capability 
 | FR-001 | Reconcile and maintain every current planned or recommended GoreeCloud App Store feature from the authoritative project record and verified repository evidence in this roadmap. | High | Ongoing control |
 | FR-002 | Move actionable feature obligations into GoreeCloud Tasks Management when required, preserving priority, dependency, and lifecycle disposition. | High | Ongoing control |
 | FR-003 | Do not mark features implemented, complete, cancelled, or superseded without authoritative evidence and synchronized repository/Drive roadmap updates. | High | Ongoing control |
-| FR-004 | Develop the GoreeCloud App Store as the first-party-only GoreeCloud software discovery, distribution, update, management, security, privacy-intelligence, device-aware, cross-platform, and lifecycle control center defined by `goreecloud-app-store-update.md`, while preserving the boundary that third-party software and repositories are outside the dedicated GoreeCloud App Store catalog. | High | Planned |
+| FR-004 | Develop the GoreeCloud App Store as the first-party-only GoreeCloud software discovery, distribution, update, management, security, privacy-intelligence, device-aware, cross-platform, and lifecycle control center defined by `goreecloud-app-store-update.md`, while preserving the boundary that third-party software and repositories are outside the dedicated GoreeCloud App Store catalog. | High | In Progress |
+
+## Current implementation increment
+
+Development implementation began on September 16, 2026 with stacked Draft PR #19 (`feature/release-evidence-gate`) at exact head `af774127e637eeaeb2d9c4e923d1a5ec922f5e18`, based directly on Draft PR #15 exact head `c6bf04c74d0fb13828fec1ce53b388005ef66f9c`.
+
+The first bounded increment adds a fail-closed pre-handoff release-evidence gate to the Android package-delivery policy. Handoff eligibility now requires explicit accepted build-provenance evidence, SBOM evidence, release approval, and revocation status. Missing or rejected evidence blocks handoff with a distinct blocker. The increment also adds regression tests, a repository source validator, CI evidence retention, and an authority-boundary document.
+
+This does not create authoritative release-evidence producers, enable package download or installation, grant Android package-install authority, or establish Production Acceptance, Release Candidate, Stable, deployment, or runtime acceptance. The broader FR-004 scope remains active and incomplete.
+
+Exact-head application validation passed on `af774127e637eeaeb2d9c4e923d1a5ec922f5e18`: Android Development run `35076844576` (artifact `10438567256`, digest `sha256:81cedaefca9dedbf6022177b0c28de2c42b86b86e4b6c7e183b41b0ec76b1001`), Android rendered acceptance run `35076844654` (artifact `10438826007`, digest `sha256:1bd55dfcb1850a56fa5c4d57c6351c3d026902eff85b2c7622a3bc7b413b4873`), Linux Development run `35076844673` (artifact `10438078480`, digest `sha256:210f2af64656a32859250bbb3d13c086cd23665ee5c3c2159bb83b172f7584cb`), Web Development run `35076844652` (artifact `10438358884`, digest `sha256:f65698e6e4243159a0a85303f8601b537b74dd8b8fed14a0661ab76c717944bd`), and Web rendered acceptance run `35076844723` (artifact `10438562247`, digest `sha256:f1350c4c44d8345d9ad6dc7a27fe66c70fed5e1e9bef2da71de005e7176184d2`). These are Development validation results for the stacked candidate only; PR #19 remains Draft and unmerged.
 
 ## Planned capability scope
 
