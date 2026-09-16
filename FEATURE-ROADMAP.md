@@ -34,7 +34,9 @@ The September 16, 2026 App Store update establishes planned direction for:
 - advanced update management, change analysis, dependency-aware Safe Update Mode, rollback, staged rollout, and official release channels;
 - Library, favorites, history, Everkeep-backed restoration, multi-device views, and Identity-authorized remote installation;
 - GoreeCloud Manager administration, self-hosted mirrors, offline operation, download management, security alerts, lifecycle status, roadmaps, documentation, support, accessibility, and feedback;
-- centralized GoreeCloud release infrastructure, automated quality validation, canonical software-catalog metadata, one-product/multiple-platform identity, GoreeCloud Mesh distribution assistance, and ecosystem-graph relationships.
+- centralized GoreeCloud release infrastructure, automated quality validation, canonical software-catalog metadata, one-product/multiple-platform identity, GoreeCloud Mesh distribution assistance, and ecosystem-graph relationships;
+- software supply-chain transparency, release transparency and revocation, content-addressed package identity, signed delta updates, transactional installation, compatibility preflight, data-migration contracts, post-install health verification, and explainable install/update decisions;
+- maintenance-window policy, emergency security response, signed offline catalogs, air-gapped package transfer, trusted local caching, bandwidth/power/storage-aware delivery, package retention, release-evidence inspection, catalog-schema governance, dependency impact analysis, recovery/rescue integration, an internal GoreeCloud release console, and Store self-diagnostics.
 
 Detailed requirements remain in the canonical planned capability record rather than being duplicated here.
 
