@@ -6,13 +6,14 @@
   "integrations": {
     "glazeUi": {
       "target": "1.4.0",
+      "requiredTarget": "1.5.1",
       "stableReleaseTag": "v1.4.0",
       "stableReleaseRevision": "84cb3db4884042f0fa25ed6d475a127fb110f596",
       "sourceQualificationAnchor": "84cb3db4884042f0fa25ed6d475a127fb110f596",
       "rollbackVersion": "1.3.0",
       "materialRule": "Neutral glass remains the material foundation. Optical adaptation is contextual, bounded, and subordinate to meaning, accessibility, privacy, security, and task completion.",
       "systemShellScope": "Application",
-      "adoptionStatus": "adoption-candidate",
+      "adoptionStatus": "migration-required",
       "opticalIntelligenceLocal": true,
       "environmentalMemoryInfluence": 0.0,
       "automatedContract": true,
@@ -23,6 +24,8 @@
     "wardveilSecurity": {"sourceBoundaryImplemented": true, "productionConnected": false},
     "privacyShield": {"sourceBoundaryImplemented": true, "productionConnected": false, "developmentAnalytics": false},
     "everkeep": {"sourceBoundaryImplemented": true, "productionConnected": false},
-    "goreecloudMesh": {"sourceBoundaryImplemented": true, "productionConnected": false}
+    "goreecloudMesh": {"sourceBoundaryImplemented": true, "productionConnected": false},
+    "goreecloudPolicy": {"sourceBoundaryImplemented": false, "productionConnected": false},
+    "goreecloudObservability": {"sourceBoundaryImplemented": false, "productionConnected": false}
   }
 }
