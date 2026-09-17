@@ -1,7 +1,7 @@
 # GoreeCloud App Store — Feature Roadmap
 
 **Status:** Active roadmap control  
-**As of:** 2026-09-16  
+**As of:** 2026-09-17  
 **Authoritative project record:** Project Specification — App Store  
 **Canonical repository:** GoreeCloud/goreecloud-app-store  
 **Drive control:** `GoreeCloud/Feature Roadmap/GoreeCloud App Store/FEATURE-ROADMAP.md`  
@@ -49,6 +49,18 @@ The Development source removes the production-domain `acceptedFor(...)` convenie
 Exact-head application validation passed on `203b6f3625f978fa5146c0f425e00f4a9e9adc8b`: Android Development run `35088543828` (artifact `10443391136`, digest `sha256:d22d3d713b1a78cc049459f2b77a99f6d927135c1b331eab693f2accc1794ac6`), Android rendered acceptance run `35088543846` (artifact `10443741452`, digest `sha256:6f4c36206b70fc684853b7fc23e0b5b3003a33b95b85e66b7958c548ed0bc5d2`), Linux Development run `35088543848` (artifact `10443391373`, digest `sha256:dd338fb66a94981854cb1a036e9758cbfc713908d1e5cce9c34a116bee5a04ee`), Web Development run `35088543851` (artifact `10442968749`, digest `sha256:40f2f784ffc99947b0ea1161f16f80a809b3ed70f5dbc88267c4882c9a355ad4`), and Web rendered acceptance run `35088543856` (artifact `10443366878`, digest `sha256:3bca8559c212e0a0e727a351e63a3035f98764e7d9c5fe379dd2f2bfaa0c22d8`). No separate Platform Contract workflow was observed for this candidate path, so none is claimed.
 
 This bounded control implements a consumer-side subset of the current GoreeCloud Platform Evidence Plane requirements for provenance, producer authority, scope, contract/version, source context, and freshness. It does not establish authenticated Evidence Plane transport, Identity verification of producers, trusted-time integration, authoritative evidence production, full Platform-System conformance, package delivery authority, Production Acceptance, Release Candidate, Stable, deployment, or runtime acceptance. PR #23 remains Draft and unmerged; the broader FR-004 scope remains active and incomplete.
+
+### Fourth validated Development increment and Contract 0.4 reconciliation
+
+Draft PR #25 (`security/release-evidence-set-correlation`) remains stacked directly on PR #23 exact validated head `203b6f3625f978fa5146c0f425e00f4a9e9adc8b`. Exact candidate head `748591466705703b7059e091f9bb71847cd0eacb` adds an opaque non-empty `evidenceSetId` to all four required release-evidence records and requires build-provenance, SBOM, release-approval, and revocation-status evidence to carry the same evidence-set identity. Missing correlation and mismatched evidence-set identities fail closed through distinct blockers, preventing individually valid records from separate evidence decisions from being combined into one future package-delivery handoff decision.
+
+The App Store still does not authenticate or mint evidence-set identities, prove atomic evidence issuance, authenticate evidence producers, obtain trusted time, calculate or verify package-byte digests, download packages, request Android install-source authority, invoke `PackageInstaller`, or install/update/rollback/uninstall software. This increment remains a bounded consumer-side policy contract, not package-delivery authority.
+
+The same exact candidate performs the current governance/conformance migration: `goreecloud.platform.yaml` uses Platform Contract `0.4`, evaluates exactly nine Integral Platform Systems, adds GoreeCloud Policy and GoreeCloud Observability as applicable-blocked, keeps GoreeCloud Sync separately governed, and pins the reusable validator to accepted central Contract 0.4 revision `6cb150d512647a0401b4da9e4741d7591693dee0`. The implemented Glaze source mapping remains V1.4 / `1.4.0`; current mandatory Stable target V1.5 / `1.5.1` is represented as migration-required rather than falsely accepted.
+
+All six exact-head workflows passed on `748591466705703b7059e091f9bb71847cd0eacb`: Platform Contract run `35286536435`, Android Development run `35286536101`, Linux Development run `35286536048`, Web Development run `35286535887`, Android rendered acceptance run `35286536023`, and Web rendered acceptance run `35286535946`. The Contract lane validated the exact caller revision against the accepted central Contract 0.4 implementation; Android, Linux, and Web Development/rendered lanes requalified the candidate after the governance migration.
+
+PR #25 remains Draft, unmerged, Development-only, and overall nonconformant. Current-Stable Glaze UI 1.5.1 implementation and application acceptance; production Identity/catalog authorization; Wardveil package verification; Privacy Shield; Everkeep; Manager; Mesh; Policy; Observability; authoritative evidence production/transport/trusted time; package byte verification and installation/update/rollback authority; representative accessibility/target review; protected production signing; supported publication/hosting; release approval; Release Candidate qualification where applicable; deployment; and Stable qualification remain outstanding. Authoritative `main` remains separate from this stacked candidate, so this checkpoint does not establish integration into `main` or production acceptance. FR-004 remains active and incomplete.
 
 ## Planned capability scope
 
