@@ -4,7 +4,7 @@ component:
   type: application
   id: goreecloud-app-store
   product_name: GoreeCloud App Store
-  repository: GoreeCloud/goreecloud-app-store
+  repository: GoreeCloud/app-store
 
 lifecycle: development
 version: "0.1.5-dev"
@@ -63,7 +63,7 @@ platform_systems:
       - contracts/web-distribution.json
       - scripts/validate_glaze_ui_adoption.py
       - scripts/validate_glaze_ui_v1_4.py
-    notes: Android, Linux, and Web currently implement the bounded GLAZE UI V1.4 / 1.4.0 source mapping at revision 84cb3db4884042f0fa25ed6d475a127fb110f596. The current mandatory Stable consumer target is GLAZE UI V1.5 / 1.5.1 at revision 98da57064ede0f334627b632bc16801f580331af, so this application remains migration-required. Existing V1.4 source/rendered evidence is exact-revision Development evidence only and must not be relabeled as V1.5.1 acceptance.
+    notes: Android, Linux, and Web currently implement the bounded GLAZE UI V1.4 / 1.4.0 source mapping at revision 84cb3db4884042f0fa25ed6d475a127fb110f596. The current mandatory Stable consumer target is GLAZE UI V1.6 / 1.6.0 at accepted release source a7180679ea851389e0f3004515f9a25f420e716d, so this application remains migration-required. Existing V1.4 source/rendered evidence is exact-revision Development evidence only and must not be relabeled as V1.6.0 acceptance.
   mesh:
     result: applicable-blocked
     version: null
@@ -137,10 +137,10 @@ external_dependencies:
 
 compatibility:
   platform_contract: "0.4"
-  glaze_ui_required: "1.5.1"
+  glaze_ui_required: "1.6.0"
   requires:
     - goreecloud-platform-contract==0.4
-    - glaze-ui==1.5.1
+    - glaze-ui==1.6.0
     - android-api>=26
     - linux-native-client
     - web-static-client
@@ -155,14 +155,14 @@ evidence:
       revision: 5692a2f4274117d4601873216783c31ea762fd8b
       result: passed
       observed_at: "2026-09-05T03:34:32Z"
-      notes: Historical V1.1 exact branch-head Android Development CI passed source verification, branding and GLAZE UI V1.1 source contracts, unit tests, native test compilation, lint, APK assembly, package/version/label checks, Development signing-certificate verification, digest generation, and artifact publication. It does not establish current V1.5.1 or production acceptance.
+      notes: Historical V1.1 exact branch-head Android Development CI passed source verification, branding and GLAZE UI V1.1 source contracts, unit tests, native test compilation, lint, APK assembly, package/version/label checks, Development signing-certificate verification, digest generation, and artifact publication. It does not establish current V1.6.0 or production acceptance.
     - id: android-rendered-33942155750
       category: supported-platform
       path: .github/workflows/android-rendered.yml
       revision: 5692a2f4274117d4601873216783c31ea762fd8b
       result: passed
       observed_at: "2026-09-05T03:39:45Z"
-      notes: Historical V1.1 exact branch-head Android rendered acceptance passed deterministic emulator validation. It is retained as provenance only and does not transfer to the current V1.5.1 target; representative physical-device and complete native accessibility acceptance remain pending.
+      notes: Historical V1.1 exact branch-head Android rendered acceptance passed deterministic emulator validation. It is retained as provenance only and does not transfer to the current V1.6.0 target; representative physical-device and complete native accessibility acceptance remain pending.
     - id: linux-development-33942155610
       category: supported-platform
       path: .github/workflows/linux.yml
@@ -183,7 +183,7 @@ evidence:
       revision: 5692a2f4274117d4601873216783c31ea762fd8b
       result: passed
       observed_at: "2026-09-05T03:33:42Z"
-      notes: Historical V1.1 automated headless-Chrome Development acceptance covered compact/expanded Light/Dark rendering, entitlement concealment, discovery/search/category behavior, fail-closed states, target sizing, keyboard focus, Reduced Motion, 200% text reflow, Forced Colors, RTL structural resilience, and accessibility-tree names. That evidence is provenance only and does not transfer to the current V1.5.1 target; actual assistive-technology, localization, cross-browser where required, representative hardware, production hosting/security headers, deployment, release approval, Release Candidate promotion, and Stable qualification remain pending.
+      notes: Historical V1.1 automated headless-Chrome Development acceptance covered compact/expanded Light/Dark rendering, entitlement concealment, discovery/search/category behavior, fail-closed states, target sizing, keyboard focus, Reduced Motion, 200% text reflow, Forced Colors, RTL structural resilience, and accessibility-tree names. That evidence is provenance only and does not transfer to the current V1.6.0 target; actual assistive-technology, localization, cross-browser where required, representative hardware, production hosting/security headers, deployment, release approval, Release Candidate promotion, and Stable qualification remain pending.
     - id: platform-contract-pr-context-33942156196
       category: integration
       path: .github/workflows/platform-contract.yml
@@ -197,7 +197,7 @@ evidence:
       revision: 5692a2f4274117d4601873216783c31ea762fd8b
       result: passed
       observed_at: "2026-09-05T03:34:32Z"
-      notes: Historical repository-local source-contract validation passed for V1.1 source mappings. Complete current V1.5.1 consumer acceptance remains unaccepted.
+      notes: Historical repository-local source-contract validation passed for V1.1 source mappings. Complete current V1.6.0 consumer acceptance remains unaccepted.
   release:
     - id: app-store-android-0.1.5-dev-artifact-9962195610
       version: "0.1.5-dev"
@@ -230,7 +230,7 @@ evidence:
       result: candidate
       observed_at: "2026-09-05T03:33:42Z"
       artifact_digest: sha256:bda95c8ed3adbbb60aec141b72d464f4a03de83b3c724af0c2f63d0f49822ca6
-      notes: Historical GitHub Actions artifact ID 9962183774 contains V1.1 automated rendered-Web Development evidence. It is retained as provenance only and must not be treated as current V1.5.1 acceptance.
+      notes: Historical GitHub Actions artifact ID 9962183774 contains V1.1 automated rendered-Web Development evidence. It is retained as provenance only and must not be treated as current V1.6.0 acceptance.
 
 conformance:
   status: nonconformant
@@ -262,7 +262,7 @@ conformance:
     - Privacy Shield runtime policy and acceptance are not established.
     - Wardveil Security runtime package verification and acceptance are not established.
     - Everkeep backup, clean-target restore, and recovery acceptance are not established.
-    - GLAZE UI V1.4 source mappings remain the implemented Development baseline, while current mandatory Stable target 1.5.1 migration, source/rendered/interaction/accessibility/form-factor/representative-device/performance/rollback/release, and production acceptance remain outstanding.
+    - GLAZE UI V1.4 source mappings remain the implemented Development baseline, while current mandatory Stable target 1.6.0 migration, source/rendered/interaction/accessibility/form-factor/representative-device/performance/rollback/release, and production acceptance remain outstanding.
     - GoreeCloud Mesh registration, capability publication, event transport, and runtime acceptance are not established.
     - GoreeCloud Identity production authentication, session, entitlement, disablement, revocation, and server-authoritative entitled-catalog delivery are not established.
     - GoreeCloud Policy App Store decision, distribution, enforcement, explanation, and evidence acceptance are not established.
