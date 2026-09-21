@@ -23,3 +23,4 @@
 ## Maintenance boundary
 
 Use this file for repository-local working observations and unresolved maintenance context. Promote durable requirements or authoritative decisions to their governed records. Do not record credentials, signing secrets, private tokens, or other reusable sensitive values here.
+- Stacked child `stabilize/android-installed-state-observation-current-main-20260921` recovers only exact-package read-only Android installed-state observation on top of the package-policy child. NameNotFoundException and visibility-related SecurityException remain UNKNOWN rather than accepted absence; no QUERY_ALL_PACKAGES, <queries>, broad enumeration, PackageInstaller, download, or package-mutation authority is added. Fresh INSTALL therefore remains blocked on separate governed negative-observation authority. Exact-head CI is required independently.
