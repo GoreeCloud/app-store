@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "app/src/main/AndroidManifest.xml"
 OBSERVER = ROOT / "app/src/main/java/com/goreecloud/appstore/delivery/InstalledPackageObservationGateway.kt"
 POLICY = ROOT / "app/src/main/java/com/goreecloud/appstore/domain/PackageDeliveryPolicy.kt"
-DOC = ROOT / "docs/android-package-delivery-policy.md"
+DOC = ROOT / "docs/android-installed-state-observation.md"
 
 
 def require(text: str, fragment: str, label: str) -> None:
@@ -57,7 +57,7 @@ def main() -> None:
 
     require(doc, "NameNotFoundException", "documentation")
     require(doc, "NotObserved / UNKNOWN", "documentation")
-    require(doc, "does **not** request `QUERY_ALL_PACKAGES`", "documentation")
+    require(doc, "does not request QUERY_ALL_PACKAGES", "documentation")
     require(doc, "current Android exact-package lookup does not manufacture that negative authority", "documentation")
 
     print(
