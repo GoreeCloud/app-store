@@ -1,0 +1,163 @@
+schema_version: "0.4"
+
+component:
+  type: application
+  id: goreecloud-app-store
+  product_name: GoreeCloud App Store
+  repository: GoreeCloud/app-store
+
+lifecycle: development
+version: "0.1.2-dev"
+
+supported_platforms:
+  - android
+
+api:
+  versions: []
+  endpoints: []
+
+platform_systems:
+  manager:
+    result: applicable-blocked
+    version: null
+    evidence:
+      - README.md
+      - ARCHITECTURE.md
+      - contracts/platform-integrations.json
+      - NOTES.md
+    notes: GoreeCloud Manager lifecycle registration, health/readiness publication, operational visibility, and administrative integration are applicable but not implemented or accepted for this current-main Development application.
+  privacy_shield:
+    result: applicable-blocked
+    version: null
+    evidence:
+      - README.md
+      - ARCHITECTURE.md
+      - contracts/platform-integrations.json
+    notes: Development analytics are disabled and data-minimization boundaries are documented, but accepted Privacy Shield runtime policy, consent, retention, search/history governance, and production privacy acceptance are not established.
+  wardveil_security:
+    result: applicable-blocked
+    version: null
+    evidence:
+      - README.md
+      - ARCHITECTURE.md
+      - contracts/platform-integrations.json
+    notes: Package trust and verification are explicit future authorities and package delivery remains unavailable, but accepted Wardveil runtime package verification, security-response integration, and production security acceptance are not established.
+  everkeep:
+    result: applicable-blocked
+    version: null
+    evidence:
+      - README.md
+      - ARCHITECTURE.md
+      - contracts/platform-integrations.json
+    notes: Library/history continuity and recovery boundaries are documented, but accepted Everkeep backup, clean-target restore, migration, rollback, and recovery evidence are not established.
+  glaze_ui:
+    result: applicable-migration-required
+    version: "2.0.0"
+    evidence:
+      - README.md
+      - app/src/main/java/com/goreecloud/appstore/ui/GlazeTheme.kt
+      - app/src/main/java/com/goreecloud/appstore/ui/AppStoreApp.kt
+      - contracts/platform-integrations.json
+    notes: Current-main Android source carries a historical/pre-reset Glaze UI 2.0.0 label and a custom Compose theme, but that label is not current consumer authority. Official Stable consumer authority is GLAZE UI V1.6 / 1.6.0 at accepted release source a7180679ea851389e0f3004515f9a25f420e716d. App Store therefore remains migration-required until deliberately mapped to V1.6 and freshly validated for rendered, accessibility, responsive/adaptive, representative-device, performance, rollback, Human Visual Excellence, release, and production acceptance.
+  mesh:
+    result: applicable-blocked
+    version: null
+    evidence:
+      - README.md
+      - ARCHITECTURE.md
+      - contracts/platform-integrations.json
+    notes: Catalog coordination and lifecycle/capability event boundaries are documented, but no accepted GoreeCloud Mesh registration, capability publication, authenticated transport, or runtime integration is established.
+    capabilities: []
+    dependencies: []
+    published_events: []
+    consumed_events: []
+  identity:
+    result: applicable-blocked
+    version: null
+    evidence:
+      - README.md
+      - ARCHITECTURE.md
+      - contracts/platform-integrations.json
+      - app/src/main/java/com/goreecloud/appstore/domain/EntitlementEngine.kt
+    notes: Development-only multi-user identity fixtures and entitlement filtering exist, but accepted GoreeCloud Identity authentication, session, authorization, account disablement/revocation, device trust, and server-authoritative entitled-catalog delivery are not established.
+  policy:
+    result: applicable-blocked
+    version: null
+    evidence:
+      - README.md
+      - ARCHITECTURE.md
+      - contracts/platform-integrations.json
+    notes: GoreeCloud Policy is applicable to catalog publication, entitlement/channel access, package-delivery eligibility, update/rollback policy, privacy/security/continuity coordination, and explanations, but no accepted policy decision, distribution, enforcement, freshness, exception, or evidence integration is established.
+  observability:
+    result: applicable-blocked
+    version: null
+    evidence:
+      - README.md
+      - ARCHITECTURE.md
+      - contracts/platform-integrations.json
+    notes: GoreeCloud Observability is applicable to App Store health/readiness, catalog/package-delivery diagnostics, dependency health, release-evidence freshness, package lifecycle events, performance, and operational evidence, but no accepted runtime integration is established.
+
+health:
+  health_endpoint: null
+  readiness_endpoint: null
+
+continuity:
+  backup:
+    required: true
+    requirements:
+      - Define the durable App Store-owned state that requires protection, including permitted per-identity library/history and catalog configuration, without treating package-manager or external platform state as App Store-owned backup truth.
+      - Apply Privacy Shield minimization and retention requirements and accepted Everkeep integration before recoverability claims.
+  restore:
+    required: true
+    requirements:
+      - Validate clean-target restoration of permitted durable App Store state and account-scoped reconciliation before production recovery claims.
+  export:
+    required: true
+    requirements:
+      - Define user-controlled export for portable App Store-owned library/history state where applicable without exposing credentials or protected catalog metadata.
+  portability:
+    required: true
+    requirements:
+      - Keep durable App Store-owned state in documented versioned formats or contracts that can migrate independently of one client implementation.
+
+external_dependencies:
+  - name: Android platform
+    purpose: Native application runtime, installed-package observation, user-authorized package installation interfaces, accessibility, and application execution environment.
+    required: true
+    version_constraint: ">=26"
+
+compatibility:
+  platform_contract: "0.4"
+  glaze_ui_required: "1.6.0"
+  requires:
+    - goreecloud-platform-contract==0.4
+    - glaze-ui==1.6.0
+    - android-api>=26
+  provides:
+    - goreecloud-app-store-android-development
+
+evidence:
+  acceptance_tests: []
+  release: []
+
+conformance:
+  status: nonconformant
+  validated_at: null
+  evidence:
+    - README.md
+    - ARCHITECTURE.md
+    - FEATURES.md
+    - NOTES.md
+    - contracts/platform-integrations.json
+    - .github/workflows/android.yml
+  blockers:
+    - Current-main source carries a historical/pre-reset Glaze UI 2.0.0 label; deliberate Official Stable V1.6 / 1.6.0 migration and complete application-specific acceptance are not established.
+    - GoreeCloud Manager registration, health/readiness, visibility, and acceptance are not established.
+    - Privacy Shield runtime policy and production privacy acceptance are not established.
+    - Wardveil Security runtime package verification and production security acceptance are not established.
+    - Everkeep backup, clean-target restore, migration, rollback, and recovery acceptance are not established.
+    - GoreeCloud Mesh registration, capability publication, event transport, and runtime acceptance are not established.
+    - GoreeCloud Identity production authentication, session, authorization, disablement/revocation, device trust, and server-authoritative entitled-catalog delivery are not established.
+    - GoreeCloud Policy decision, distribution, enforcement, explanation, freshness, exception, and evidence acceptance are not established.
+    - GoreeCloud Observability health/readiness, diagnostics, dependency health, freshness, performance, event, and evidence acceptance are not established.
+    - Production catalog delivery, package download/install/update/rollback, service launch, package-state reconciliation, protected production signing/key recovery, release provenance, deployment, Release Candidate, Production Acceptance, and Stable qualification are not established.
