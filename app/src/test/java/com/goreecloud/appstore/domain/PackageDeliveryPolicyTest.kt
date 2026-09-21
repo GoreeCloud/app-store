@@ -420,6 +420,25 @@ class PackageDeliveryPolicyTest {
     }
 
     @Test
+    fun nonPositiveArtifactVersionCodeFailsClosed() {
+        listOf(0L, -1L).forEach { versionCode ->
+            val invalidArtifact = artifact.copy(versionCode = versionCode)
+            val decision = PackageDeliveryPolicy.evaluate(
+                session,
+                item,
+                invalidArtifact,
+                DeviceState.observedAbsent(sdkInt = 35),
+                accepted.copy(release = acceptedReleaseFor(invalidArtifact)),
+                Action.INSTALL,
+                evaluationContext,
+            )
+
+            assertFalse(decision.eligibleForHandoff)
+            assertTrue(Blocker.ARTIFACT_VERSION_CODE_INVALID in decision.blockers)
+        }
+    }
+
+    @Test
     fun incompatibleDeviceFailsClosed() {
         val decision = PackageDeliveryPolicy.evaluate(
             session,
