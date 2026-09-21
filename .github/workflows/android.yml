@@ -28,6 +28,8 @@ jobs:
         run: python3 scripts/validate_branding.py
       - name: Validate exact-package installed-state boundary
         run: python3 scripts/validate_android_installed_state_observation.py
+      - name: Validate read-only package delivery preflight
+        run: python3 scripts/validate_package_delivery_preflight.py
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
