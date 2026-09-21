@@ -28,6 +28,7 @@ object PackageDeliveryPolicy {
         ARTIFACT_VERSION_MISMATCH,
         ARTIFACT_CHANNEL_MISMATCH,
         ARTIFACT_DIGEST_IDENTITY_INVALID,
+        ARTIFACT_VERSION_CODE_INVALID,
         DEVICE_INCOMPATIBLE,
         CATALOG_BINDING_NOT_ACCEPTED,
         DIGEST_NOT_ACCEPTED,
@@ -195,6 +196,9 @@ object PackageDeliveryPolicy {
         }
         if (!canonicalSha256.matches(artifact.sha256)) {
             blockers += Blocker.ARTIFACT_DIGEST_IDENTITY_INVALID
+        }
+        if (artifact.versionCode <= 0L) {
+            blockers += Blocker.ARTIFACT_VERSION_CODE_INVALID
         }
         if (artifact.minSdk < 1 || device.sdkInt < artifact.minSdk) {
             blockers += Blocker.DEVICE_INCOMPATIBLE
