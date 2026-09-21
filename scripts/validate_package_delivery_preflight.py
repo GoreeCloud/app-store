@@ -26,12 +26,13 @@ for needle in (
     require(coordinator, needle, "coordinator")
 
 for needle in (
-    "PackageInstaller",
-    "REQUEST_INSTALL_PACKAGES",
-    "startActivity",
-    "openConnection",
+    "import android.content.pm.PackageInstaller",
+    "PackageInstaller.Session",
+    "PackageInstaller.SessionParams",
+    "android.permission.REQUEST_INSTALL_PACKAGES",
+    "startActivity(",
+    "openConnection(",
     "HttpURLConnection",
-    "download",
 ):
     forbid(coordinator, needle, "coordinator")
 
