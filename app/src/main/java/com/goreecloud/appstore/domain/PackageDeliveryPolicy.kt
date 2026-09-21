@@ -47,6 +47,8 @@ object PackageDeliveryPolicy {
         RELEASE_EVIDENCE_SOURCE_REFERENCE_MISSING,
         RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISSING,
         RELEASE_EVIDENCE_ARTIFACT_DIGEST_MISMATCH,
+        RELEASE_EVIDENCE_SET_ID_MISSING,
+        RELEASE_EVIDENCE_SET_ID_MISMATCH,
         EVIDENCE_EVALUATION_TIME_INVALID,
         RELEASE_EVIDENCE_TIME_INVALID,
         RELEASE_EVIDENCE_EXPIRED,
@@ -118,6 +120,7 @@ object PackageDeliveryPolicy {
         val producerAuthority: AcceptanceState = AcceptanceState.UNKNOWN,
         val subjectPackageName: String? = null,
         val artifactSha256: String? = null,
+        val evidenceSetId: String? = null,
         val contractVersion: String? = null,
         val createdAtEpochSeconds: Long? = null,
         val expiresAtEpochSeconds: Long? = null,
@@ -246,6 +249,10 @@ object PackageDeliveryPolicy {
             context = context,
             blockers = blockers,
         )
+        validateReleaseEvidenceSet(
+            release = evidence.release,
+            blockers = blockers,
+        )
 
         val installedName = device.installedPackageName
         val installedCode = device.installedVersionCode
@@ -369,6 +376,29 @@ object PackageDeliveryPolicy {
             blockers += Blocker.RELEASE_EVIDENCE_TIME_INVALID
         } else if (context.evaluatedAtEpochSeconds >= expiresAt) {
             blockers += Blocker.RELEASE_EVIDENCE_EXPIRED
+        }
+    }
+
+    private fun validateReleaseEvidenceSet(
+        release: ReleaseEvidence,
+        blockers: MutableSet<Blocker>,
+    ) {
+        val records = listOf(
+            release.buildProvenance,
+            release.sbom,
+            release.releaseApproval,
+            release.revocationStatus,
+        )
+
+        if (records.any { record -> record?.evidenceSetId.isNullOrBlank() }) {
+            blockers += Blocker.RELEASE_EVIDENCE_SET_ID_MISSING
+        }
+
+        val evidenceSetIds = records
+            .mapNotNull { record -> record?.evidenceSetId?.takeIf { it.isNotBlank() } }
+            .toSet()
+        if (evidenceSetIds.size > 1) {
+            blockers += Blocker.RELEASE_EVIDENCE_SET_ID_MISMATCH
         }
     }
 }

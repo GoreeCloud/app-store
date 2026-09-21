@@ -17,6 +17,7 @@
 - Fail-closed package-delivery release-evidence gate requiring accepted build provenance, SBOM evidence, release approval, and revocation status before handoff eligibility.
 - Canonical SHA-256 artifact content identity with release evidence bound to the exact candidate digest so accepted evidence cannot be reused for a different binary identity.
 - Independent producer-attributed release-evidence records requiring accepted producer authority, package/digest scope, contract version, source reference, explicit creation/expiry metadata, and caller-supplied evaluation time before future handoff eligibility.
+- Correlated release-evidence sets requiring one non-empty opaque evidence-set identity across all four required release facts so independently valid records from different evidence decisions cannot be mixed into one handoff decision.
 - No analytics in the Development client.
 - Package installation authority intentionally disabled.
 
@@ -26,7 +27,7 @@
 - Server-authoritative personalized catalog delivery.
 - Authenticated/versioned catalog snapshots and rollback.
 - Approved package/release metadata ingestion.
-- Authoritative build-provenance, SBOM, release-approval, revocation, artifact-digest calculation/verification, authenticated evidence transport, trusted-time, and evidence-producer integration.
+- Authoritative build-provenance, SBOM, release-approval, revocation, artifact-digest calculation/verification, authenticated evidence transport, trusted-time, evidence-set issuance/correlation, and evidence-producer integration.
 - Wardveil artifact verification and quarantine/rejection handoff.
 - Secure APK download and Android installation/update flow.
 - Installed-package and Library reconciliation.

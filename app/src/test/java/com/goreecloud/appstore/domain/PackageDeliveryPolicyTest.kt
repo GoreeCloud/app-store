@@ -59,6 +59,7 @@ class PackageDeliveryPolicyTest {
         producerAuthority = AcceptanceState.ACCEPTED,
         subjectPackageName = candidate.packageName,
         artifactSha256 = candidate.sha256,
+        evidenceSetId = "development-release-set-1",
         contractVersion = "development-evidence-v1",
         createdAtEpochSeconds = 1_700_000_000L,
         expiresAtEpochSeconds = 1_700_003_600L,

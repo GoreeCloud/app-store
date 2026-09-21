@@ -6,6 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "1.4.0"
+REQUIRED_VERSION = "1.6.0"
 TAG = "v1.4.0"
 REVISION = "84cb3db4884042f0fa25ed6d475a127fb110f596"
 ROLLBACK_VERSION = "1.3.0"
@@ -32,13 +33,13 @@ def main() -> None:
     integrations = json.loads(read("contracts/platform-integrations.json"))
     web_contract = json.loads(read("contracts/web-distribution.json"))
 
-    require(adoption.get("status") == "adoption-candidate", "status must remain adoption-candidate")
-    require(adoption.get("targetVersion") == VERSION, "targetVersion mismatch")
-    require(adoption.get("requiredTargetVersion") == VERSION, "requiredTargetVersion mismatch")
-    require(adoption.get("stableReleaseTag") == TAG, "release tag mismatch")
-    require(adoption.get("stableReleaseRevision") == REVISION, "release revision mismatch")
+    require(adoption.get("status") == "migration-required", "status must record current-Stable migration-required state")
+    require(adoption.get("targetVersion") == VERSION, "implemented targetVersion mismatch")
+    require(adoption.get("requiredTargetVersion") == REQUIRED_VERSION, "current requiredTargetVersion mismatch")
+    require(adoption.get("stableReleaseTag") == TAG, "implemented-source release tag mismatch")
+    require(adoption.get("stableReleaseRevision") == REVISION, "implemented-source release revision mismatch")
     require(adoption.get("sourceQualificationAnchor") == REVISION, "exact V1.4 source pin mismatch")
-    require(adoption.get("stableContract") == "GLAZE_UI_V1_4.md", "Stable contract mismatch")
+    require(adoption.get("stableContract") == "GLAZE_UI_V1_4.md", "implemented Stable contract provenance mismatch")
     require(adoption.get("materialRule") == MATERIAL_RULE, "material rule mismatch")
     require(adoption.get("platforms") == ["android", "linux", "web"], "supported Glaze platform set mismatch")
 
@@ -70,8 +71,18 @@ def main() -> None:
         "linuxRenderedAcceptance",
         "webRenderedAcceptance",
     ):
-        require(acceptance.get(key) == "pending-v1.4-revalidation", f"{key} must require V1.4 revalidation")
-    require(acceptance.get("humanVisualExcellence") == "deferred-v1.4.1", "human visual acceptance must remain deferred to V1.4.1")
+        require(acceptance.get(key) == "v1.4-development-evidence-only", f"{key} must remain bounded V1.4 Development evidence")
+    for key in (
+        "nativeAccessibilityAcceptance",
+        "representativePhysicalDeviceAcceptance",
+        "linuxAccessibilityAcceptance",
+        "humanVisualExcellence",
+        "webAccessibilityAcceptance",
+        "webRepresentativeTargetAcceptance",
+        "performanceAcceptance",
+        "rollbackAcceptance",
+    ):
+        require(acceptance.get(key) == "pending-current-stable-migration", f"{key} must remain pending current-Stable migration")
 
     native = adoption.get("nativeMapping", {})
     require(native.get("systemShellScope") == "Application", "Android shell scope must remain Application")
@@ -98,35 +109,31 @@ def main() -> None:
     require(web.get("externalRuntimeDependencies") is False, "Web mapping must not add third-party runtime dependencies")
 
     glaze = integrations.get("integrations", {}).get("glazeUi", {})
-    require(glaze.get("target") == VERSION, "platform target mismatch")
-    require(glaze.get("stableReleaseTag") == TAG, "platform release tag mismatch")
-    require(glaze.get("stableReleaseRevision") == REVISION, "platform revision mismatch")
-    require(glaze.get("sourceQualificationAnchor") == REVISION, "platform source pin mismatch")
+    require(glaze.get("target") == VERSION, "implemented platform target mismatch")
+    require(glaze.get("requiredTarget") == REQUIRED_VERSION, "current platform required target mismatch")
+    require(glaze.get("stableReleaseTag") == TAG, "implemented platform release tag mismatch")
+    require(glaze.get("stableReleaseRevision") == REVISION, "implemented platform revision mismatch")
+    require(glaze.get("sourceQualificationAnchor") == REVISION, "implemented platform source pin mismatch")
     require(glaze.get("rollbackVersion") == ROLLBACK_VERSION, "platform rollback mismatch")
     require(glaze.get("materialRule") == MATERIAL_RULE, "platform material rule mismatch")
+    require(glaze.get("adoptionStatus") == "migration-required", "platform Glaze status must be migration-required")
     require(glaze.get("opticalIntelligenceLocal") is True, "platform optical policy must remain local")
     require(glaze.get("environmentalMemoryInfluence") == 0.0, "platform environmental memory must remain disabled")
+    require(integrations.get("integrations", {}).get("goreecloudPolicy") == {"sourceBoundaryImplemented": False, "productionConnected": False}, "Policy integration must remain explicitly blocked")
+    require(integrations.get("integrations", {}).get("goreecloudObservability") == {"sourceBoundaryImplemented": False, "productionConnected": False}, "Observability integration must remain explicitly blocked")
     require(integrations.get("productionAcceptance") is False, "productionAcceptance must remain false")
 
     web_glaze = web_contract.get("glazeUi", {})
-    require(web_glaze.get("target") == VERSION, "Web distribution target mismatch")
-    require(web_glaze.get("stableReleaseTag") == TAG, "Web distribution tag mismatch")
-    require(web_glaze.get("stableReleaseRevision") == REVISION, "Web distribution revision mismatch")
-    require(web_glaze.get("sourceQualificationAnchor") == REVISION, "Web distribution source pin mismatch")
+    require(web_glaze.get("target") == VERSION, "Web implemented distribution target mismatch")
+    require(web_glaze.get("stableReleaseTag") == TAG, "Web implemented distribution tag mismatch")
+    require(web_glaze.get("stableReleaseRevision") == REVISION, "Web implemented distribution revision mismatch")
+    require(web_glaze.get("sourceQualificationAnchor") == REVISION, "Web implemented distribution source pin mismatch")
     require(web_glaze.get("rollbackVersion") == ROLLBACK_VERSION, "Web rollback mismatch")
     require(web_glaze.get("materialRule") == MATERIAL_RULE, "Web material rule mismatch")
     require(web_glaze.get("environmentalSampling") is False, "Web environmental sampling must remain disabled")
     require(web_glaze.get("environmentalMemoryInfluence") == 0.0, "Web environmental memory must remain disabled")
     require(web_glaze.get("adaptiveColorCarriesSemanticAuthority") is False, "Web color must not become truth authority")
     require(web_contract.get("productionAcceptance") is False, "Web production acceptance must remain false")
-    for key in (
-        "renderedBrowser",
-        "accessibilityTreeNames",
-        "forcedColorsAutomation",
-        "rtlStructuralResilience",
-        "allViewports200PercentTextReflow",
-    ):
-        require(web_contract.get("acceptance", {}).get(key) == "pending-v1.4-revalidation", f"{key} must require V1.4 revalidation")
 
     gateways = read("app/src/main/java/com/goreecloud/appstore/platform/PlatformGateways.kt")
     for literal in (VERSION, TAG, REVISION, ROLLBACK_VERSION, MATERIAL_RULE, 'SYSTEM_SHELL_SCOPE = "Application"', "CONFORMANCE_ACCEPTED = false"):
@@ -167,7 +174,8 @@ def main() -> None:
 
     print(
         f"GLAZE UI V1.4 source mapping validated for Android + Linux + Web: "
-        f"{VERSION} @ {REVISION}; environmental-memory=0; conformance=false production=false"
+        f"implemented={VERSION} @ {REVISION}; required={REQUIRED_VERSION}; "
+        f"migration-required=true environmental-memory=0 conformance=false production=false"
     )
 
 
