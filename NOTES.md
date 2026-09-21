@@ -1,0 +1,22 @@
+# GoreeCloud App Store — Development Notes
+
+## Current stabilization context
+
+- Repository lifecycle remains Development; Production Acceptance, Release Candidate, deployment, and Stable qualification are not established.
+- Canonical GitHub repository identity is `GoreeCloud/app-store`.
+- Authoritative `main` remains the current repository/documentation line. The validated package-delivery and release-evidence implementation work remains preserved in the older stacked Development PR lineage and is not accepted into `main`.
+- Draft PR #28 proves that the preserved Development stack does not cleanly consolidate onto current `main`; it must not be force-merged or treated as current-main authority.
+- Draft PR #25 remains exact-head Development evidence for the release-evidence-set correlation policy and Platform Contract 0.4 reconciliation on its own stacked lineage. Its green CI does not transfer automatically to current `main`.
+- Future implementation recovery should use fresh current-main branches and bounded independently validated tranches, preserving useful behavior without importing stale history wholesale.
+
+## Active stabilization gates
+
+- Recover required App Store implementation onto current authoritative `main` in bounded reviewable tranches.
+- Reconcile the implemented presentation layer with current Official Stable GLAZE UI V1.6 / 1.6.0 and obtain application-specific rendered/accessibility/device acceptance.
+- Establish accepted GoreeCloud Identity, Privacy Shield, Wardveil Security, Everkeep, Mesh, Manager, Policy, and Observability runtime integrations where applicable.
+- Keep package-delivery decisions fail closed until authoritative catalog, artifact digest/signature, release evidence, revocation, installation-state, and rollback evidence are accepted.
+- Complete representative Android/Linux/Web runtime acceptance, recovery, protected signing, release provenance, deployment, Release Candidate qualification, and Stable qualification.
+
+## Maintenance boundary
+
+Use this file for repository-local working observations and unresolved maintenance context. Promote durable requirements or authoritative decisions to their governed records. Do not record credentials, signing secrets, private tokens, or other reusable sensitive values here.
