@@ -6,7 +6,7 @@
   "integrations": {
     "glazeUi": {
       "target": "1.4.0",
-      "requiredTarget": "1.5.1",
+      "requiredTarget": "1.6.0",
       "stableReleaseTag": "v1.4.0",
       "stableReleaseRevision": "84cb3db4884042f0fa25ed6d475a127fb110f596",
       "sourceQualificationAnchor": "84cb3db4884042f0fa25ed6d475a127fb110f596",
