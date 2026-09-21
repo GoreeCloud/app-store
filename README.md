@@ -12,7 +12,7 @@ Production acceptance: **false**
 The current development branch establishes:
 
 - a native Android/Jetpack Compose store application;
-- a Glaze UI 2.0.0 consumer target with layered native surfaces, capsule controls, light/dark adaptation, accessible interaction sizing, and effects-free behavior;
+- a native Compose presentation layer that still carries a historical/pre-reset `Glaze UI 2.0.0` label; this is not current design-system authority, and the application remains migration-required to Official Stable GLAZE UI V1.6 / 1.6.0;
 - a persistent App Store/account header and Material bottom navigation;
 - a per-session entitlement engine that filters the catalog before presentation;
 - development-only multi-user identity fixtures behind an explicit `IdentityGateway` boundary;
@@ -24,6 +24,7 @@ The current development branch establishes:
 - development-status diagnostics separated from ordinary catalog browsing;
 - compact-width safeguards for account controls, catalog headings, item metadata, release-channel labels, detail metadata, and platform-status rows;
 - explicit source boundaries for GoreeCloud Identity, Wardveil Security, Privacy Shield, Everkeep, and GoreeCloud Mesh;
+- current Platform Contract 0.4 control-plane records covering all nine Integral Platform Systems, with Manager, Policy, and Observability explicitly blocked rather than omitted;
 - a machine-readable platform-integration record;
 - unit tests that prevent implicit administrator bypass of catalog audience rules;
 - exact-source Android CI for tests, lint, APK assembly, package/application-label validation, signing-certificate verification, SHA-256 evidence, and development artifact publication.
@@ -41,6 +42,10 @@ The reserved future production application ID remains `com.goreecloud.appstore`.
 Older bootstrap APKs used `com.goreecloud.appstore` with ephemeral runner-generated debug certificates. Those builds cannot be upgraded in place by later CI APKs and should be removed from test devices before using the new development package.
 
 ## Important acceptance boundary
+
+`main` is an Android-only Development implementation at this checkpoint. Historical Linux/Web work remains outside current-main implementation authority and must be recovered deliberately if those clients remain in product scope.
+
+The current Compose theme is not accepted GLAZE UI V1.6 conformance. The historical/pre-reset `2.0.0` label is retained only as source history; current mandatory consumer authority is V1.6 / 1.6.0 at accepted release source `a7180679ea851389e0f3004515f9a25f420e716d`.
 
 The account switcher is **not** a production GoreeCloud Identity login. It uses development fixtures only so multi-user entitlement behavior can be built and tested while the application-facing GoreeCloud Identity runtime remains unaccepted.
 
@@ -97,6 +102,7 @@ CI installs the pinned Gradle distribution directly, checks out and records the 
 - `BRANDING.md` — canonical branding-consumer mappings
 - `USER-MANUAL.md` — current user/developer behavior and limitations
 - `development/signing/README.md` — development package/signing boundary
+- `goreecloud.platform.yaml` — Platform Contract 0.4 current conformance declaration
 - `contracts/platform-integrations.json` — machine-readable current integration truth
 - `app/src/main/assets/catalog/development-catalog.json` — non-authoritative development fixture catalog
 
