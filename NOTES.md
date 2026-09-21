@@ -12,6 +12,8 @@
 
 ## Active stabilization gates
 
+- Current child candidate `stabilize/package-delivery-policy-current-main-20260921` recovers only the pure package-delivery pre-handoff policy and its unit tests onto the green current-main control-plane line. It adds no runtime call site, download client, PackageInstaller authority, installed-package observer, accepted absence authority, or production evidence transport. Exact-head CI is required independently of historical stacked validation.
+
 - Recover required App Store implementation onto current authoritative `main` in bounded reviewable tranches.
 - Reconcile the implemented presentation layer with current Official Stable GLAZE UI V1.6 / 1.6.0 and obtain application-specific rendered/accessibility/device acceptance.
 - Establish accepted GoreeCloud Identity, Privacy Shield, Wardveil Security, Everkeep, Mesh, Manager, Policy, and Observability runtime integrations where applicable.
