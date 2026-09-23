@@ -3,7 +3,7 @@
 **Status:** Active roadmap control  
 **As of:** 2026-09-17  
 **Authoritative project record:** Project Specification — App Store  
-**Canonical repository:** GoreeCloud/goreecloud-app-store  
+**Canonical repository:** GoreeCloud/app-store  
 **Drive control:** `GoreeCloud/Feature Roadmap/GoreeCloud App Store/FEATURE-ROADMAP.md`  
 **Detailed planned capability record:** `GoreeCloud/Feature Roadmap/GoreeCloud App Store/goreecloud-app-store-update.md`
 
