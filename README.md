@@ -12,7 +12,7 @@ Production acceptance: **false**
 The current development branch establishes:
 
 - a native Android/Jetpack Compose store application;
-- a native Compose presentation layer that still carries a historical/pre-reset `Glaze UI 2.0.0` label; this is not current design-system authority, and the application remains migration-required to Official Stable GLAZE UI V1.6 / 1.6.0;
+- a native Compose presentation layer with a bounded source-policy mapping to Official Stable GLAZE UI V1.6 / 1.6.0; complete rendered/native application acceptance remains migration-required;
 - a persistent App Store/account header and Material bottom navigation;
 - a per-session entitlement engine that filters the catalog before presentation;
 - development-only multi-user identity fixtures behind an explicit `IdentityGateway` boundary;
@@ -45,7 +45,7 @@ Older bootstrap APKs used `com.goreecloud.appstore` with ephemeral runner-genera
 
 `main` is an Android-only Development implementation at this checkpoint. Historical Linux/Web work remains outside current-main implementation authority and must be recovered deliberately if those clients remain in product scope.
 
-The current Compose theme is not accepted GLAZE UI V1.6 conformance. The historical/pre-reset `2.0.0` label is retained only as source history; current mandatory consumer authority is V1.6 / 1.6.0 at accepted release source `a7180679ea851389e0f3004515f9a25f420e716d`.
+The current Compose theme now pins the mandatory V1.6 / 1.6.0 authority through a bounded presentation policy at accepted release source `a7180679ea851389e0f3004515f9a25f420e716d`. This corrects the historical/pre-reset `2.0.0` source label but does not establish rendered/native GLAZE UI conformance, accessibility, representative-device, performance, rollback, Human Visual Excellence, release, or production acceptance.
 
 The account switcher is **not** a production GoreeCloud Identity login. It uses development fixtures only so multi-user entitlement behavior can be built and tested while the application-facing GoreeCloud Identity runtime remains unaccepted.
 

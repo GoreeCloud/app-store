@@ -4,15 +4,17 @@
   "repository": "GoreeCloud/app-store",
   "productionAcceptance": false,
   "nativeApplication": true,
-  "supportedDevelopmentPlatforms": ["android"],
+  "supportedDevelopmentPlatforms": [
+    "android"
+  ],
   "integrations": {
     "glazeUi": {
-      "implementedSourceLabel": "2.0.0",
-      "implementedSourceAuthority": "historical-pre-reset-label-only",
+      "implementedSourceLabel": "1.6.0",
+      "implementedSourceAuthority": "bounded-current-stable-source-policy",
       "requiredTarget": "1.6.0",
       "requiredStableReleaseTag": "v1.6.0",
       "requiredStableReleaseRevision": "a7180679ea851389e0f3004515f9a25f420e716d",
-      "adoptionStatus": "migration-required",
+      "adoptionStatus": "migration-in-progress",
       "conformanceAccepted": false
     },
     "goreecloudManager": {

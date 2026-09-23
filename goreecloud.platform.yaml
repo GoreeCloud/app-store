@@ -52,13 +52,14 @@ platform_systems:
     notes: Library/history continuity and recovery boundaries are documented, but accepted Everkeep backup, clean-target restore, migration, rollback, and recovery evidence are not established.
   glaze_ui:
     result: applicable-migration-required
-    version: "2.0.0"
+    version: "1.6.0"
     evidence:
       - README.md
       - app/src/main/java/com/goreecloud/appstore/ui/GlazeTheme.kt
+      - app/src/main/java/com/goreecloud/appstore/ui/GlazeV16PresentationPolicy.kt
       - app/src/main/java/com/goreecloud/appstore/ui/AppStoreApp.kt
       - contracts/platform-integrations.json
-    notes: Current-main Android source carries a historical/pre-reset Glaze UI 2.0.0 label and a custom Compose theme, but that label is not current consumer authority. Official Stable consumer authority is GLAZE UI V1.6 / 1.6.0 at accepted release source a7180679ea851389e0f3004515f9a25f420e716d. App Store therefore remains migration-required until deliberately mapped to V1.6 and freshly validated for rendered, accessibility, responsive/adaptive, representative-device, performance, rollback, Human Visual Excellence, release, and production acceptance.
+    notes: Android source now pins Official Stable GLAZE UI V1.6 / 1.6.0 at accepted release source a7180679ea851389e0f3004515f9a25f420e716d through a bounded presentation-policy mapping. This source mapping is not rendered/native conformance; complete component, accessibility, responsive/adaptive, representative-device, performance, rollback, Human Visual Excellence, release, and production acceptance remain incomplete.
   mesh:
     result: applicable-blocked
     version: null
@@ -151,7 +152,7 @@ conformance:
     - contracts/platform-integrations.json
     - .github/workflows/android.yml
   blockers:
-    - Current-main source carries a historical/pre-reset Glaze UI 2.0.0 label; deliberate Official Stable V1.6 / 1.6.0 migration and complete application-specific acceptance are not established.
+    - A bounded Official Stable GLAZE UI V1.6 / 1.6.0 source-policy mapping is present, but complete component/rendered/accessibility/representative-device/performance/rollback/Human Visual Excellence/release acceptance is not established.
     - GoreeCloud Manager registration, health/readiness, visibility, and acceptance are not established.
     - Privacy Shield runtime policy and production privacy acceptance are not established.
     - Wardveil Security runtime package verification and production security acceptance are not established.
