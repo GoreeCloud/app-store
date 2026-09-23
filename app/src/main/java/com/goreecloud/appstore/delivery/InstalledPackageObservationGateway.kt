@@ -34,6 +34,7 @@ sealed interface InstalledPackageObservation {
             PLATFORM_FAILURE,
             RESPONSE_IDENTITY_MISMATCH,
             INVALID_VERSION_CODE,
+            POLICY_PRECONDITION_REJECTED,
         }
     }
 }

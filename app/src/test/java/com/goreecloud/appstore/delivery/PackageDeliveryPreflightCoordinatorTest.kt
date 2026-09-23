@@ -123,6 +123,62 @@ class PackageDeliveryPreflightCoordinatorTest {
     }
 
     @Test
+    fun policyBlockersPreventInstalledPackageObservation() {
+        val lookedUp = mutableListOf<String>()
+        val mismatchedArtifact = artifact.copy(packageName = "com.example.other")
+        val coordinator = coordinator { packageName ->
+            lookedUp += packageName
+            InstalledPackageLookupResult.Installed(packageName, versionCode = 100)
+        }
+
+        val result = coordinator.evaluate(
+            session = session,
+            item = item,
+            artifact = mismatchedArtifact,
+            evidence = acceptedEvidence(mismatchedArtifact),
+            action = Action.UPDATE,
+            context = context,
+            sdkInt = 35,
+        )
+
+        assertTrue(lookedUp.isEmpty())
+        assertEquals(
+            InstalledPackageObservation.Unknown.Reason.POLICY_PRECONDITION_REJECTED,
+            (result.observation as InstalledPackageObservation.Unknown).reason,
+        )
+        assertFalse(result.decision.eligibleForHandoff)
+        assertTrue(Blocker.ARTIFACT_PACKAGE_MISMATCH in result.decision.blockers)
+        assertTrue(Blocker.INSTALLATION_STATE_NOT_ACCEPTED in result.decision.blockers)
+    }
+
+    @Test
+    fun rejectedReleaseEvidencePreventsInstalledPackageObservation() {
+        val lookedUp = mutableListOf<String>()
+        val coordinator = coordinator { packageName ->
+            lookedUp += packageName
+            InstalledPackageLookupResult.Installed(packageName, versionCode = 100)
+        }
+        val rejectedEvidence = acceptedEvidence().copy(signature = AcceptanceState.REJECTED)
+
+        val result = coordinator.evaluate(
+            session = session,
+            item = item,
+            artifact = artifact,
+            evidence = rejectedEvidence,
+            action = Action.UPDATE,
+            context = context,
+            sdkInt = 35,
+        )
+
+        assertTrue(lookedUp.isEmpty())
+        assertEquals(
+            InstalledPackageObservation.Unknown.Reason.POLICY_PRECONDITION_REJECTED,
+            (result.observation as InstalledPackageObservation.Unknown).reason,
+        )
+        assertTrue(Blocker.SIGNATURE_NOT_ACCEPTED in result.decision.blockers)
+    }
+
+    @Test
     fun mismatchedObservedIdentityFailsClosedBeforeHandoff() {
         val coordinator = coordinator {
             InstalledPackageLookupResult.Installed("com.example.other", versionCode = 100)

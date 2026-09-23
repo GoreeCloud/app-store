@@ -4,18 +4,19 @@
 
 This Development tranche composes the already recovered exact-package installed-state observer with the pure package-delivery policy.
 
-The coordinator performs one read-only package observation and returns a policy decision. It does not download package bytes, invoke Android PackageInstaller, request install-source permission, mutate packages, enumerate installed applications, or create release/production authority.
+The coordinator performs a pure fail-closed policy pass before any Android package observation. It queries one exact installed-package identity only when no non-device policy blocker remains, then returns the final policy decision. It does not download package bytes, invoke Android PackageInstaller, request install-source permission, mutate packages, enumerate installed applications, or create release/production authority.
 
 ## Evaluation order
 
 The coordinator:
 
-1. observes only the exact artifact package identity;
-2. converts that observation into PackageDeliveryPolicy.DeviceState;
-3. evaluates the existing fail-closed policy using the supplied session, catalog item, artifact, evidence, action, SDK level, and explicit evidence evaluation time;
-4. returns both the observation and the decision.
+1. evaluates the pure delivery policy with installation state explicitly UNKNOWN;
+2. if any non-device blocker exists, returns that rejected decision without querying Android PackageManager;
+3. only when installation state is the sole remaining blocker, observes the exact artifact package identity;
+4. converts that observation into PackageDeliveryPolicy.DeviceState and re-evaluates the same policy;
+5. returns both the observation and the final decision.
 
-No delivery action is performed even when the decision is eligible for a future handoff.
+No delivery action is performed even when the decision is eligible for a future handoff. Rejected catalog identity, authorization, artifact, evidence, timing, compatibility, or rollback-policy state cannot be used to probe whether an arbitrary package is installed.
 
 ## Fresh-install boundary
 

@@ -28,6 +28,30 @@ class PackageDeliveryPreflightCoordinator(
         context: PackageDeliveryPolicy.EvidenceEvaluationContext,
         sdkInt: Int,
     ): Result {
+        // Run the pure policy once without any installed-package observation. If anything other
+        // than installation state already blocks the candidate, do not touch PackageManager at all.
+        // This prevents an unauthorized, stale, malformed, or otherwise rejected candidate from
+        // using the preflight path as an installed-package presence probe.
+        val preliminaryDecision = PackageDeliveryPolicy.evaluate(
+            session = session,
+            item = item,
+            artifact = artifact,
+            device = PackageDeliveryPolicy.DeviceState.unobserved(sdkInt),
+            evidence = evidence,
+            action = action,
+            context = context,
+        )
+        val nonDeviceBlockers = preliminaryDecision.blockers -
+            PackageDeliveryPolicy.Blocker.INSTALLATION_STATE_NOT_ACCEPTED
+        if (nonDeviceBlockers.isNotEmpty()) {
+            return Result(
+                observation = InstalledPackageObservation.Unknown(
+                    InstalledPackageObservation.Unknown.Reason.POLICY_PRECONDITION_REJECTED,
+                ),
+                decision = preliminaryDecision,
+            )
+        }
+
         val observation = installedPackageObservationGateway.observe(artifact.packageName)
         val deviceState = installedPackageObservationGateway.toDeviceState(
             sdkInt = sdkInt,

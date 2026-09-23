@@ -22,6 +22,8 @@ for needle in (
     "PackageDeliveryPolicy.evaluate",
     "artifact.packageName",
     "toDeviceState",
+    "preliminaryDecision",
+    "POLICY_PRECONDITION_REJECTED",
 ):
     require(coordinator, needle, "coordinator")
 
@@ -39,5 +41,7 @@ for needle in (
 require(test, "unobservedPackageCannotBecomeAcceptedAbsenceForFreshInstall", "test")
 require(test, "INSTALLATION_STATE_NOT_ACCEPTED", "test")
 require(test, "acceptedPositiveObservationCanMakeUpdateEligibleWithoutPackageMutation", "test")
+require(test, "policyBlockersPreventInstalledPackageObservation", "test")
+require(test, "rejectedReleaseEvidencePreventsInstalledPackageObservation", "test")
 
 print("Package delivery preflight boundary validated.")
