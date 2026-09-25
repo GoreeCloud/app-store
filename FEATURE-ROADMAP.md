@@ -1,25 +1,26 @@
 # GoreeCloud App Store — Feature Roadmap
 
-**Status:** Active roadmap control  
+**Status:** Legacy migration control — non-authoritative  
 **As of:** 2026-09-17  
-**Authoritative project record:** Project Specification — App Store  
-**Canonical repository:** GoreeCloud/goreecloud-app-store  
-**Drive control:** `GoreeCloud/Feature Roadmap/GoreeCloud App Store/FEATURE-ROADMAP.md`  
-**Detailed planned capability record:** `GoreeCloud/Feature Roadmap/GoreeCloud App Store/goreecloud-app-store-update.md`
+**Authoritative project specification:** [PROJECT-SPECIFICATIONS.md](PROJECT-SPECIFICATIONS.md)  
+**Authoritative project record:** [PROJECT-RECORD.md](PROJECT-RECORD.md)  
+**Canonical repository:** GoreeCloud/app-store  
+**Former Drive control:** historical migration source only; do not synchronize or recreate as authority  
+**Former detailed planned capability record:** historical migration input pending repository-native feature-state migration
 
 ## Purpose
 
-This file is the repository-side feature roadmap control for GoreeCloud App Store. It records current planned and recommended feature work without replacing the authoritative project record, implementation evidence, release gates, or GoreeCloud Tasks Management.
+This legacy file is retained temporarily as migration input for the separately governed repository-native feature/changelog migration. It does not replace `PROJECT-SPECIFICATIONS.md`, `PROJECT-RECORD.md`, accepted implementation evidence, release gates, or GoreeCloud Tasks Management.
 
-The detailed App Store update is maintained as a planned feature-and-capability record in the canonical GoreeCloud Feature Roadmap location. Its contents describe intended product direction and do not establish implementation, Production Acceptance, Release Candidate status, Stable status, deployment, or runtime acceptance.
+The former Drive capability record remains migration input only. Its contents describe intended product direction and do not establish implementation, Production Acceptance, Release Candidate status, Stable status, deployment, or runtime acceptance.
 
 ## Roadmap
 
 | ID | Feature / obligation | Priority | Current state |
 | --- | --- | --- | --- |
-| FR-001 | Reconcile and maintain every current planned or recommended GoreeCloud App Store feature from the authoritative project record and verified repository evidence in this roadmap. | High | Ongoing control |
+| FR-001 | Reconcile every retained App Store obligation into the mandatory repository-native feature-state records using `PROJECT-SPECIFICATIONS.md` and verified repository evidence. | High | Pending separate feature-state migration |
 | FR-002 | Move actionable feature obligations into GoreeCloud Tasks Management when required, preserving priority, dependency, and lifecycle disposition. | High | Ongoing control |
-| FR-003 | Do not mark features implemented, complete, cancelled, or superseded without authoritative evidence and synchronized repository/Drive roadmap updates. | High | Ongoing control |
+| FR-003 | Do not mark features implemented, complete, cancelled, or superseded without authoritative repository evidence and reconciliation of the repository-native feature-state records. | High | Active evidence rule |
 | FR-004 | Develop the GoreeCloud App Store as the first-party-only GoreeCloud software discovery, distribution, update, management, security, privacy-intelligence, device-aware, cross-platform, and lifecycle control center defined by `goreecloud-app-store-update.md`, while preserving the boundary that third-party software and repositories are outside the dedicated GoreeCloud App Store catalog. | High | In Progress |
 
 ## Current implementation increment
@@ -82,10 +83,10 @@ Detailed requirements remain in the canonical planned capability record rather t
 
 ## Maintenance and synchronization
 
-This roadmap and the corresponding Drive `FEATURE-ROADMAP.md` must remain materially synchronized with one another and with the authoritative project or service record. Update both copies whenever feature scope, priority, dependency, implementation status, cancellation, supersession, recommendation, or verification state materially changes.
+Do not synchronize this file with Google Drive. Remaining obligations must be reconciled into the mandatory repository-native feature-state records before this legacy file is removed.
 
-The detailed planned capability record must remain clearly separated from verified implementation state. No feature may be represented as complete or Stable solely because it appears in the roadmap or capability document. Completion and lifecycle claims require the applicable authoritative implementation, validation, review, release, and production evidence.
+Former detailed planned capability material must remain clearly separated from verified implementation state. No feature may be represented as complete or Stable solely because it appears in a roadmap or capability document. Completion and lifecycle claims require authoritative implementation, validation, review, release, and production evidence.
 
 ## Reconciliation rule
 
-At each material feature change, reconcile this roadmap against the current authoritative project record, repository implementation state, applicable platform-system requirements, the detailed planned capability record, and GoreeCloud Tasks Management. Missing obligations, stale status, duplicated work, roadmap drift, or undocumented disposition changes are defects to correct.
+Until the separate feature-state migration is complete, use this file only as migration input. Reconcile remaining obligations against `PROJECT-SPECIFICATIONS.md`, accepted repository implementation state, applicable platform-system requirements, and GoreeCloud Tasks Management. Missing obligations, stale status, duplicated work, or undocumented disposition changes must be resolved in the repository-native feature-state migration.
