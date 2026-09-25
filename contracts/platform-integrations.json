@@ -5,18 +5,32 @@
   "nativeApplication": true,
   "integrations": {
     "glazeUi": {
-      "target": "2.0.0",
+      "target": "1.6.0",
       "conformanceAccepted": false
     },
     "goreecloudIdentity": {
       "sourceBoundaryImplemented": true,
       "productionConnected": false,
-      "authority": ["identity", "authentication", "authorization", "accounts", "devices", "credentials", "sessions", "delegated-authority"]
+      "authority": [
+        "identity",
+        "authentication",
+        "authorization",
+        "accounts",
+        "devices",
+        "credentials",
+        "sessions",
+        "delegated-authority"
+      ]
     },
     "wardveilSecurity": {
       "sourceBoundaryImplemented": true,
       "productionConnected": false,
-      "authority": ["package-trust", "verification", "protection", "security-response"]
+      "authority": [
+        "package-trust",
+        "verification",
+        "protection",
+        "security-response"
+      ]
     },
     "privacyShield": {
       "sourceBoundaryImplemented": true,
@@ -26,12 +40,20 @@
     "everkeep": {
       "sourceBoundaryImplemented": true,
       "productionConnected": false,
-      "authority": ["library-recovery", "history-preservation", "continuity-evidence"]
+      "authority": [
+        "library-recovery",
+        "history-preservation",
+        "continuity-evidence"
+      ]
     },
     "goreecloudMesh": {
       "sourceBoundaryImplemented": true,
       "productionConnected": false,
-      "authority": ["catalog-coordination", "capability-discovery", "lifecycle-events"]
+      "authority": [
+        "catalog-coordination",
+        "capability-discovery",
+        "lifecycle-events"
+      ]
     }
   }
 }
