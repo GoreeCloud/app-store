@@ -3,7 +3,7 @@
 **Repository:** `GoreeCloud/app-store`  
 **Former repository identity in the Drive source:** `GoreeCloud/goreecloud-app-store`  
 **Project type:** First-party GoreeCloud software discovery, distribution, update, and lifecycle-control application  
-**Lifecycle:** Active Development / non-Production / non-Stable  
+**Current project state:** Active Development / non-production; canonical Platform Contract 2.0 lifecycle declaration is not yet established on authoritative `main` and must be evidence-backed rather than inferred from Draft recovery candidates  
 **Repository visibility:** Public  
 **Default branch:** `main`  
 **Migration baseline:** `e8ed0f0d9be4a6f5d2358e621d927a134045db9e`  
