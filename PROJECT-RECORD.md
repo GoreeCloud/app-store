@@ -49,6 +49,8 @@ The App Store migration therefore reconciles its target to V1.6 / `1.6.0` while 
 
 ## Project-governance migration
 
+Migration pull request: PR #34.
+
 This migration:
 - adds root `PROJECT-SPECIFICATIONS.md`;
 - adds root `PROJECT-RECORD.md`;
