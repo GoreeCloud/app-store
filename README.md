@@ -12,7 +12,7 @@ Production acceptance: **false**
 The current development branch establishes:
 
 - a native Android/Jetpack Compose store application;
-- a Glaze UI 2.0.0 consumer target with layered native surfaces, capsule controls, light/dark adaptation, accessible interaction sizing, and effects-free behavior;
+- a migration-required Glaze UI consumer mapping now governed by current Official Stable V1.6 / 1.6.0; application-specific conformance remains unaccepted;
 - a persistent App Store/account header and Material bottom navigation;
 - a per-session entitlement engine that filters the catalog before presentation;
 - development-only multi-user identity fixtures behind an explicit `IdentityGateway` boundary;
@@ -89,7 +89,8 @@ CI installs the pinned Gradle distribution directly, checks out and records the 
 
 ## Repository records
 
-- `SPECIFICATIONS.md` — product and engineering requirements
+- `PROJECT-SPECIFICATIONS.md` — authoritative product and engineering requirements
+- `PROJECT-RECORD.md` — significant project history, authority transitions, candidate boundaries, and migration evidence
 - `ARCHITECTURE.md` — authority boundaries and runtime design
 - `FEATURES.md` — implemented and planned capabilities
 - `BENEFITS.md` — intended user/platform value
@@ -99,6 +100,8 @@ CI installs the pinned Gradle distribution directly, checks out and records the 
 - `development/signing/README.md` — development package/signing boundary
 - `contracts/platform-integrations.json` — machine-readable current integration truth
 - `app/src/main/assets/catalog/development-catalog.json` — non-authoritative development fixture catalog
+
+Google Drive is not a parallel authority for the App Store project specification or project record. Draft pull requests remain candidate evidence until accepted and merged into `main`.
 
 ## License
 
