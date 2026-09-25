@@ -1,4 +1,61 @@
-# GoreeCloud App Store — Repository Specifications
+# GoreeCloud App Store — Project Specifications
+
+**Repository:** `GoreeCloud/app-store`  
+**Former repository identity in the Drive source:** `GoreeCloud/goreecloud-app-store`  
+**Project type:** First-party GoreeCloud software discovery, distribution, update, and lifecycle-control application  
+**Current project state:** Active Development / non-production; canonical Platform Contract 2.0 lifecycle declaration is not yet established on authoritative `main` and must be evidence-backed rather than inferred from Draft recovery candidates  
+**Repository visibility:** Public  
+**Default branch:** `main`  
+**Migration baseline:** `e8ed0f0d9be4a6f5d2358e621d927a134045db9e`  
+**License:** AGPL-3.0-only  
+**Primary accepted client on baseline `main`:** Native Android  
+**Production Android application ID:** `com.goreecloud.appstore`  
+**Development Android application ID:** `com.goreecloud.appstore.dev`  
+**Canonical authority:** This file is the authoritative project specification once accepted on the default branch.
+
+## Migration and authority boundary
+
+This specification reconciles Google Drive **Project Specification — App Store** with verified repository state and the live GoreeCloud Glaze UI authority.
+
+The Drive source is an Internal project-governance record and names the former repository `GoreeCloud/goreecloud-app-store`. The current authoritative repository is `GoreeCloud/app-store`.
+
+At the migration baseline, authoritative `main` is `e8ed0f0d9be4a6f5d2358e621d927a134045db9e`. Open Draft pull requests, including the long App Store Development stack and PR #33, remain candidate evidence only until accepted, merged, and read back from `main`.
+
+The Drive source describes native Android, native Linux, and first-party Web clients as Development directions. On authoritative baseline `main`, the accepted user-facing client is Android. Linux/Web client work remains Draft/candidate-only and must not be represented as current accepted implementation.
+
+## Glaze UI reconciliation
+
+The live `GoreeCloud/glaze-ui` repository establishes **GLAZE UI V1.6 / 1.6.0** as the current Official Stable consumer authority. V1.7 is Development-only and non-consumer-eligible.
+
+Accordingly:
+- the Drive source's V1.5.1 Stable target is historical;
+- baseline App Store documentation/metadata that calls 2.0.0 Stable is stale and is corrected by this migration;
+- App Store consumer conformance remains unaccepted until exact-revision application evidence exists; and
+- upstream Glaze Stable status does not automatically certify App Store rendering, accessibility, performance, device behavior, release readiness, or Production acceptance.
+
+## Drive-source coverage
+
+The former Drive project specification contains 18 top-level sections covering:
+1. product role;
+2. multi-user and entitlement model;
+3. catalog model;
+4. native Android architecture;
+5. user experience;
+6. Glaze UI;
+7. GoreeCloud Identity;
+8. Wardveil Security;
+9. Privacy Shield;
+10. Everkeep;
+11. GoreeCloud Mesh;
+12. package delivery and installation;
+13. updates and library behavior;
+14. a September 1, 2026 source checkpoint;
+15. current restrictions;
+16. Production and Stable promotion gates;
+17. long-term direction; and
+18. a September 4, 2026 Development successor candidate.
+
+Still-applicable normative requirements from those sections are consolidated below. Source-era exact-version, branch, CI, and candidate statements are preserved as history in `PROJECT-RECORD.md` rather than promoted to current `main`.
 
 ## Product role
 
@@ -68,6 +125,24 @@ Application entries will eventually support:
 
 The app must not request Android package-install authority until installation is implemented and the permission is justified by the approved release scope.
 
+
+## Package delivery and installation
+
+Before a production package handoff or install flow is enabled, the exact candidate must require:
+
+- a protected artifact endpoint with backend re-authorization;
+- immutable release and artifact identifiers;
+- SHA-256 or stronger approved artifact integrity evidence;
+- expected application signing identity/provenance;
+- Wardveil verification according to accepted policy;
+- secure transport with no unauthorized redirects or cleartext fallback;
+- explicit Android user authorization for package installation;
+- install/update result reconciliation;
+- rollback, failure, downgrade, and recovery behavior; and
+- auditable linkage from the distributed artifact to approved GoreeCloud source/release evidence.
+
+Client-side catalog entitlement is not the artifact-delivery security boundary. Missing, stale, malformed, mismatched, unavailable, or negative required evidence must fail closed.
+
 ## Services
 
 Service entries represent GoreeCloud capabilities that are opened rather than installed. Launch must use a policy-approved endpoint/deep link and must not treat catalog visibility as service authorization.
@@ -76,7 +151,7 @@ Service entries represent GoreeCloud capabilities that are opened rather than in
 
 ### Glaze UI
 
-Current consumer target: **2.0.0 Stable**. The application must substantively implement the applicable interaction, accessibility, responsive, state, material, navigation, target-size, and fallback requirements. This repository does not claim conformance until exact-revision acceptance exists.
+Current GoreeCloud design-system authority: **GLAZE UI V1.6 / 1.6.0 Official Stable**. The App Store must substantively implement the applicable interaction, accessibility, responsive, state, material, navigation, target-size, motion, resilience, and fallback requirements. Current repository source/metadata is migration-required and does not claim App Store conformance until exact-revision acceptance exists. V1.7 is Development-only and is not a consumer Stable target.
 
 ### GoreeCloud Identity
 
@@ -136,10 +211,57 @@ Stable qualification requires all of the following for the exact release revisio
 
 ## Planned first-party software control center direction
 
-The detailed September 16, 2026 App Store expansion is maintained in the canonical GoreeCloud feature-roadmap record `GoreeCloud/Feature Roadmap/GoreeCloud App Store/goreecloud-app-store-update.md` and summarized by FR-004 in `FEATURE-ROADMAP.md`.
+The detailed September 2026 App Store expansion remains migration input in the legacy `FEATURE-ROADMAP.md` and former Drive feature-roadmap material. Current project requirements belong here; detailed repository-native feature state must be completed through the separate mandatory feature/changelog migration.
 
 The planned product direction keeps the dedicated App Store **first-party only**. Its catalog is intended for official GoreeCloud applications, services, system components, operating-system components, desktop/web/TV/server software, self-hosted services, networking software, extensions, plugins, integrations, developer tools, command-line utilities, background services, firmware, device components, themes, optional feature packages, and official preview/beta software. It is not intended to become a Google Play, F-Droid, Samsung Galaxy Store, community-repository, third-party APK-catalog, or general external-developer marketplace replacement.
 
 Planned scope includes a canonical GoreeCloud software catalog and GoreeCloud Verified authenticity model; Glaze UI Today, Apps, Services, System, Discover, Search, Updates, and Library experiences; rich product, privacy, security, lifecycle, accessibility, documentation, and support metadata; platform-aware and device-aware software delivery; Privacy Shield and Wardveil intelligence; cryptographic package verification; dependency-aware Safe Update Mode; rollback; staged rollout; official release channels and beta programs; Everkeep-backed restoration; multi-device library and GoreeCloud Identity-authorized remote installation; GoreeCloud Manager administration; self-hosted mirrors and offline operation; download management and security alerts; centralized release infrastructure; automated quality validation; GoreeCloud Mesh-assisted trusted local distribution; one-product/multiple-platform identity; and GoreeCloud ecosystem-graph relationships.
 
 This planned direction is not implementation evidence. A capability remains Planned until the applicable source, tests, integration evidence, runtime behavior, security/privacy acceptance, release evidence, and production gates establish a stronger state. Repository documentation must not convert the roadmap into a shipped, Production-accepted, Release Candidate, or Stable claim merely by describing it here.
+
+
+## Client/platform acceptance boundary
+
+Android is the accepted baseline user-facing Development client on authoritative `main`.
+
+Linux and Web are permitted first-party client targets, but each requires its own accepted source, build, runtime, accessibility, Glaze UI, security/privacy, packaging/deployment, rollback, and release evidence. Draft source or successful CI on a candidate stack does not establish accepted baseline implementation.
+
+## Current accepted implementation boundary
+
+At the migration baseline, repository `main` establishes a native Android Development application with:
+- development package/signing identity separation;
+- a per-session entitlement engine over development fixtures;
+- application/service catalog entries;
+- Discover, Apps, Services, Updates, and Library surfaces;
+- entitled-catalog search;
+- store-style item cards and detail presentation;
+- first-party branding derivatives;
+- explicit source boundaries for Identity, Wardveil Security, Privacy Shield, Everkeep, and Mesh;
+- machine-readable integration-state metadata; and
+- Android CI for source/test/lint/APK/signing/digest evidence.
+
+The baseline does **not** establish production Identity, protected package download/install, service authorization, production updates, Wardveil package-verification acceptance, Privacy Shield production-policy acceptance, Everkeep recovery acceptance, Mesh lifecycle transport, Linux/Web accepted clients, Production Acceptance, Release Candidate status, or Stable status.
+
+## Repository-native governance
+
+This project still requires the separate repository-native feature/changelog migration required by GoreeCloud governance. Until that migration is accepted:
+- `FEATURE-ROADMAP.md` is temporary non-authoritative migration input;
+- former Drive roadmap/changelog sources must not be treated as active parallel authority;
+- current implementation claims must come from accepted repository evidence; and
+- this project-specification migration must not fabricate `IMPLEMENTED-FEATURES.md`, `PLANNED-FEATURES.md`, or `CHANGELOGS.md` completion.
+
+## Maintenance
+
+Update this specification whenever product role, catalog/entitlement authority, supported clients, package-delivery security, platform-system boundaries, Glaze requirements, production signing, release channels, deployment model, lifecycle status, or retirement materially changes.
+
+## Related repository documentation
+
+- [README.md](README.md)
+- [PROJECT-RECORD.md](PROJECT-RECORD.md)
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+- [FEATURES.md](FEATURES.md)
+- [FEATURE-ROADMAP.md](FEATURE-ROADMAP.md) — temporary migration input pending repository-native feature/changelog governance.
+- [RELEASE-CHANNELS.md](RELEASE-CHANNELS.md)
+- [BRANDING.md](BRANDING.md)
+- [USER-MANUAL.md](USER-MANUAL.md)
+- [LICENSE](LICENSE)
