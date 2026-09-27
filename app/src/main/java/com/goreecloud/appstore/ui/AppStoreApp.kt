@@ -76,6 +76,7 @@ import com.goreecloud.appstore.domain.ReleaseChannel
 import com.goreecloud.appstore.domain.StoreItem
 import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
+import com.goreecloud.appstore.onboarding.AppStoreGuidanceState
 import com.goreecloud.appstore.platform.IntegrationState
 import com.goreecloud.appstore.platform.PlatformIntegrationRegistry
 import com.goreecloud.appstore.platform.UnavailablePackageDeliveryGateway
@@ -89,7 +90,11 @@ enum class StoreTab(val title: String, val icon: ImageVector) {
 }
 
 @Composable
-fun GoreeCloudAppStore() {
+fun GoreeCloudAppStore(
+    guidanceState: AppStoreGuidanceState,
+    onShowGuidanceSettings: () -> Unit,
+    onDismissGuidanceHint: (String) -> Unit,
+) {
     val context = LocalContext.current
     val allItems = remember { CatalogJsonLoader.load(context) }
     val identityGateway = remember { DevelopmentIdentityGateway }
@@ -134,6 +139,7 @@ fun GoreeCloudAppStore() {
                     session = session,
                     sessions = identityGateway.availableSessions,
                     onSessionSelected = { session = it },
+                    onShowGuidanceSettings = onShowGuidanceSettings,
                     onShowPlatformStatus = { showPlatformStatus = true },
                 )
             },
@@ -157,6 +163,15 @@ fun GoreeCloudAppStore() {
                     StoreTab.DISCOVER -> {
                         item { DevelopmentStatusStrip(onClick = { showPlatformStatus = true }) }
                         item { StoreHero(visibleCount = entitled.size) }
+                        if (guidanceState.isHintVisible(APP_STORE_CATALOG_HINT_ID)) {
+                            item {
+                                AppStoreCatalogGuidanceHint(
+                                    onDismiss = {
+                                        onDismissGuidanceHint(APP_STORE_CATALOG_HINT_ID)
+                                    },
+                                )
+                            }
+                        }
                         item { StoreSearch(query = query, onQueryChanged = { query = it }) }
                         item {
                             StoreSectionHeading(
@@ -259,6 +274,7 @@ private fun StoreTopBar(
     session: IdentitySession,
     sessions: List<IdentitySession>,
     onSessionSelected: (IdentitySession) -> Unit,
+    onShowGuidanceSettings: () -> Unit,
     onShowPlatformStatus: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -336,6 +352,14 @@ private fun StoreTopBar(
                             },
                         )
                     }
+                    DropdownMenuItem(
+                        text = { Text("Guidance & setup") },
+                        leadingIcon = { Icon(Icons.Rounded.Info, contentDescription = null) },
+                        onClick = {
+                            expanded = false
+                            onShowGuidanceSettings()
+                        },
+                    )
                     HorizontalDivider()
                     DropdownMenuItem(
                         text = { Text("Development status") },
