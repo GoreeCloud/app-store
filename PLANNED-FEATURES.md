@@ -86,3 +86,7 @@ Google Drive roadmap synchronization is retired. Maintain this record from autho
 ## Reconciliation rule
 
 At each material feature change, reconcile this roadmap against the current authoritative project record, repository implementation state, applicable platform-system requirements, the detailed planned capability record, and GoreeCloud Tasks Management. Missing obligations, stale status, duplicated work, roadmap drift, or undocumented disposition changes are defects to correct.
+
+## Detailed planned capability source
+
+The migrated v0.2 first-party App Store capability specification is preserved at `docs/plans/goreecloud-app-store-update.md`. It is planned product direction only and does not establish implementation, production acceptance, Release Candidate, or Stable status.
