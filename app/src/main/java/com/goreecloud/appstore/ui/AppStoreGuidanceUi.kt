@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.goreecloud.appstore.ui
 
 import androidx.compose.foundation.layout.Arrangement
