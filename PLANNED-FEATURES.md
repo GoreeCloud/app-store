@@ -1,10 +1,9 @@
-# GoreeCloud App Store — Feature Roadmap
+# GoreeCloud App Store — Planned Features
 
 **Status:** Active roadmap control  
 **As of:** 2026-09-17  
 **Authoritative project record:** Project Specification — App Store  
 **Canonical repository:** GoreeCloud/goreecloud-app-store  
-**Drive control:** `GoreeCloud/Feature Roadmap/GoreeCloud App Store/FEATURE-ROADMAP.md`  
 **Detailed planned capability record:** `GoreeCloud/Feature Roadmap/GoreeCloud App Store/goreecloud-app-store-update.md`
 
 ## Purpose
@@ -19,7 +18,7 @@ The detailed App Store update is maintained as a planned feature-and-capability 
 | --- | --- | --- | --- |
 | FR-001 | Reconcile and maintain every current planned or recommended GoreeCloud App Store feature from the authoritative project record and verified repository evidence in this roadmap. | High | Ongoing control |
 | FR-002 | Move actionable feature obligations into GoreeCloud Tasks Management when required, preserving priority, dependency, and lifecycle disposition. | High | Ongoing control |
-| FR-003 | Do not mark features implemented, complete, cancelled, or superseded without authoritative evidence and synchronized repository/Drive roadmap updates. | High | Ongoing control |
+| FR-003 | Do not mark features implemented, complete, cancelled, or superseded without authoritative evidence and repository-native feature-record updates. | High | Ongoing control |
 | FR-004 | Develop the GoreeCloud App Store as the first-party-only GoreeCloud software discovery, distribution, update, management, security, privacy-intelligence, device-aware, cross-platform, and lifecycle control center defined by `goreecloud-app-store-update.md`, while preserving the boundary that third-party software and repositories are outside the dedicated GoreeCloud App Store catalog. | High | In Progress |
 
 ## Current implementation increment
@@ -80,11 +79,9 @@ The September 16, 2026 App Store update establishes planned direction for:
 
 Detailed requirements remain in the canonical planned capability record rather than being duplicated here.
 
-## Maintenance and synchronization
+## Repository-native maintenance
 
-This roadmap and the corresponding Drive `FEATURE-ROADMAP.md` must remain materially synchronized with one another and with the authoritative project or service record. Update both copies whenever feature scope, priority, dependency, implementation status, cancellation, supersession, recommendation, or verification state materially changes.
-
-The detailed planned capability record must remain clearly separated from verified implementation state. No feature may be represented as complete or Stable solely because it appears in the roadmap or capability document. Completion and lifecycle claims require the applicable authoritative implementation, validation, review, release, and production evidence.
+Google Drive roadmap synchronization is retired. Maintain this record from authoritative project, repository implementation, validation, and task evidence.
 
 ## Reconciliation rule
 
