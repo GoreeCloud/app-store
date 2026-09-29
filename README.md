@@ -19,6 +19,7 @@ The current development branch establishes:
 - distinct application and service catalog entries;
 - Discover, Apps, Services, Updates, and Library surfaces;
 - search constrained to the already-entitled catalog;
+- per-development-identity device-local Save for later state for currently entitled items, with Library presentation that remains explicitly separate from installed/history/Everkeep authority;
 - store-style application/service cards and product-detail bottom sheets;
 - approved first-party artwork derivatives tied to canonical assets in `GoreeCloud/goreecloud-branding-assets`;
 - development-status diagnostics separated from ordinary catalog browsing;
