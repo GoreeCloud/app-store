@@ -11,6 +11,7 @@
 - Multi-user development session switcher.
 - Explicit entitlement filtering with no implicit administrator bypass.
 - Product-detail dialog with deliberately unavailable install/open action until delivery is trusted.
+- Per-development-identity, device-local **Save for later** state for currently entitled catalog items, surfaced in Library without representing install ownership, account history, synchronization, or Everkeep recovery.
 - Platform-integration checkpoint for Glaze UI, Identity, Wardveil, Privacy Shield, Everkeep, and Mesh.
 - Unit tests and Android CI.
 
@@ -29,7 +30,7 @@
 - Everkeep protection contract and recovery evidence for library/history/catalog configuration.
 - GoreeCloud Mesh lifecycle/capability events.
 - Rich app pages: screenshots, changelog, source/license, permissions, compatibility, privacy, security, continuity, support.
-- Categories, collections, editorial surfaces, recommendations, wish/save-for-later, and notification preferences where privacy policy permits.
+- Categories, collections, editorial surfaces, recommendations, richer saved-item organization, and notification preferences where privacy policy permits.
 - Multiple release channels with per-user/channel entitlements.
 - Device compatibility and architecture filtering.
 - Download/install queue and resilient retry state.
