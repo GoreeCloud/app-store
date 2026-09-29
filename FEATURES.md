@@ -11,7 +11,7 @@
 - Multi-user development session switcher.
 - Explicit entitlement filtering with no implicit administrator bypass.
 - Product-detail dialog with deliberately unavailable install/open action until delivery is trusted.
-- Per-development-identity, device-local **Save for later** state for currently entitled catalog items, surfaced in Library without representing install ownership, account history, synchronization, or Everkeep recovery.
+- Per-development-identity, device-local **Save for later** state for currently entitled catalog items, surfaced in Library without representing install ownership, account history, synchronization, or Everkeep recovery. Preference namespaces use a deterministic SHA-256 digest of the development subject rather than persisting that raw identity subject in preference-key metadata.
 - Explicit **Clear saved for later** confirmation that removes only the active development identity’s device-local saved list without uninstalling apps or changing entitlements/account history.
 - Platform-integration checkpoint for Glaze UI, Identity, Wardveil, Privacy Shield, Everkeep, and Mesh.
 - Unit tests and Android CI.
