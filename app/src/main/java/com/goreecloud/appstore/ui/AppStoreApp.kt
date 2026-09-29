@@ -32,6 +32,8 @@ import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Bookmark
+import androidx.compose.material.icons.rounded.BookmarkBorder
 import androidx.compose.material.icons.rounded.LibraryBooks
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Update
@@ -76,6 +78,7 @@ import com.goreecloud.appstore.domain.ReleaseChannel
 import com.goreecloud.appstore.domain.StoreItem
 import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
+import com.goreecloud.appstore.library.SavedCatalogStore
 import com.goreecloud.appstore.onboarding.AppStoreGuidanceState
 import com.goreecloud.appstore.platform.IntegrationState
 import com.goreecloud.appstore.platform.PlatformIntegrationRegistry
@@ -98,6 +101,9 @@ fun GoreeCloudAppStore(
     val context = LocalContext.current
     val allItems = remember { CatalogJsonLoader.load(context) }
     val identityGateway = remember { DevelopmentIdentityGateway }
+    val savedCatalogStore = remember(context.applicationContext) {
+        SavedCatalogStore(context.applicationContext)
+    }
     val listState = rememberLazyListState()
 
     var session by remember { mutableStateOf(identityGateway.initialSession) }
@@ -105,9 +111,15 @@ fun GoreeCloudAppStore(
     var query by remember { mutableStateOf("") }
     var selectedItem by remember { mutableStateOf<StoreItem?>(null) }
     var showPlatformStatus by remember { mutableStateOf(false) }
+    var savedItemIds by remember(session.subjectId) {
+        mutableStateOf(savedCatalogStore.load(session.subjectId))
+    }
 
     val entitled = remember(session, allItems) {
         EntitlementEngine.visibleItems(session, allItems)
+    }
+    val savedVisible = remember(entitled, savedItemIds) {
+        entitled.filter { it.id in savedItemIds }
     }
     val visible = remember(entitled, selectedTab, query) {
         val tabItems = when (selectedTab) {
@@ -222,14 +234,33 @@ fun GoreeCloudAppStore(
                         item {
                             TabIntro(
                                 title = "Library",
-                                body = "Installed and previously available GoreeCloud applications will be managed here.",
+                                body = "Save entitled GoreeCloud items for later on this device. Installed and historical library state remains separate and unavailable.",
                             )
+                        }
+                        item {
+                            StoreSectionHeading(
+                                title = "Saved for later",
+                                subtitle = if (savedVisible.size == 1) {
+                                    "1 item saved for this development identity"
+                                } else {
+                                    "${savedVisible.size} items saved for this development identity"
+                                },
+                            )
+                        }
+                        if (savedVisible.isEmpty()) {
+                            item {
+                                SavedLibraryEmptyState()
+                            }
+                        } else {
+                            items(savedVisible, key = { "saved:${it.id}" }) { item ->
+                                StoreItemCard(item = item, onClick = { selectedItem = item })
+                            }
                         }
                         item {
                             UnavailableState(
                                 icon = Icons.Rounded.LibraryBooks,
-                                title = "Library history is unavailable in this development build",
-                                body = "Per-identity install history and recoverable library state remain disabled until the Everkeep-backed library contract is connected.",
+                                title = "Installed library history is unavailable",
+                                body = "Install history, cross-device library recovery, and previously owned state remain disabled until the authoritative delivery and Everkeep-backed library contracts are connected.",
                                 onDetails = { showPlatformStatus = true },
                             )
                         }
@@ -260,7 +291,18 @@ fun GoreeCloudAppStore(
         }
 
         selectedItem?.let { item ->
-            StoreItemSheet(item = item, onDismiss = { selectedItem = null })
+            StoreItemSheet(
+                item = item,
+                isSaved = item.id in savedItemIds,
+                onSavedChanged = { saved ->
+                    savedItemIds = savedCatalogStore.setSaved(
+                        subjectId = session.subjectId,
+                        itemId = item.id,
+                        saved = saved,
+                    )
+                },
+                onDismiss = { selectedItem = null },
+            )
         }
 
         if (showPlatformStatus) {
@@ -640,6 +682,40 @@ private fun EmptyCatalogState(authenticated: Boolean, hasQuery: Boolean) {
 }
 
 @Composable
+private fun SavedLibraryEmptyState() {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = GlazeCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 28.dp, vertical = 28.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Icon(
+                Icons.Rounded.BookmarkBorder,
+                contentDescription = null,
+                modifier = Modifier.size(34.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                "Nothing saved for later",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                "Open an entitled app or service and choose Save for later. Saves stay only on this device and are separated by the active development identity.",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
 private fun UnavailableState(
     icon: ImageVector,
     title: String,
@@ -709,7 +785,12 @@ private fun StoreNavigation(selected: StoreTab, onSelected: (StoreTab) -> Unit) 
 }
 
 @Composable
-private fun StoreItemSheet(item: StoreItem, onDismiss: () -> Unit) {
+private fun StoreItemSheet(
+    item: StoreItem,
+    isSaved: Boolean,
+    onSavedChanged: (Boolean) -> Unit,
+    onDismiss: () -> Unit,
+) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surface,
@@ -763,6 +844,30 @@ private fun StoreItemSheet(item: StoreItem, onDismiss: () -> Unit) {
                     )
                 }
             }
+
+            TextButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp),
+                onClick = { onSavedChanged(!isSaved) },
+            ) {
+                Icon(
+                    if (isSaved) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder,
+                    contentDescription = null,
+                )
+                Spacer(Modifier.size(8.dp))
+                Text(if (isSaved) "Remove from saved" else "Save for later")
+            }
+
+            Text(
+                if (isSaved) {
+                    "Saved for this development identity on this device only."
+                } else {
+                    "Save-for-later state is device-local and does not represent install ownership, account library history, or Everkeep recovery."
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
 
             val actionAvailable =
                 item.type == StoreItemType.APPLICATION && UnavailablePackageDeliveryGateway.isAvailable
