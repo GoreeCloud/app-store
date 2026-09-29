@@ -14,6 +14,7 @@ class AppStoreGuidanceRepositoryTest {
 
         assertFalse(state.setupCompleted)
         assertEquals(0, state.setupStep)
+        assertFalse(state.replayActive)
         assertTrue(state.hintsEnabled)
         assertTrue(state.dismissedHintIds.isEmpty())
     }
@@ -60,7 +61,7 @@ class AppStoreGuidanceRepositoryTest {
     }
 
     @Test
-    fun replayResetsSetupProgressWithoutOverwritingHintPreference() {
+    fun replayPreservesCompletionAndHintPreferenceAndCanBeCanceled() {
         val store = FakeStore()
         val repository = AppStoreGuidanceRepository(store)
         var state = repository.load()
@@ -70,9 +71,20 @@ class AppStoreGuidanceRepositoryTest {
 
         val replay = repository.replaySetup(state)
 
-        assertFalse(replay.setupCompleted)
+        assertTrue(replay.setupCompleted)
+        assertTrue(replay.replayActive)
         assertEquals(0, replay.setupStep)
         assertFalse(replay.hintsEnabled)
+
+        val advanced = repository.nextSetupStep(replay)
+        assertEquals(1, advanced.setupStep)
+        assertTrue(advanced.replayActive)
+
+        val canceled = repository.cancelReplay(advanced)
+        assertTrue(canceled.setupCompleted)
+        assertFalse(canceled.replayActive)
+        assertEquals(AppStoreGuidanceState.LAST_SETUP_STEP, canceled.setupStep)
+        assertFalse(canceled.hintsEnabled)
     }
 
     @Test
