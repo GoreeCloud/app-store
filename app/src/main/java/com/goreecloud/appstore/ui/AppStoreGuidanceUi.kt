@@ -47,7 +47,7 @@ fun GoreeCloudAppStoreRoot() {
     var guidanceState by remember(repository) { mutableStateOf(repository.load()) }
     var showGuidanceSettings by remember { mutableStateOf(false) }
 
-    if (!guidanceState.setupCompleted) {
+    if (!guidanceState.setupCompleted || guidanceState.replayActive) {
         GlazeTheme {
             AppStoreOnboardingWizard(
                 state = guidanceState,
@@ -62,6 +62,9 @@ fun GoreeCloudAppStoreRoot() {
                 },
                 onComplete = {
                     guidanceState = repository.completeSetup(guidanceState)
+                },
+                onCancelReplay = {
+                    guidanceState = repository.cancelReplay(guidanceState)
                 },
             )
         }
@@ -102,6 +105,7 @@ private fun AppStoreOnboardingWizard(
     onNext: () -> Unit,
     onHintsEnabledChanged: (Boolean) -> Unit,
     onComplete: () -> Unit,
+    onCancelReplay: () -> Unit,
 ) {
     val step = state.setupStep
 
@@ -118,11 +122,22 @@ private fun AppStoreOnboardingWizard(
                 .padding(horizontal = 24.dp, vertical = 28.dp),
             verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
-            Text(
-                "GoreeCloud App Store",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "GoreeCloud App Store",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                if (state.replayActive) {
+                    TextButton(onClick = onCancelReplay) {
+                        Text("Close replay")
+                    }
+                }
+            }
             Text(
                 "Step ${step + 1} of ${AppStoreGuidanceState.LAST_SETUP_STEP + 1}",
                 style = MaterialTheme.typography.bodySmall,
