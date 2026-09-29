@@ -29,6 +29,15 @@ class SavedCatalogStore(context: Context) {
         return next
     }
 
+    fun clear(subjectId: String): Set<String> {
+        check(
+            preferences.edit()
+                .remove(key(subjectId))
+                .commit(),
+        ) { "Failed to clear saved App Store items." }
+        return emptySet()
+    }
+
     private fun key(subjectId: String): String {
         val normalizedSubject = subjectId.trim()
         require(normalizedSubject.isNotEmpty()) { "subjectId must not be blank" }
