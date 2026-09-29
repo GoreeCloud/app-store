@@ -37,6 +37,7 @@ import androidx.compose.material.icons.rounded.BookmarkBorder
 import androidx.compose.material.icons.rounded.LibraryBooks
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Update
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -114,6 +115,7 @@ fun GoreeCloudAppStore(
     var savedItemIds by remember(session.subjectId) {
         mutableStateOf(savedCatalogStore.load(session.subjectId))
     }
+    var confirmClearSaved by remember(session.subjectId) { mutableStateOf(false) }
 
     val entitled = remember(session, allItems) {
         EntitlementEngine.visibleItems(session, allItems)
@@ -252,6 +254,14 @@ fun GoreeCloudAppStore(
                                 SavedLibraryEmptyState()
                             }
                         } else {
+                            item {
+                                TextButton(
+                                    modifier = Modifier.heightIn(min = 48.dp),
+                                    onClick = { confirmClearSaved = true },
+                                ) {
+                                    Text("Clear saved for later")
+                                }
+                            }
                             items(savedVisible, key = { "saved:${it.id}" }) { item ->
                                 StoreItemCard(item = item, onClick = { selectedItem = item })
                             }
@@ -288,6 +298,34 @@ fun GoreeCloudAppStore(
 
                 item { Spacer(Modifier.height(8.dp)) }
             }
+        }
+
+        if (confirmClearSaved) {
+            AlertDialog(
+                onDismissRequest = { confirmClearSaved = false },
+                title = { Text("Clear saved items?") },
+                text = {
+                    Text(
+                        "This removes only this development identity’s device-local Save for later list. " +
+                            "It does not uninstall apps, change entitlements, or affect account-wide history.",
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            savedItemIds = savedCatalogStore.clear(session.subjectId)
+                            confirmClearSaved = false
+                        },
+                    ) {
+                        Text("Clear saved")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmClearSaved = false }) {
+                        Text("Cancel")
+                    }
+                },
+            )
         }
 
         selectedItem?.let { item ->
