@@ -43,4 +43,22 @@ class SavedCatalogSelectionTest {
             saved = true,
         )
     }
+
+    @Test
+    fun identityNamespaceIsDeterministicWithoutEmbeddingRawSubject() {
+        val subject = "development-user-123@example.test"
+        val first = SavedCatalogIdentityNamespace.keyFor(subject)
+        val second = SavedCatalogIdentityNamespace.keyFor("  $subject  ")
+
+        assertEquals(first, second)
+        assertTrue(first.startsWith("saved_items_v1:"))
+        assertFalse(first.contains(subject))
+        assertEquals("saved_items_v1:".length + 64, first.length)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun blankIdentityNamespaceFailsClosed() {
+        SavedCatalogIdentityNamespace.keyFor("   ")
+    }
+
 }
