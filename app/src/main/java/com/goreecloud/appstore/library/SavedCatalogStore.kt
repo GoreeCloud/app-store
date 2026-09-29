@@ -1,6 +1,21 @@
 package com.goreecloud.appstore.library
 
 import android.content.Context
+import java.security.MessageDigest
+
+internal object SavedCatalogIdentityNamespace {
+    private const val KEY_PREFIX = "saved_items_v1:"
+
+    fun keyFor(subjectId: String): String {
+        val normalizedSubject = subjectId.trim()
+        require(normalizedSubject.isNotEmpty()) { "subjectId must not be blank" }
+
+        val digest = MessageDigest.getInstance("SHA-256")
+            .digest(normalizedSubject.toByteArray(Charsets.UTF_8))
+            .joinToString(separator = "") { byte -> "%02x".format(byte) }
+        return KEY_PREFIX + digest
+    }
+}
 
 class SavedCatalogStore(context: Context) {
     private val preferences =
@@ -38,14 +53,10 @@ class SavedCatalogStore(context: Context) {
         return emptySet()
     }
 
-    private fun key(subjectId: String): String {
-        val normalizedSubject = subjectId.trim()
-        require(normalizedSubject.isNotEmpty()) { "subjectId must not be blank" }
-        return "$KEY_PREFIX$normalizedSubject"
-    }
+    private fun key(subjectId: String): String =
+        SavedCatalogIdentityNamespace.keyFor(subjectId)
 
     companion object {
         private const val PREFERENCES_NAME = "goreecloud_app_store_saved_catalog"
-        private const val KEY_PREFIX = "saved_items_v1:"
     }
 }
