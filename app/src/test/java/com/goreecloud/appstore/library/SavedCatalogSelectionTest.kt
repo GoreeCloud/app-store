@@ -2,6 +2,7 @@ package com.goreecloud.appstore.library
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -48,9 +49,11 @@ class SavedCatalogSelectionTest {
     fun identityNamespaceIsDeterministicWithoutEmbeddingRawSubject() {
         val subject = "development-user-123@example.test"
         val first = SavedCatalogIdentityNamespace.keyFor(subject)
-        val second = SavedCatalogIdentityNamespace.keyFor("  $subject  ")
+        val second = SavedCatalogIdentityNamespace.keyFor(subject)
+        val whitespaceVariant = SavedCatalogIdentityNamespace.keyFor("  $subject  ")
 
         assertEquals(first, second)
+        assertNotEquals(first, whitespaceVariant)
         assertTrue(first.startsWith("saved_items_v1:"))
         assertFalse(first.contains(subject))
         assertEquals("saved_items_v1:".length + 64, first.length)
