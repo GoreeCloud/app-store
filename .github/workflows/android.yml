@@ -24,6 +24,8 @@ jobs:
           test "$ACTUAL_SHA" = "$EXPECTED_SHA"
           mkdir -p build-evidence
           printf '%s\n' "$ACTUAL_SHA" | tee build-evidence/source-commit.txt
+      - name: Validate repository structure
+        run: python3 scripts/validate_repository_structure.py
       - name: Approved branding validation
         run: python3 scripts/validate_branding.py
       - name: Validate exact-package installed-state boundary
