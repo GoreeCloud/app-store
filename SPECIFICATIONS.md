@@ -76,7 +76,7 @@ Service entries represent GoreeCloud capabilities that are opened rather than in
 
 ### Glaze UI
 
-Current consumer target: **2.0.0 Stable**. The application must substantively implement the applicable interaction, accessibility, responsive, state, material, navigation, target-size, and fallback requirements. This repository does not claim conformance until exact-revision acceptance exists.
+Current consumer target: **GLAZE UI V1.6 / 1.6.0**, the current Official Anchor release (with retained Stable compatibility vocabulary in Glaze UI lifecycle metadata). The application must substantively implement the applicable interaction, accessibility, responsive, state, material, navigation, target-size, and fallback requirements. This repository does not claim conformance until exact-revision acceptance exists.
 
 ### GoreeCloud Identity
 
