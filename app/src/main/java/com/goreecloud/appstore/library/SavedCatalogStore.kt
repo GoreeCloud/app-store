@@ -7,11 +7,12 @@ internal object SavedCatalogIdentityNamespace {
     private const val KEY_PREFIX = "saved_items_v1:"
 
     fun keyFor(subjectId: String): String {
-        val normalizedSubject = subjectId.trim()
-        require(normalizedSubject.isNotEmpty()) { "subjectId must not be blank" }
+        require(subjectId.isNotBlank()) { "subjectId must not be blank" }
 
+        // Identity subjects are opaque identifiers. Preserve the exact value rather than
+        // normalizing whitespace, which could collapse two distinct subjects into one namespace.
         val digest = MessageDigest.getInstance("SHA-256")
-            .digest(normalizedSubject.toByteArray(Charsets.UTF_8))
+            .digest(subjectId.toByteArray(Charsets.UTF_8))
             .joinToString(separator = "") { byte -> "%02x".format(byte) }
         return KEY_PREFIX + digest
     }
