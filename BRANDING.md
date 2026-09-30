@@ -1,6 +1,6 @@
 # GoreeCloud App Store Branding Contract
 
-GoreeCloud App Store consumes branding from the canonical `GoreeCloud/goreecloud-branding-assets` repository.
+GoreeCloud App Store consumes branding from the canonical `GoreeCloud/branding-assets` repository.
 
 The branding repository remains authoritative. Consumer copies in this repository are implementation derivatives only and do not create new branding authority.
 

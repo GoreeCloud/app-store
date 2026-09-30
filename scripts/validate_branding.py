@@ -23,7 +23,7 @@ for label, path in required_files.items():
 
 branding = BRANDING.read_text(encoding="utf-8")
 for required in [
-    "GoreeCloud/goreecloud-branding-assets",
+    "GoreeCloud/branding-assets",
     "products/app-store/app-icon.svg",
     "1e86041de7cbde9f92ae2ddb9a813b2585b5f788",
     "services/identity-center/service-icon.svg",

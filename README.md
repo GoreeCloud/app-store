@@ -12,7 +12,7 @@ Production acceptance: **false**
 The current development branch establishes:
 
 - a native Android/Jetpack Compose store application;
-- a Glaze UI 2.0.0 consumer target with layered native surfaces, capsule controls, light/dark adaptation, accessible interaction sizing, and effects-free behavior;
+- a GLAZE UI V1.6 / 1.6.0 consumer target with layered native surfaces, capsule controls, light/dark adaptation, accessible interaction sizing, and effects-free behavior;
 - a persistent App Store/account header and Material bottom navigation;
 - a per-session entitlement engine that filters the catalog before presentation;
 - development-only multi-user identity fixtures behind an explicit `IdentityGateway` boundary;
@@ -20,7 +20,7 @@ The current development branch establishes:
 - Discover, Apps, Services, Updates, and Library surfaces;
 - search constrained to the already-entitled catalog;
 - store-style application/service cards and product-detail bottom sheets;
-- approved first-party artwork derivatives tied to canonical assets in `GoreeCloud/goreecloud-branding-assets`;
+- approved first-party artwork derivatives tied to canonical assets in `GoreeCloud/branding-assets`;
 - development-status diagnostics separated from ordinary catalog browsing;
 - compact-width safeguards for account controls, catalog headings, item metadata, release-channel labels, detail metadata, and platform-status rows;
 - explicit source boundaries for GoreeCloud Identity, Wardveil Security, Privacy Shield, Everkeep, and GoreeCloud Mesh;
@@ -60,7 +60,7 @@ No role receives an undocumented superuser bypass. Administrative access must be
 
 ## Branding contract
 
-`GoreeCloud/goreecloud-branding-assets` is the canonical branding repository. Android VectorDrawable copies in this repository are consumer derivatives only and do not become new branding authorities.
+`GoreeCloud/branding-assets` is the canonical branding repository. Android VectorDrawable copies in this repository are consumer derivatives only and do not become new branding authorities.
 
 See `BRANDING.md` for the exact canonical asset paths and Git-blob mappings currently consumed for Browser, Messenger, Location, Identity, and Manager artwork.
 
