@@ -4,6 +4,7 @@
 
 - Added `docs/PRIVACY.md`, `.github/SECURITY.md`, and `.editorconfig` to satisfy the current repository baseline without widening runtime authority.
 - Updated README, documentation navigation, and Platform Contract evidence to reference the new canonical privacy/security records.
+- Added `scripts/validate_repository_structure.py` and CI enforcement so root cleanliness and mandatory repository records fail closed on future changes.
 - Privacy and security records explicitly preserve the Development-only Identity, package-delivery, signing, Privacy Shield, Wardveil, recovery, production, and Stable boundaries.
 
 ## 2026-09-30 — Repository root-cleanliness migration
