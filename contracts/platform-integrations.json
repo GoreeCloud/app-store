@@ -5,7 +5,7 @@
   "nativeApplication": true,
   "integrations": {
     "glazeUi": {
-      "target": "2.0.0",
+      "target": "1.6.0",
       "conformanceAccepted": false
     },
     "goreecloudIdentity": {
