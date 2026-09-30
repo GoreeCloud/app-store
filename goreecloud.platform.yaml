@@ -32,6 +32,7 @@ platform_systems:
     evidence:
       - README.md
       - docs/ARCHITECTURE.md
+      - docs/PRIVACY.md
       - contracts/platform-integrations.json
     notes: Development analytics are disabled and data-minimization boundaries are documented, but accepted Privacy Shield runtime policy, consent, retention, search/history governance, and production privacy acceptance are not established.
   wardveil_security:
@@ -40,6 +41,7 @@ platform_systems:
     evidence:
       - README.md
       - docs/ARCHITECTURE.md
+      - .github/SECURITY.md
       - contracts/platform-integrations.json
     notes: Package trust and verification are explicit future authorities and package delivery remains unavailable, but accepted Wardveil runtime package verification, security-response integration, and production security acceptance are not established.
   everkeep:

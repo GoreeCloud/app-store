@@ -15,6 +15,7 @@ This directory is the canonical home for human-readable repository documentation
 - `BRANDING.md` — branding-consumer mappings and provenance.
 - `USER-MANUAL.md` — current user/developer behavior and limitations.
 - `NOTES.md` — current repository-level development and maintenance notes.
+- `PRIVACY.md` — current Development privacy boundary.
 
 ## Supporting documentation
 
@@ -24,5 +25,7 @@ This directory is the canonical home for human-readable repository documentation
 - `package-delivery-pre-handoff-policy.md` and `package-delivery-read-only-preflight.md` — fail-closed delivery policy documentation.
 - `release-channel-rollout.md` — account-dependent Stable, RC, Beta, Development, and Debug channel authorization foundation.
 - `plans/goreecloud-app-store-update.md` — migrated detailed capability plan.
+
+Repository security guidance is maintained at `.github/SECURITY.md`.
 
 Repository documentation is Development evidence unless a record explicitly cites stronger accepted authority.

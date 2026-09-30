@@ -1,5 +1,11 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-09-30 — Repository baseline governance completion
+
+- Added `docs/PRIVACY.md`, `.github/SECURITY.md`, and `.editorconfig` to satisfy the current repository baseline without widening runtime authority.
+- Updated README, documentation navigation, and Platform Contract evidence to reference the new canonical privacy/security records.
+- Privacy and security records explicitly preserve the Development-only Identity, package-delivery, signing, Privacy Shield, Wardveil, recovery, production, and Stable boundaries.
+
 ## 2026-09-30 — Repository root-cleanliness migration
 
 - Moved canonical human-readable repository records from the repository root into `docs/` in accordance with current GoreeCloud repository-structure governance.

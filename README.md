@@ -106,6 +106,8 @@ CI installs the pinned Gradle distribution directly, checks out and records the 
 - `docs/BRANDING.md` — canonical branding-consumer mappings
 - `docs/USER-MANUAL.md` — current user/developer behavior and limitations
 - `docs/NOTES.md` — repository-local development and maintenance notes
+- `docs/PRIVACY.md` — current Development privacy boundary
+- `.github/SECURITY.md` — security guidance and vulnerability-reporting boundary
 - `development/signing/README.md` — development package/signing boundary
 - `goreecloud.platform.yaml` — Platform Contract 0.4 current conformance declaration
 - `contracts/platform-integrations.json` — machine-readable current integration truth
