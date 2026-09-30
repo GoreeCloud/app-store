@@ -7,7 +7,7 @@ component:
   repository: GoreeCloud/app-store
 
 lifecycle: development
-version: "0.1.2-dev"
+version: "0.1.3-dev"
 
 supported_platforms:
   - android
@@ -22,16 +22,16 @@ platform_systems:
     version: null
     evidence:
       - README.md
-      - ARCHITECTURE.md
+      - docs/ARCHITECTURE.md
       - contracts/platform-integrations.json
-      - NOTES.md
+      - docs/NOTES.md
     notes: GoreeCloud Manager lifecycle registration, health/readiness publication, operational visibility, and administrative integration are applicable but not implemented or accepted for this current-main Development application.
   privacy_shield:
     result: applicable-blocked
     version: null
     evidence:
       - README.md
-      - ARCHITECTURE.md
+      - docs/ARCHITECTURE.md
       - contracts/platform-integrations.json
     notes: Development analytics are disabled and data-minimization boundaries are documented, but accepted Privacy Shield runtime policy, consent, retention, search/history governance, and production privacy acceptance are not established.
   wardveil_security:
@@ -39,7 +39,7 @@ platform_systems:
     version: null
     evidence:
       - README.md
-      - ARCHITECTURE.md
+      - docs/ARCHITECTURE.md
       - contracts/platform-integrations.json
     notes: Package trust and verification are explicit future authorities and package delivery remains unavailable, but accepted Wardveil runtime package verification, security-response integration, and production security acceptance are not established.
   everkeep:
@@ -47,7 +47,7 @@ platform_systems:
     version: null
     evidence:
       - README.md
-      - ARCHITECTURE.md
+      - docs/ARCHITECTURE.md
       - contracts/platform-integrations.json
     notes: Library/history continuity and recovery boundaries are documented, but accepted Everkeep backup, clean-target restore, migration, rollback, and recovery evidence are not established.
   glaze_ui:
@@ -65,7 +65,7 @@ platform_systems:
     version: null
     evidence:
       - README.md
-      - ARCHITECTURE.md
+      - docs/ARCHITECTURE.md
       - contracts/platform-integrations.json
     notes: Catalog coordination and lifecycle/capability event boundaries are documented, but no accepted GoreeCloud Mesh registration, capability publication, authenticated transport, or runtime integration is established.
     capabilities: []
@@ -77,7 +77,7 @@ platform_systems:
     version: null
     evidence:
       - README.md
-      - ARCHITECTURE.md
+      - docs/ARCHITECTURE.md
       - contracts/platform-integrations.json
       - app/src/main/java/com/goreecloud/appstore/domain/EntitlementEngine.kt
     notes: Development-only multi-user identity fixtures and entitlement filtering exist, but accepted GoreeCloud Identity authentication, session, authorization, account disablement/revocation, device trust, and server-authoritative entitled-catalog delivery are not established.
@@ -86,7 +86,7 @@ platform_systems:
     version: null
     evidence:
       - README.md
-      - ARCHITECTURE.md
+      - docs/ARCHITECTURE.md
       - contracts/platform-integrations.json
     notes: GoreeCloud Policy is applicable to catalog publication, entitlement/channel access, package-delivery eligibility, update/rollback policy, privacy/security/continuity coordination, and explanations, but no accepted policy decision, distribution, enforcement, freshness, exception, or evidence integration is established.
   observability:
@@ -94,7 +94,7 @@ platform_systems:
     version: null
     evidence:
       - README.md
-      - ARCHITECTURE.md
+      - docs/ARCHITECTURE.md
       - contracts/platform-integrations.json
     notes: GoreeCloud Observability is applicable to App Store health/readiness, catalog/package-delivery diagnostics, dependency health, release-evidence freshness, package lifecycle events, performance, and operational evidence, but no accepted runtime integration is established.
 
@@ -146,9 +146,9 @@ conformance:
   validated_at: null
   evidence:
     - README.md
-    - ARCHITECTURE.md
-    - FEATURES.md
-    - NOTES.md
+    - docs/ARCHITECTURE.md
+    - docs/FEATURES.md
+    - docs/NOTES.md
     - contracts/platform-integrations.json
     - .github/workflows/android.yml
   blockers:

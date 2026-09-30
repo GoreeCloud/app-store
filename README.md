@@ -36,7 +36,7 @@ The interface is being iterated with real-device screenshots from Android develo
 
 CI/debug builds install as `com.goreecloud.appstore.dev` with the Android label **GoreeCloud App Store Dev**. They are signed with one repository-managed development-only certificate so successive development builds can update each other instead of receiving a new ephemeral Android debug identity from every CI runner.
 
-The current development version line is `0.1.2-dev` with version code `3`.
+The current development version line is `0.1.3-dev` with version code `4`.
 
 The reserved future production application ID remains `com.goreecloud.appstore`. The development signing key MUST NOT sign that production package or any artifact represented as production-approved or Stable. See `development/signing/README.md` for the explicit boundary and certificate fingerprint.
 
@@ -68,7 +68,7 @@ No role receives an undocumented superuser bypass. Administrative access must be
 
 `GoreeCloud/goreecloud-branding-assets` is the canonical branding repository. Android VectorDrawable copies in this repository are consumer derivatives only and do not become new branding authorities.
 
-See `BRANDING.md` for the exact canonical asset paths and Git-blob mappings currently consumed for Browser, Messenger, Location, Identity, and Manager artwork.
+See `docs/BRANDING.md` for the exact canonical asset paths and Git-blob mappings currently consumed for Browser, Messenger, Location, Identity, and Manager artwork.
 
 No App Store-specific official icon/logo is established here. Any future official App Store artwork must originate in the canonical branding repository first.
 
@@ -95,13 +95,17 @@ CI installs the pinned Gradle distribution directly, checks out and records the 
 
 ## Repository records
 
-- `SPECIFICATIONS.md` — product and engineering requirements
-- `ARCHITECTURE.md` — authority boundaries and runtime design
-- `FEATURES.md` — implemented and planned capabilities
-- `BENEFITS.md` — intended user/platform value
-- `COMPETITIVE-OBJECTIVES.md` — inspiration translated into GoreeCloud-native objectives
-- `BRANDING.md` — canonical branding-consumer mappings
-- `USER-MANUAL.md` — current user/developer behavior and limitations
+- `docs/SPECIFICATIONS.md` — product and engineering requirements
+- `docs/ARCHITECTURE.md` — authority boundaries and runtime design
+- `docs/FEATURES.md` — current functionality overview
+- `docs/IMPLEMENTED-FEATURES.md` — implemented capability authority
+- `docs/PLANNED-FEATURES.md` — planned and blocked capability authority
+- `docs/CHANGELOGS.md` — repository-local changelog
+- `docs/BENEFITS.md` — intended user/platform value
+- `docs/COMPETITIVE-OBJECTIVES.md` — inspiration translated into GoreeCloud-native objectives
+- `docs/BRANDING.md` — canonical branding-consumer mappings
+- `docs/USER-MANUAL.md` — current user/developer behavior and limitations
+- `docs/NOTES.md` — repository-local development and maintenance notes
 - `development/signing/README.md` — development package/signing boundary
 - `goreecloud.platform.yaml` — Platform Contract 0.4 current conformance declaration
 - `contracts/platform-integrations.json` — machine-readable current integration truth

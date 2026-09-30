@@ -1,5 +1,13 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-09-30 — Repository root-cleanliness migration
+
+- Moved canonical human-readable repository records from the repository root into `docs/` in accordance with current GoreeCloud repository-structure governance.
+- Kept `README.md`, build manifests, `.gitignore`, `LICENSE`, `goreecloud.platform.yaml`, and other technically justified entry-point controls at root.
+- Updated README navigation, Platform Contract evidence paths, and branding validation to use canonical `docs/` locations.
+- Corrected stale Development version metadata to `0.1.3-dev` / version code `4`, matching the authoritative Android build configuration on this candidate.
+- No application runtime authority, package-install authority, lifecycle state, Production Acceptance, or Stable qualification changed.
+
 ## 2026-09-30 — Stabilization candidate consolidation and local-state hardening
 
 - Consolidated the current-main package-delivery/Glaze stabilization lineage and repository-native feature-authority reconciliation into the active onboarding candidate, preserving both histories as explicit merge ancestry.

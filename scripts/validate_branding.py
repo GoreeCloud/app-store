@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-BRANDING = ROOT / "BRANDING.md"
+BRANDING = ROOT / "docs/BRANDING.md"
 MANIFEST = ROOT / "app/src/main/AndroidManifest.xml"
 UI = ROOT / "app/src/main/java/com/goreecloud/appstore/ui/AppStoreApp.kt"
 CATALOG = ROOT / "app/src/main/assets/catalog/development-catalog.json"
@@ -16,7 +16,7 @@ required_files = {
 }
 
 if not BRANDING.is_file():
-    raise SystemExit("Missing mandatory BRANDING.md")
+    raise SystemExit("Missing mandatory docs/BRANDING.md")
 for label, path in required_files.items():
     if not path.is_file():
         raise SystemExit(f"Missing {label}: {path.relative_to(ROOT)}")
@@ -35,7 +35,7 @@ for required in [
     "GoreeCloud Search",
 ]:
     if required not in branding:
-        raise SystemExit(f"BRANDING.md missing required approved identity boundary: {required}")
+        raise SystemExit(f"docs/BRANDING.md missing required approved identity boundary: {required}")
 
 manifest = MANIFEST.read_text(encoding="utf-8")
 if 'android:icon="@drawable/goreecloud_app_store_icon"' not in manifest:
