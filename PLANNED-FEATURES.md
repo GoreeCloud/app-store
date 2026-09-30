@@ -21,6 +21,12 @@ Google Drive roadmap synchronization is retired and must not be recreated as fea
 | FR-003 | Do not mark features implemented, complete, cancelled, or superseded without authoritative evidence and repository-native feature-record updates. | High | Ongoing control |
 | FR-004 | Develop the GoreeCloud App Store as the first-party-only GoreeCloud software discovery, distribution, update, management, security, privacy-intelligence, device-aware, cross-platform, and lifecycle control center defined by `docs/plans/goreecloud-app-store-update.md`, while preserving the boundary that third-party software and repositories are outside the dedicated GoreeCloud App Store catalog. | High | In Progress |
 
+## Current stabilization candidate — 2026-09-30
+
+The active Development candidate consolidates current-main package-delivery/Glaze stabilization, repository-native feature authority, mandatory first-use guidance, and bounded device-local **Save for later** behavior onto one current-main line. Saved-item preference namespacing preserves the exact opaque development identity subject before SHA-256 derivation so distinct subjects cannot collapse through whitespace normalization.
+
+This source state remains Development-only. Production Identity/catalog authority, authoritative package/release evidence providers, installation/update/rollback execution, synchronized or Everkeep-backed Library state, representative-device/accessibility acceptance, protected signing/distribution, Production Acceptance, Release Candidate qualification where applicable, and Stable qualification remain planned or blocked by separate acceptance gates.
+
 ## Current implementation increment
 
 Development implementation began on September 16, 2026 with stacked Draft PR #19 (`feature/release-evidence-gate`) at exact head `af774127e637eeaeb2d9c4e923d1a5ec922f5e18`, based directly on Draft PR #15 exact head `c6bf04c74d0fb13828fec1ce53b388005ef66f9c`.

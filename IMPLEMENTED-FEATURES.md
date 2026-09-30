@@ -15,6 +15,11 @@
 - Multi-user development session switcher.
 - Explicit entitlement filtering with no implicit administrator bypass.
 - Product-detail dialog with deliberately unavailable install/open action until delivery is trusted.
+- Mandatory three-step first-use guidance with durable interruption/resume state, replay, globally disableable contextual hints, and bounded dismissal/reset controls.
+- Per-development-identity, device-local **Save for later** state for currently entitled catalog items, with exact opaque identity-subject namespacing and no raw subject embedded in preference-key metadata.
+- Explicit **Clear saved for later** behavior scoped to the active development identity without uninstalling software or changing entitlement/account history.
+- Fail-closed package-delivery policy, exact-package installed-state observation, and read-only delivery preflight that cannot manufacture accepted installation absence or invoke package mutation/install authority.
+- Glaze UI V1.6 presentation-policy mapping retained as Development source evidence; application-specific rendered/device/production acceptance remains separate.
 - Platform-integration checkpoint for Glaze UI, Identity, Wardveil, Privacy Shield, Everkeep, and Mesh.
 - Unit tests and Android CI.
 
@@ -33,7 +38,7 @@
 - Everkeep protection contract and recovery evidence for library/history/catalog configuration.
 - GoreeCloud Mesh lifecycle/capability events.
 - Rich app pages: screenshots, changelog, source/license, permissions, compatibility, privacy, security, continuity, support.
-- Categories, collections, editorial surfaces, recommendations, wish/save-for-later, and notification preferences where privacy policy permits.
+- Categories, collections, editorial surfaces, recommendations, richer saved-item organization/synchronization where separately accepted, and notification preferences where privacy policy permits.
 - Multiple release channels with per-user/channel entitlements.
 - Device compatibility and architecture filtering.
 - Download/install queue and resilient retry state.
