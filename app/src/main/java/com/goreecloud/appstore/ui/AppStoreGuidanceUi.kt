@@ -276,11 +276,10 @@ private fun AppStoreOnboardingWizard(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        TextButton(
-                            onClick = onPrevious,
-                            enabled = step > 0,
-                        ) {
-                            Text("Back")
+                        if (step > 0) {
+                            TextButton(onClick = onPrevious) {
+                                Text("Back")
+                            }
                         }
                         Spacer(Modifier.weight(1f))
                         Button(
