@@ -331,7 +331,7 @@ fun GoreeCloudAppStore(
                         item {
                             TabIntro(
                                 title = "Library",
-                                body = "Keep device-local Favorites and Save for later collections for entitled GoreeCloud items. Installed and historical library state remains separate and unavailable.",
+                                body = "Favorites and saved items stay on this device and remain separated by identity.",
                             )
                         }
                         item {
