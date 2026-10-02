@@ -73,6 +73,50 @@ class SavedCatalogSelectionTest {
         assertNotEquals(favorite, FavoriteCatalogIdentityNamespace.keyFor("  $subject  "))
     }
 
+    @Test
+    fun recentlyViewedMovesOpenedItemToFrontAndCapsHistory() {
+        val current = (1..25).map { "item.$it" }
+
+        val updated = RecentlyViewedCatalogSelection.record(
+            current = current,
+            itemId = "item.10",
+        )
+
+        assertEquals(RecentlyViewedCatalogSelection.MAX_ITEMS, updated.size)
+        assertEquals("item.10", updated.first())
+        assertEquals(1, updated.count { it == "item.10" })
+        assertFalse("item.25" in updated)
+    }
+
+    @Test
+    fun recentlyViewedCodecRoundTripsAndMalformedDataFailsClosed() {
+        val ids = listOf("app.one", "service:two", "app.three")
+        val encoded = RecentlyViewedCatalogSelection.encode(ids)
+
+        assertEquals(ids, RecentlyViewedCatalogSelection.decode(encoded))
+        assertEquals(emptyList<String>(), RecentlyViewedCatalogSelection.decode("broken"))
+        assertEquals(emptyList<String>(), RecentlyViewedCatalogSelection.decode("9999:x"))
+    }
+
+    @Test
+    fun recentlyViewedIdentityNamespaceIsDistinctAndDoesNotEmbedRawSubject() {
+        val subject = "development-user-123@example.test"
+        val recent = RecentlyViewedCatalogIdentityNamespace.keyFor(subject)
+
+        assertTrue(recent.startsWith("recently_viewed_items_v1:"))
+        assertFalse(recent.contains(subject))
+        assertEquals("recently_viewed_items_v1:".length + 64, recent.length)
+        assertNotEquals(SavedCatalogIdentityNamespace.keyFor(subject), recent)
+        assertNotEquals(FavoriteCatalogIdentityNamespace.keyFor(subject), recent)
+        assertEquals(recent, RecentlyViewedCatalogIdentityNamespace.keyFor(subject))
+        assertNotEquals(recent, RecentlyViewedCatalogIdentityNamespace.keyFor("  $subject  "))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun blankRecentlyViewedIdentityNamespaceFailsClosed() {
+        RecentlyViewedCatalogIdentityNamespace.keyFor("   ")
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun blankFavoriteIdentityNamespaceFailsClosed() {
         FavoriteCatalogIdentityNamespace.keyFor("   ")
