@@ -29,9 +29,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ChevronRight
+import androidx.compose.material.icons.automirrored.rounded.LibraryBooks
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Apps
-import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.Close
@@ -42,7 +43,6 @@ import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkBorder
-import androidx.compose.material.icons.rounded.LibraryBooks
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Update
 import androidx.compose.material3.AlertDialog
@@ -104,7 +104,7 @@ enum class StoreTab(val title: String, val icon: ImageVector) {
     APPS("Apps", Icons.Rounded.Apps),
     SERVICES("Services", Icons.Rounded.Cloud),
     UPDATES("Updates", Icons.Rounded.Update),
-    LIBRARY("Library", Icons.Rounded.LibraryBooks),
+    LIBRARY("Library", Icons.AutoMirrored.Rounded.LibraryBooks),
 }
 
 @Composable
@@ -1078,7 +1078,7 @@ private fun StoreItemCard(
                 }
             }
             Icon(
-                Icons.Rounded.ChevronRight,
+                Icons.AutoMirrored.Rounded.ChevronRight,
                 contentDescription = "View ${item.name}",
                 modifier = Modifier.size(22.dp),
             )
@@ -1355,7 +1355,7 @@ private fun LibraryHistoryStatusRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                Icons.Rounded.LibraryBooks,
+                Icons.AutoMirrored.Rounded.LibraryBooks,
                 contentDescription = null,
                 modifier = Modifier.size(28.dp),
                 tint = MaterialTheme.colorScheme.primary,
@@ -1376,7 +1376,7 @@ private fun LibraryHistoryStatusRow(
                 )
             }
             Icon(
-                Icons.Rounded.ChevronRight,
+                Icons.AutoMirrored.Rounded.ChevronRight,
                 contentDescription = "View Development status",
                 modifier = Modifier.size(22.dp),
             )
@@ -1433,7 +1433,7 @@ private fun UnavailableState(
                 )
             }
             Icon(
-                Icons.Rounded.ChevronRight,
+                Icons.AutoMirrored.Rounded.ChevronRight,
                 contentDescription = "View Development status",
                 modifier = Modifier.size(22.dp),
             )
