@@ -838,14 +838,14 @@ private fun StoreItemCard(item: StoreItem, onClick: () -> Unit) {
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            StoreArtwork(item = item, size = 64.dp)
+            StoreArtwork(item = item, size = 56.dp)
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(5.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(
                     item.name,
@@ -874,12 +874,15 @@ private fun StoreItemCard(item: StoreItem, onClick: () -> Unit) {
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    ReleaseChannelPill(item.releaseChannel)
+                    if (item.releaseChannel != ReleaseChannel.DEVELOPMENT) {
+                        ReleaseChannelPill(item.releaseChannel)
+                    }
                 }
             }
             Icon(
                 Icons.Rounded.ChevronRight,
                 contentDescription = "View ${item.name}",
+                modifier = Modifier.size(22.dp),
             )
         }
     }
