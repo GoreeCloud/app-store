@@ -1,5 +1,15 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-02 — Mobile interaction and accessibility polish
+
+- Shortened first-use guidance copy, simplified the progress label, and changed the final action from **Finish setup** to **Start browsing** while preserving durable resume/replay behavior.
+- Added Android search-keyboard completion behavior so the Search IME action clears focus/keyboard without changing live filtering semantics.
+- Added an explicit close glyph to the selected category chip so the toggle-off behavior is visually obvious without introducing a second interaction target.
+- Added compact Favorite and Saved-for-later state glyphs to catalog rows so local Library state is visible before opening a detail sheet.
+- Added explicit accessibility labels for the development-identity account icon and bottom-navigation icons.
+- Advanced the persistent Development package to `0.1.10-dev` / versionCode `11`.
+- Fresh exact-head Android validation and Android 16 onboarding/runtime evidence are required before this candidate is treated as validated Development evidence.
+
 ## 2026-10-02 — Catalog interaction polish
 
 - Reduced Discover guidance from a tinted full-width capsule to a lightweight inline tip so catalog content appears sooner.
