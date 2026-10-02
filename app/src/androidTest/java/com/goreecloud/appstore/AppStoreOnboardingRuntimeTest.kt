@@ -10,6 +10,7 @@ import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import com.goreecloud.appstore.data.CatalogJsonLoader
 import com.goreecloud.appstore.domain.EntitlementEngine
+import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
 import com.goreecloud.appstore.library.FavoriteCatalogStore
 import com.goreecloud.appstore.onboarding.SharedPreferencesAppStoreGuidanceStore
@@ -121,7 +122,7 @@ class AppStoreOnboardingRuntimeTest {
         val item = EntitlementEngine.visibleItems(
             session,
             CatalogJsonLoader.load(context),
-        ).first()
+        ).first { it.type == StoreItemType.APPLICATION }
 
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             waitForText(device, "Welcome to GoreeCloud App Store")
@@ -132,8 +133,10 @@ class AppStoreOnboardingRuntimeTest {
             clickTextButton(device, "Start browsing")
             waitForText(device, "Discover")
 
-            clickTextButton(device, item.name)
+            clickTextButton(device, "Apps")
             waitForText(device, item.name)
+            clickTextButton(device, item.name)
+            waitForText(device, "Install unavailable")
             device.pressBack()
             device.waitForIdle()
 
@@ -144,7 +147,11 @@ class AppStoreOnboardingRuntimeTest {
             scenario.recreate()
             waitForText(device, "Discover")
             clickTextButton(device, "Library")
-            waitForText(device, "Nothing opened this session")
+            waitForText(device, "No Favorites yet")
+            assertTrue(
+                "Session-only recent items must not survive Activity recreation",
+                !device.hasObject(By.text("Recently opened")),
+            )
         }
     }
 
