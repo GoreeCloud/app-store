@@ -1,5 +1,17 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-02 — Library recency and compact-account pass
+
+- Added a bounded, session-local **Recently opened** Library collection that moves revisited items to the front without creating durable browsing history.
+- Kept recent items separated by the active Development identity and re-filtered them through current entitlements.
+- Added Library-wide search across Favorites, Saved for later, and Recently opened, with one-tap reset when no collection matches.
+- Added compact collection-count chips and moved clear actions into their section headings.
+- Added **Continue browsing** on Discover when session recency exists, without showing it while catalog search/category filters are active.
+- Moved the active Development identity into the header subtitle and reduced the account trigger to an icon-sized control so compact phones no longer truncate labels such as **Standard**.
+- Updated onboarding capability copy and Android runtime coverage for the revised Library flow.
+- Advanced the persistent Development package to `0.1.11-dev` / versionCode `12`.
+- Fresh exact-head Android validation and Android 16 runtime evidence are required before this candidate is treated as validated Development evidence.
+
 ## 2026-10-02 — Mobile interaction and accessibility polish
 
 - Shortened first-use guidance copy, simplified the progress label, and changed the final action from **Finish setup** to **Start browsing** while preserving durable resume/replay behavior.
