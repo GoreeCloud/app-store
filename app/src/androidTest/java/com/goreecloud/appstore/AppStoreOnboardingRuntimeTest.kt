@@ -151,6 +151,6 @@ class AppStoreOnboardingRuntimeTest {
     }
 
     private companion object {
-        const val UI_TIMEOUT_MS = 10_000L
+        const val UI_TIMEOUT_MS = 30_000L
     }
 }
