@@ -1,8 +1,18 @@
 # GoreeCloud App Store — Changelogs
 
-## 2026-10-02 — Representative-device polish pass in progress
+## 2026-10-02 — Representative-device polish pass
 
-- Additional onboarding, account-menu, Discover, Updates, Library, and compact-width refinements are being implemented from owner device screenshots. This entry remains Development-only until fresh exact-head validation completes.
+- Moved first-use progress/content to the top usable region and anchored Back/Continue/Finish navigation to the bottom safe area so onboarding no longer floats in the middle of tall phone screens.
+- Removed the disabled Back action from step 1 while preserving durable resume/replay behavior and large-text scrolling.
+- Shortened the catalog guidance hint and reduced its action footprint.
+- Simplified the account menu to concise identity labels and added an active-identity checkmark while retaining the same Development fixture subjects and entitlement behavior.
+- Removed the redundant Discover Development-status strip; status remains accessible from the account menu and contextual disconnected states.
+- Clarified the Discover hero count from “total” to “available” so identity-scoped counts are not confused with the full 34-entry Development catalog.
+- Tightened category-chip typography/end padding and refined Featured shelf card width, spacing, and trailing padding for a more deliberate horizontal peek.
+- Removed duplicate Updates messaging, compacted the disconnected-state card, and replaced Library’s large installed-history warning with a compact status row.
+- Simplified Guidance & setup copy.
+- Advanced the persistent Development package to `0.1.8-dev` / versionCode `9`.
+- Fresh exact-head Android validation and Android 16 onboarding/runtime evidence are required before this candidate is treated as validated Development evidence.
 
 ## 2026-10-02 — Onboarding and status refinement
 
