@@ -108,6 +108,9 @@ class AppStoreOnboardingRuntimeTest {
     }
 
     private companion object {
-        const val UI_TIMEOUT_MS = 10_000L
+        // Hosted Android 16 accessibility/UIAutomator publication can lag behind Compose state
+        // changes even when durable guidance state has already advanced. Keep the same rendered
+        // text assertions while allowing the emulator enough time to publish the accessibility tree.
+        const val UI_TIMEOUT_MS = 20_000L
     }
 }
