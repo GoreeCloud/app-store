@@ -18,7 +18,7 @@ Current development/debug builds use:
 
 - application ID `com.goreecloud.appstore.dev`;
 - Android label **GoreeCloud App Store Dev**;
-- development version line `0.1.8-dev` / version code `9` at this checkpoint;
+- development version line `0.1.9-dev` / version code `10` at this checkpoint;
 - the repository-managed, development-only signing certificate documented in `development/signing/README.md`.
 
 The development package is intentionally separate from the reserved future production application ID `com.goreecloud.appstore`. The development signing identity is non-production test material and must never sign the production package or a Stable artifact.
@@ -73,7 +73,7 @@ Shows device-local **Favorites** and **Saved for later** collections for the act
 
 ## Search
 
-Use the section-specific search field (**Search apps and services**, **Search apps**, or **Search services**) to filter the current entitled section by application/service name, summary, or category. When a query is active, use the trailing clear-search action to reset it immediately.
+Use the section-specific search field (**Search apps and services**, **Search apps**, or **Search services**) to filter the current entitled section by application/service name, summary, or category. When a query is active, use the trailing clear-search action to reset it immediately. If search or category filtering produces no matches, use **Reset** in the empty-result card to clear both filters in one action.
 
 Search operates only on entries already available to the active development identity. It does not reveal entries that were filtered out by entitlement rules.
 
@@ -91,9 +91,9 @@ The card layout gives primary text flexible width and uses a single-line summary
 
 ## Product details
 
-Select an application or service card to open its store-style development detail sheet. The sheet can show approved artwork, type/category, development release channel, version information, access state, and the unavailable primary action.
+Select an application or service card to open its store-style development detail sheet. The sheet can show approved artwork, type/category, development release channel, version information, access state, compact Favorite/Save controls, and the unavailable primary action.
 
-Detail metadata uses vertically stacked label/value presentation so long values remain readable on compact widths instead of competing with their labels in one horizontal row.
+Detail metadata uses vertically stacked label/value presentation so long values remain readable on compact widths instead of competing with their labels in one horizontal row. Favorites and saved items share one concise device-local identity boundary instead of repeating separate explanatory blocks.
 
 The **Install** or **Open** action remains disabled because package/service delivery is not yet trusted or connected.
 
