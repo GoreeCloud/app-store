@@ -73,6 +73,45 @@ class AppStoreOnboardingRuntimeTest {
         }
     }
 
+    @Test
+    fun favoritesCanBeClearedForActiveDevelopmentIdentity() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = resetGuidance()
+        val device = UiDevice.getInstance(instrumentation)
+        val session = DevelopmentIdentityGateway.initialSession
+        val favoriteStore = FavoriteCatalogStore(context)
+        val entitled = EntitlementEngine.visibleItems(
+            session,
+            CatalogJsonLoader.load(context),
+        )
+        val favoriteItem = entitled.first()
+        favoriteStore.clear(session.subjectId)
+        favoriteStore.setFavorite(session.subjectId, favoriteItem.id, true)
+
+        try {
+            ActivityScenario.launch(MainActivity::class.java).use {
+                waitForText(device, "Welcome to your GoreeCloud catalog")
+                clickTextButton(device, "Continue")
+                waitForText(device, "Know what the Store can do today")
+                clickTextButton(device, "Continue")
+                waitForText(device, "Choose helpful guidance")
+                clickTextButton(device, "Finish setup")
+                waitForText(device, "Discover")
+
+                clickTextButton(device, "Library")
+                waitForText(device, favoriteItem.name)
+                clickTextButton(device, "Clear Favorites")
+                waitForText(device, "Clear Favorites?")
+                clickTextButton(device, "Clear Favorites")
+                waitForText(device, "No Favorites yet")
+
+                assertTrue(favoriteStore.load(session.subjectId).isEmpty())
+            }
+        } finally {
+            favoriteStore.clear(session.subjectId)
+        }
+    }
+
     private fun resetGuidance(): Context {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         check(
