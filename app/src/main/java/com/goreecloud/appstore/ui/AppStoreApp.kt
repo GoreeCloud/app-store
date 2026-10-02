@@ -364,9 +364,9 @@ fun GoreeCloudAppStore(
                             StoreSectionHeading(
                                 title = "Saved for later",
                                 subtitle = if (savedVisible.size == 1) {
-                                    "1 item saved for this development identity"
+                                    "1 saved item"
                                 } else {
-                                    "${savedVisible.size} items saved for this development identity"
+                                    "${savedVisible.size} saved items"
                                 },
                             )
                         }
