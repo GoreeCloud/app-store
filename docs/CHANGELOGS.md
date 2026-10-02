@@ -2,7 +2,7 @@
 
 ## 2026-10-02 — Onboarding and status refinement
 
-- Rebuilt the three-step first-use experience from representative-device review: centered content, explicit progress segments, shorter copy, and structured capability rows replace the oversized document-like cards.
+- Rebuilt the three-step first-use experience from representative-device review: centered content, explicit progress segments, shorter copy, structured capability rows, and in-flow navigation actions replace the oversized document-like cards and avoid an intermittent accessibility-tree loss of the final setup action.
 - Preserved durable onboarding resume/replay state and contextual-tip controls while reducing startup friction.
 - Reworked Development Status into compact integration cards for faster scanning on phones.
 - Migrated the current user-facing design-system name from Glaze UI to Glaze while preserving the historical GLAZE UI V1.6 / 1.6.0 Official Anchor label in provenance-sensitive copy.
