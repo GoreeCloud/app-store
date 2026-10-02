@@ -24,7 +24,7 @@ class AppStoreOnboardingRuntimeTest {
 
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             waitForText(device, "Welcome to your GoreeCloud catalog")
-            waitForText(device, "Continue").click()
+            clickTextButton(device, "Continue")
             waitForText(device, "Know what the Store can do today")
 
             val persistedBeforeRecreation =
@@ -50,11 +50,11 @@ class AppStoreOnboardingRuntimeTest {
 
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             waitForText(device, "Welcome to your GoreeCloud catalog")
-            waitForText(device, "Continue").click()
+            clickTextButton(device, "Continue")
             waitForText(device, "Know what the Store can do today")
-            waitForText(device, "Continue").click()
+            clickTextButton(device, "Continue")
             waitForText(device, "Choose helpful guidance")
-            waitForText(device, "Finish setup").click()
+            clickTextButton(device, "Finish setup")
 
             waitForText(device, "Discover")
 
@@ -78,6 +78,20 @@ class AppStoreOnboardingRuntimeTest {
             ).edit().clear().commit(),
         )
         return context
+    }
+
+    private fun clickTextButton(
+        device: UiDevice,
+        text: String,
+    ) {
+        var target: UiObject2? = waitForText(device, text)
+        while (target != null && !target.isClickable) {
+            target = target.parent
+        }
+        checkNotNull(target) {
+            "No clickable ancestor found for rendered text: $text"
+        }.click()
+        device.waitForIdle()
     }
 
     private fun waitForText(
