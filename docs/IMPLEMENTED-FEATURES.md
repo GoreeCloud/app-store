@@ -15,6 +15,7 @@
 - Expanded 34-entry non-production portfolio fixture replacing the original six-entry bootstrap catalog.
 - Complete official catalog artwork coverage for all 34 entries, sourced from `GoreeCloud/branding-assets`; empty, generic, initial, and monogram fallbacks are prohibited and repository validation fails closed on missing mappings/resources.
 - Device-review mobile layout refinement with compact account/status/hero/search surfaces, smaller Featured cards, denser catalog rows, section-specific search prompts, filtered result counts, suppressed redundant Development pills, and compact Updates/Library states.
+- Representative-device onboarding/status refinement with a centered progress-led three-step first-use flow, structured availability summaries, current Glaze naming, compact integration cards, and additional catalog-row density improvements.
 - Application and service item models.
 - Development JSON catalog loader.
 - Multi-user development session switcher.
@@ -24,8 +25,8 @@
 - Per-development-identity, device-local **Save for later** state for currently entitled catalog items, with exact opaque identity-subject namespacing and no raw subject embedded in preference-key metadata.
 - Explicit **Clear saved for later** behavior scoped to the active development identity without uninstalling software or changing entitlement/account history.
 - Fail-closed package-delivery policy, exact-package installed-state observation, and read-only delivery preflight that cannot manufacture accepted installation absence or invoke package mutation/install authority.
-- Glaze UI V1.6 presentation-policy mapping retained as Development source evidence; application-specific rendered/device/production acceptance remains separate.
-- Platform-integration checkpoint for Glaze UI, Identity, Wardveil, Privacy Shield, Everkeep, and Mesh.
+- Historical GLAZE UI V1.6 / 1.6.0 presentation-policy mapping retained as Development source evidence while current user-facing system naming uses Glaze; application-specific rendered/device/production acceptance remains separate.
+- Platform-integration checkpoint for Glaze, Identity, Wardveil, Privacy Shield, Everkeep, and Mesh.
 - Unit tests and Android CI.
 
 ## Next functional milestones
