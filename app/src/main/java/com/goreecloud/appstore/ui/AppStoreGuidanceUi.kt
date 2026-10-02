@@ -124,7 +124,7 @@ private fun AppStoreOnboardingWizard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 18.dp),
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -145,7 +145,7 @@ private fun AppStoreOnboardingWizard(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
-                contentAlignment = Alignment.Center,
+                contentAlignment = Alignment.TopCenter,
             ) {
                 Column(
                     modifier = Modifier
@@ -174,7 +174,7 @@ private fun AppStoreOnboardingWizard(
                     }
 
                     Text(
-                        "${step + 1} of $stepCount",
+                        "Step ${step + 1} of $stepCount",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
