@@ -1,5 +1,13 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-02 — Catalog expansion and browsing UI rebuild
+
+- Replaced the six-entry bootstrap catalog fixture with a 34-entry non-production GoreeCloud portfolio fixture while preserving explicit audience filtering and non-authoritative package/version/endpoint boundaries.
+- Rebuilt the main Android browsing hierarchy with a compact branded header, portfolio summary hero, search-first discovery, category filters, a horizontally browsable Featured shelf, and clearer all-items sections.
+- Preserved entitlement concealment, device-local Favorites/Save for later isolation, unavailable package-delivery authority, and Development-only platform-status truth.
+- Advanced the Development APK identity to `0.1.4-dev` / version code `5` so validated builds can update the previous persistent Development package in place.
+- Fresh exact-head Android validation is required before this candidate is treated as validated Development evidence.
+
 ## 2026-09-30 — Repository baseline governance completion
 
 - Added `docs/PRIVACY.md`, `.github/SECURITY.md`, and `.editorconfig` to satisfy the current repository baseline without widening runtime authority.
