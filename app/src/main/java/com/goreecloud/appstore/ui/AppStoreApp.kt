@@ -33,6 +33,7 @@ import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkBorder
@@ -45,6 +46,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -82,6 +84,9 @@ import com.goreecloud.appstore.domain.StoreItem
 import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
 import com.goreecloud.appstore.library.FavoriteCatalogStore
+import com.goreecloud.appstore.library.LibraryCatalogFilter
+import com.goreecloud.appstore.library.LibraryItemTypeFilter
+import com.goreecloud.appstore.library.RecentlyViewedCatalogStore
 import com.goreecloud.appstore.library.SavedCatalogStore
 import com.goreecloud.appstore.onboarding.AppStoreGuidanceState
 import com.goreecloud.appstore.platform.IntegrationState
@@ -111,6 +116,9 @@ fun GoreeCloudAppStore(
     val favoriteCatalogStore = remember(context.applicationContext) {
         FavoriteCatalogStore(context.applicationContext)
     }
+    val recentlyViewedCatalogStore = remember(context.applicationContext) {
+        RecentlyViewedCatalogStore(context.applicationContext)
+    }
     val listState = rememberLazyListState()
 
     var session by remember { mutableStateOf(identityGateway.initialSession) }
@@ -124,7 +132,15 @@ fun GoreeCloudAppStore(
     var favoriteItemIds by remember(session.subjectId) {
         mutableStateOf(favoriteCatalogStore.load(session.subjectId))
     }
+    var recentlyViewedItemIds by remember(session.subjectId) {
+        mutableStateOf(recentlyViewedCatalogStore.load(session.subjectId))
+    }
+    var libraryTypeFilter by remember(session.subjectId) {
+        mutableStateOf(LibraryItemTypeFilter.ALL)
+    }
+    var confirmClearFavorites by remember(session.subjectId) { mutableStateOf(false) }
     var confirmClearSaved by remember(session.subjectId) { mutableStateOf(false) }
+    var confirmClearRecentlyViewed by remember(session.subjectId) { mutableStateOf(false) }
 
     val entitled = remember(session, allItems) {
         EntitlementEngine.visibleItems(session, allItems)
@@ -134,6 +150,27 @@ fun GoreeCloudAppStore(
     }
     val favoriteVisible = remember(entitled, favoriteItemIds) {
         entitled.filter { it.id in favoriteItemIds }
+    }
+    val recentlyViewedVisible = remember(entitled, recentlyViewedItemIds) {
+        val entitledById = entitled.associateBy(StoreItem::id)
+        recentlyViewedItemIds.mapNotNull(entitledById::get)
+    }
+    val filteredFavoriteVisible = remember(favoriteVisible, query, libraryTypeFilter) {
+        LibraryCatalogFilter.apply(favoriteVisible, query, libraryTypeFilter)
+    }
+    val filteredRecentlyViewedVisible = remember(recentlyViewedVisible, query, libraryTypeFilter) {
+        LibraryCatalogFilter.apply(recentlyViewedVisible, query, libraryTypeFilter)
+    }
+    val filteredSavedVisible = remember(savedVisible, query, libraryTypeFilter) {
+        LibraryCatalogFilter.apply(savedVisible, query, libraryTypeFilter)
+    }
+
+    fun openItem(item: StoreItem) {
+        recentlyViewedItemIds = recentlyViewedCatalogStore.record(
+            subjectId = session.subjectId,
+            itemId = item.id,
+        )
+        selectedItem = item
     }
     val visible = remember(entitled, selectedTab, query) {
         val tabItems = when (selectedTab) {
@@ -155,6 +192,7 @@ fun GoreeCloudAppStore(
 
     LaunchedEffect(selectedTab, session.subjectId) {
         query = ""
+        libraryTypeFilter = LibraryItemTypeFilter.ALL
         listState.scrollToItem(0)
     }
 
@@ -248,41 +286,99 @@ fun GoreeCloudAppStore(
                         item {
                             TabIntro(
                                 title = "Library",
-                                body = "Keep device-local Favorites and Save for later collections for entitled GoreeCloud items. Installed and historical library state remains separate and unavailable.",
+                                body = "Keep device-local Favorites, Recently viewed, and Save for later collections for entitled GoreeCloud items. Installed and account history remain separate and unavailable.",
                             )
                         }
                         item {
+                            StoreSearch(
+                                query = query,
+                                onQueryChanged = { query = it },
+                            )
+                        }
+                        item {
+                            LibraryTypeFilterRow(
+                                selected = libraryTypeFilter,
+                                onSelected = { libraryTypeFilter = it },
+                            )
+                        }
+
+                        item {
                             StoreSectionHeading(
                                 title = "Favorites",
-                                subtitle = if (favoriteVisible.size == 1) {
-                                    "1 favorite for this development identity"
-                                } else {
-                                    "${favoriteVisible.size} favorites for this development identity"
-                                },
+                                subtitle = libraryCollectionCountLabel(
+                                    visibleCount = filteredFavoriteVisible.size,
+                                    totalCount = favoriteVisible.size,
+                                    singular = "favorite",
+                                    plural = "favorites",
+                                ),
                             )
                         }
                         if (favoriteVisible.isEmpty()) {
                             item { FavoriteLibraryEmptyState() }
                         } else {
-                            items(favoriteVisible, key = { "favorite:${it.id}" }) { item ->
-                                StoreItemCard(item = item, onClick = { selectedItem = item })
+                            item {
+                                TextButton(
+                                    modifier = Modifier.heightIn(min = 48.dp),
+                                    onClick = { confirmClearFavorites = true },
+                                ) {
+                                    Text("Clear Favorites")
+                                }
+                            }
+                            if (filteredFavoriteVisible.isEmpty()) {
+                                item { LibraryNoMatchesState(collectionName = "Favorites") }
+                            } else {
+                                items(filteredFavoriteVisible, key = { "favorite:${it.id}" }) { item ->
+                                    StoreItemCard(item = item, onClick = { openItem(item) })
+                                }
                             }
                         }
+
+                        item { Spacer(Modifier.height(6.dp)) }
+                        item {
+                            StoreSectionHeading(
+                                title = "Recently viewed",
+                                subtitle = libraryCollectionCountLabel(
+                                    visibleCount = filteredRecentlyViewedVisible.size,
+                                    totalCount = recentlyViewedVisible.size,
+                                    singular = "recently viewed item",
+                                    plural = "recently viewed items",
+                                ),
+                            )
+                        }
+                        if (recentlyViewedVisible.isEmpty()) {
+                            item { RecentlyViewedLibraryEmptyState() }
+                        } else {
+                            item {
+                                TextButton(
+                                    modifier = Modifier.heightIn(min = 48.dp),
+                                    onClick = { confirmClearRecentlyViewed = true },
+                                ) {
+                                    Text("Clear recently viewed")
+                                }
+                            }
+                            if (filteredRecentlyViewedVisible.isEmpty()) {
+                                item { LibraryNoMatchesState(collectionName = "Recently viewed") }
+                            } else {
+                                items(filteredRecentlyViewedVisible, key = { "recent:${it.id}" }) { item ->
+                                    StoreItemCard(item = item, onClick = { openItem(item) })
+                                }
+                            }
+                        }
+
                         item { Spacer(Modifier.height(6.dp)) }
                         item {
                             StoreSectionHeading(
                                 title = "Saved for later",
-                                subtitle = if (savedVisible.size == 1) {
-                                    "1 item saved for this development identity"
-                                } else {
-                                    "${savedVisible.size} items saved for this development identity"
-                                },
+                                subtitle = libraryCollectionCountLabel(
+                                    visibleCount = filteredSavedVisible.size,
+                                    totalCount = savedVisible.size,
+                                    singular = "saved item",
+                                    plural = "saved items",
+                                ),
                             )
                         }
                         if (savedVisible.isEmpty()) {
-                            item {
-                                SavedLibraryEmptyState()
-                            }
+                            item { SavedLibraryEmptyState() }
                         } else {
                             item {
                                 TextButton(
@@ -292,8 +388,12 @@ fun GoreeCloudAppStore(
                                     Text("Clear saved for later")
                                 }
                             }
-                            items(savedVisible, key = { "saved:${it.id}" }) { item ->
-                                StoreItemCard(item = item, onClick = { selectedItem = item })
+                            if (filteredSavedVisible.isEmpty()) {
+                                item { LibraryNoMatchesState(collectionName = "Saved for later") }
+                            } else {
+                                items(filteredSavedVisible, key = { "saved:${it.id}" }) { item ->
+                                    StoreItemCard(item = item, onClick = { openItem(item) })
+                                }
                             }
                         }
                         item {
@@ -321,13 +421,70 @@ fun GoreeCloudAppStore(
                         }
                     } else {
                         items(visible, key = { it.id }) { item ->
-                            StoreItemCard(item = item, onClick = { selectedItem = item })
+                            StoreItemCard(item = item, onClick = { openItem(item) })
                         }
                     }
                 }
 
                 item { Spacer(Modifier.height(8.dp)) }
             }
+        }
+
+        if (confirmClearFavorites) {
+            AlertDialog(
+                onDismissRequest = { confirmClearFavorites = false },
+                title = { Text("Clear Favorites?") },
+                text = {
+                    Text(
+                        "This removes only this development identity’s device-local Favorites list. " +
+                            "It does not uninstall apps, change entitlements, or affect account-wide history.",
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            favoriteItemIds = favoriteCatalogStore.clear(session.subjectId)
+                            confirmClearFavorites = false
+                        },
+                    ) {
+                        Text("Clear all Favorites")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmClearFavorites = false }) {
+                        Text("Cancel")
+                    }
+                },
+            )
+        }
+
+        if (confirmClearRecentlyViewed) {
+            AlertDialog(
+                onDismissRequest = { confirmClearRecentlyViewed = false },
+                title = { Text("Clear recently viewed?") },
+                text = {
+                    Text(
+                        "This removes only this development identity’s device-local recently viewed list. " +
+                            "It does not uninstall software, change entitlements, or erase account history.",
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            recentlyViewedItemIds =
+                                recentlyViewedCatalogStore.clear(session.subjectId)
+                            confirmClearRecentlyViewed = false
+                        },
+                    ) {
+                        Text("Clear recently viewed")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmClearRecentlyViewed = false }) {
+                        Text("Cancel")
+                    }
+                },
+            )
         }
 
         if (confirmClearSaved) {
@@ -758,6 +915,63 @@ private fun EmptyCatalogState(authenticated: Boolean, hasQuery: Boolean) {
 }
 
 @Composable
+private fun LibraryTypeFilterRow(
+    selected: LibraryItemTypeFilter,
+    onSelected: (LibraryItemTypeFilter) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        LibraryItemTypeFilter.entries.forEach { filter ->
+            FilterChip(
+                selected = selected == filter,
+                onClick = { onSelected(filter) },
+                label = {
+                    Text(
+                        when (filter) {
+                            LibraryItemTypeFilter.ALL -> "All"
+                            LibraryItemTypeFilter.APPS -> "Apps"
+                            LibraryItemTypeFilter.SERVICES -> "Services"
+                        },
+                    )
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun LibraryNoMatchesState(collectionName: String) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = GlazeCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Text(
+            text = "No $collectionName items match the current Library search and type filter.",
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+private fun libraryCollectionCountLabel(
+    visibleCount: Int,
+    totalCount: Int,
+    singular: String,
+    plural: String,
+): String {
+    val totalLabel = if (totalCount == 1) "1 $singular" else "$totalCount $plural"
+    return if (visibleCount == totalCount) {
+        "$totalLabel for this development identity"
+    } else {
+        "$visibleCount of $totalLabel for this development identity"
+    }
+}
+
+@Composable
 private fun FavoriteLibraryEmptyState() {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -783,6 +997,40 @@ private fun FavoriteLibraryEmptyState() {
             )
             Text(
                 "Open an entitled app or service and choose Add to Favorites. Favorites remain device-local and separated by development identity.",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun RecentlyViewedLibraryEmptyState() {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = GlazeCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 28.dp, vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(
+                Icons.Rounded.History,
+                contentDescription = null,
+                modifier = Modifier.size(32.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                "Nothing viewed yet",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                "Items you open appear here on this device for the active development identity. This is browsing recency, not install or purchase history.",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

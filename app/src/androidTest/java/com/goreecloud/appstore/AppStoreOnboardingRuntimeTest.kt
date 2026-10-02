@@ -8,6 +8,10 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
+import com.goreecloud.appstore.data.CatalogJsonLoader
+import com.goreecloud.appstore.domain.EntitlementEngine
+import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
+import com.goreecloud.appstore.library.FavoriteCatalogStore
 import com.goreecloud.appstore.onboarding.SharedPreferencesAppStoreGuidanceStore
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -69,6 +73,45 @@ class AppStoreOnboardingRuntimeTest {
         }
     }
 
+    @Test
+    fun favoritesCanBeClearedForActiveDevelopmentIdentity() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = resetGuidance()
+        val device = UiDevice.getInstance(instrumentation)
+        val session = DevelopmentIdentityGateway.initialSession
+        val favoriteStore = FavoriteCatalogStore(context)
+        val entitled = EntitlementEngine.visibleItems(
+            session,
+            CatalogJsonLoader.load(context),
+        )
+        val favoriteItem = entitled.first()
+        favoriteStore.clear(session.subjectId)
+        favoriteStore.setFavorite(session.subjectId, favoriteItem.id, true)
+
+        try {
+            ActivityScenario.launch(MainActivity::class.java).use {
+                waitForText(device, "Welcome to your GoreeCloud catalog")
+                clickTextButton(device, "Continue")
+                waitForText(device, "Know what the Store can do today")
+                clickTextButton(device, "Continue")
+                waitForText(device, "Choose helpful guidance")
+                clickTextButton(device, "Finish setup")
+                waitForText(device, "Discover")
+
+                clickTextButton(device, "Library")
+                waitForText(device, favoriteItem.name)
+                clickTextButton(device, "Clear Favorites")
+                waitForText(device, "Clear Favorites?")
+                clickTextButton(device, "Clear all Favorites")
+                waitForText(device, "No Favorites yet")
+
+                assertTrue(favoriteStore.load(session.subjectId).isEmpty())
+            }
+        } finally {
+            favoriteStore.clear(session.subjectId)
+        }
+    }
+
     private fun resetGuidance(): Context {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         check(
@@ -108,6 +151,9 @@ class AppStoreOnboardingRuntimeTest {
     }
 
     private companion object {
-        const val UI_TIMEOUT_MS = 10_000L
+        // Hosted Android 16 accessibility/UIAutomator publication can lag behind Compose state
+        // changes even when durable guidance state has already advanced. Keep the same rendered
+        // text assertions while allowing the emulator enough time to publish the accessibility tree.
+        const val UI_TIMEOUT_MS = 20_000L
     }
 }
