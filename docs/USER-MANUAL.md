@@ -65,7 +65,7 @@ Shows only entitled GoreeCloud service entries. Opening services is currently di
 
 ### Updates
 
-Shows a compact disconnected-state card. Update discovery and delivery have not yet been connected; authenticated release metadata and package delivery remain required before update actions appear.
+Shows a centered compact disconnected-state card rather than repeating the same warning at the top of the screen. Update discovery and delivery have not yet been connected; authenticated release metadata and package delivery remain required before update actions appear.
 
 ### Library
 
@@ -73,7 +73,7 @@ Shows device-local **Favorites** and **Saved for later** collections for the act
 
 ## Search
 
-Use the section-specific search field (**Search apps and services**, **Search apps**, or **Search services**) to filter the current entitled section by application/service name, summary, or category.
+Use the section-specific search field (**Search apps and services**, **Search apps**, or **Search services**) to filter the current entitled section by application/service name, summary, or category. When a query is active, use the trailing clear-search action to reset it immediately.
 
 Search operates only on entries already available to the active development identity. It does not reveal entries that were filtered out by entitlement rules.
 
