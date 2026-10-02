@@ -1,5 +1,16 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-02 — Onboarding and status refinement
+
+- Rebuilt the three-step first-use experience from representative-device review: centered content, explicit progress segments, shorter copy, and structured capability rows replace the oversized document-like cards.
+- Preserved durable onboarding resume/replay state and contextual-tip controls while reducing startup friction.
+- Reworked Development Status into compact integration cards for faster scanning on phones.
+- Migrated the current user-facing design-system name from Glaze UI to Glaze while preserving the historical GLAZE UI V1.6 / 1.6.0 Official Anchor label in provenance-sensitive copy.
+- Corrected the stale Development Status reference to a 2.0.0 consumer contract; the UI now reflects the authoritative 1.6.0 Official Anchor boundary.
+- Increased catalog density again by reducing row artwork/padding and using single-line summaries while retaining type/category metadata.
+- Advanced the persistent Development package to `0.1.7-dev` / versionCode `8`.
+- Fresh exact-head Android validation and Android 16 onboarding/runtime evidence are required before this candidate is treated as validated Development evidence.
+
 ## 2026-10-02 — Representative-device mobile UI refinement
 
 - Refined the Android browsing experience from owner-supplied physical-device screenshots.
