@@ -59,6 +59,25 @@ class SavedCatalogSelectionTest {
         assertEquals("saved_items_v1:".length + 64, first.length)
     }
 
+    @Test
+    fun favoriteIdentityNamespaceIsDistinctAndDoesNotEmbedRawSubject() {
+        val subject = "development-user-123@example.test"
+        val saved = SavedCatalogIdentityNamespace.keyFor(subject)
+        val favorite = FavoriteCatalogIdentityNamespace.keyFor(subject)
+
+        assertTrue(favorite.startsWith("favorite_items_v1:"))
+        assertFalse(favorite.contains(subject))
+        assertEquals("favorite_items_v1:".length + 64, favorite.length)
+        assertNotEquals(saved, favorite)
+        assertEquals(favorite, FavoriteCatalogIdentityNamespace.keyFor(subject))
+        assertNotEquals(favorite, FavoriteCatalogIdentityNamespace.keyFor("  $subject  "))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun blankFavoriteIdentityNamespaceFailsClosed() {
+        FavoriteCatalogIdentityNamespace.keyFor("   ")
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun blankIdentityNamespaceFailsClosed() {
         SavedCatalogIdentityNamespace.keyFor("   ")
