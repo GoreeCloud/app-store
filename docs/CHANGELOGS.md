@@ -8,8 +8,8 @@
 - Simplified the account menu to concise identity labels and added an active-identity checkmark while retaining the same Development fixture subjects and entitlement behavior.
 - Removed the redundant Discover Development-status strip; status remains accessible from the account menu and contextual disconnected states.
 - Clarified the Discover hero count from “total” to “available” so identity-scoped counts are not confused with the full 34-entry Development catalog.
-- Tightened category-chip typography/end padding and refined Featured shelf card width, spacing, and trailing padding for a more deliberate horizontal peek.
-- Removed duplicate Updates messaging, compacted the disconnected-state card, and replaced Library’s large installed-history warning with a compact status row.
+- Tightened category-chip typography/end padding, refined Featured shelf card width/spacing/trailing padding for a more deliberate horizontal peek, and added an explicit clear-search affordance when a query is active.
+- Removed duplicate Updates messaging, centered and compacted the disconnected-state card within the available viewport, and replaced Library’s large installed-history warning with a compact status row.
 - Simplified Guidance & setup copy.
 - Advanced the persistent Development package to `0.1.8-dev` / versionCode `9`.
 - Fresh exact-head Android validation and Android 16 onboarding/runtime evidence are required before this candidate is treated as validated Development evidence.
