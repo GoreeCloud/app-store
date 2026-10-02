@@ -123,7 +123,7 @@ class AppStoreOnboardingRuntimeTest {
             CatalogJsonLoader.load(context),
         ).first()
 
-        ActivityScenario.launch(MainActivity::class.java).use {
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             waitForText(device, "Welcome to GoreeCloud App Store")
             clickTextButton(device, "Continue")
             waitForText(device, "What works today")
@@ -140,6 +140,11 @@ class AppStoreOnboardingRuntimeTest {
             clickTextButton(device, "Library")
             waitForText(device, "Recently opened")
             waitForText(device, item.name)
+
+            scenario.recreate()
+            waitForText(device, "Discover")
+            clickTextButton(device, "Library")
+            waitForText(device, "Nothing opened this session")
         }
     }
 
