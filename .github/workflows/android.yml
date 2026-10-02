@@ -43,8 +43,8 @@ jobs:
         run: gradle :app:testDebugUnitTest
       - name: Lint
         run: gradle :app:lintDebug
-      - name: Assemble development APK
-        run: gradle :app:assembleDebug
+      - name: Assemble development APK and runtime test APK
+        run: gradle :app:assembleDebug :app:assembleDebugAndroidTest
       - name: Verify development APK
         shell: bash
         run: |
@@ -76,4 +76,60 @@ jobs:
             build-evidence/app-debug.badging.txt
             build-evidence/app-debug.signing.txt
           if-no-files-found: error
+          retention-days: 14
+
+
+  runtime:
+    name: App Store Android 16 onboarding runtime
+    needs: validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Verify exact source revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '9.5.0'
+      - name: Detect Android emulator acceleration
+        id: emulator-accel
+        shell: bash
+        run: |
+          if [ -e /dev/kvm ]; then
+            sudo chmod 0666 /dev/kvm || true
+          fi
+          if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+            echo "kvm_available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "kvm_available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::KVM acceleration is unavailable; App Store Android 16 runtime will use software acceleration."
+          fi
+      - name: Run App Store Android 16 onboarding instrumentation
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        with:
+          api-level: 36
+          target: default
+          arch: x86_64
+          disable-animations: true
+          disable-linux-hw-accel: ${{ steps.emulator-accel.outputs.kvm_available != 'true' }}
+          script: gradle --no-daemon :app:connectedDebugAndroidTest --stacktrace
+      - name: Upload App Store Android 16 test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-store-android16-runtime-reports
+          path: |
+            app/build/reports/androidTests/connected/**
+            app/build/outputs/androidTest-results/connected/**
+          if-no-files-found: warn
           retention-days: 14
