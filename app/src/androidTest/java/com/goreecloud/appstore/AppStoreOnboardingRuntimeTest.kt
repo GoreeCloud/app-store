@@ -27,9 +27,9 @@ class AppStoreOnboardingRuntimeTest {
         val device = UiDevice.getInstance(instrumentation)
 
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            waitForText(device, "Welcome to your GoreeCloud catalog")
+            waitForText(device, "Welcome to GoreeCloud App Store")
             clickTextButton(device, "Continue")
-            waitForText(device, "Know what the Store can do today")
+            waitForText(device, "What works today")
 
             val persistedBeforeRecreation =
                 checkNotNull(SharedPreferencesAppStoreGuidanceStore(context).read())
@@ -37,7 +37,7 @@ class AppStoreOnboardingRuntimeTest {
             assertTrue(!persistedBeforeRecreation.setupCompleted)
 
             scenario.recreate()
-            waitForText(device, "Know what the Store can do today")
+            waitForText(device, "What works today")
 
             val persistedAfterRecreation =
                 checkNotNull(SharedPreferencesAppStoreGuidanceStore(context).read())
@@ -53,12 +53,12 @@ class AppStoreOnboardingRuntimeTest {
         val device = UiDevice.getInstance(instrumentation)
 
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            waitForText(device, "Welcome to your GoreeCloud catalog")
+            waitForText(device, "Welcome to GoreeCloud App Store")
             clickTextButton(device, "Continue")
-            waitForText(device, "Know what the Store can do today")
+            waitForText(device, "What works today")
             clickTextButton(device, "Continue")
-            waitForText(device, "Choose helpful guidance")
-            clickTextButton(device, "Finish setup")
+            waitForText(device, "Helpful tips")
+            clickTextButton(device, "Start browsing")
 
             waitForText(device, "Discover")
 
@@ -90,12 +90,12 @@ class AppStoreOnboardingRuntimeTest {
 
         try {
             ActivityScenario.launch(MainActivity::class.java).use {
-                waitForText(device, "Welcome to your GoreeCloud catalog")
+                waitForText(device, "Welcome to GoreeCloud App Store")
                 clickTextButton(device, "Continue")
-                waitForText(device, "Know what the Store can do today")
+                waitForText(device, "What works today")
                 clickTextButton(device, "Continue")
-                waitForText(device, "Choose helpful guidance")
-                clickTextButton(device, "Finish setup")
+                waitForText(device, "Helpful tips")
+                clickTextButton(device, "Start browsing")
                 waitForText(device, "Discover")
 
                 clickTextButton(device, "Library")
