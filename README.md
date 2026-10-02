@@ -24,7 +24,7 @@ The current development branch establishes:
 - official canonical artwork for every catalog application and service, with user-facing placeholder/monogram fallbacks prohibited and CI-enforced;
 - device-review mobile-density refinement that shortens account labels, reduces Discover chrome, removes redundant Development pills, compacts Featured/catalog cards, and uses denser Updates/Library states while preserving 48dp-class interaction targets;
 - representative-device onboarding/status refinement with top-anchored progress-led first-run guidance, bottom-anchored navigation, structured capability summaries, current Glaze naming, compact integration cards, and denser catalog rows;
-- a follow-up compact-phone polish pass that removes the redundant Discover status strip, clarifies identity-scoped catalog counts, marks the active account in the selector, tightens category/Featured browsing, and compacts disconnected Updates/Library states;
+- a follow-up compact-phone polish pass that removes the redundant Discover status strip, clarifies identity-scoped catalog counts, marks the active account in the selector, tightens category/Featured browsing, adds clear-search controls, centers the disconnected Updates state, and compacts Library history status;
 - per-development-identity device-local Save for later state for currently entitled items, with Library presentation that remains explicitly separate from installed/history/Everkeep authority and hashed local preference namespaces that do not embed the raw identity subject;
 - store-style application/service cards and product-detail bottom sheets;
 - approved first-party artwork derivatives tied to canonical assets in `GoreeCloud/branding-assets`;
