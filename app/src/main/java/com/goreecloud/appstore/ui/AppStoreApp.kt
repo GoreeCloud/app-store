@@ -39,6 +39,7 @@ import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkBorder
@@ -1324,7 +1325,7 @@ private fun EmptyLibrarySearchState(onReset: () -> Unit) {
 @Composable
 private fun RecentlyOpenedEmptyState() {
     LibraryCollectionEmptyState(
-        icon = Icons.Rounded.Update,
+        icon = Icons.Rounded.History,
         title = "Nothing opened this session",
         body = "Open any available item to keep quick access here until the App Store closes.",
     )
