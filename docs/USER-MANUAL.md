@@ -18,7 +18,7 @@ Current development/debug builds use:
 
 - application ID `com.goreecloud.appstore.dev`;
 - Android label **GoreeCloud App Store Dev**;
-- development version line `0.1.10-dev` / version code `11` at this checkpoint;
+- development version line `0.1.11-dev` / version code `12` at this checkpoint;
 - the repository-managed, development-only signing certificate documented in `development/signing/README.md`.
 
 The development package is intentionally separate from the reserved future production application ID `com.goreecloud.appstore`. The development signing identity is non-production test material and must never sign the production package or a Stable artifact.
@@ -45,7 +45,7 @@ These are not real GoreeCloud accounts, groups, or production roles. They are lo
 
 Changing the development identity immediately recalculates which catalog entries are visible and returns the current section to its top. An entry for which the active session is not entitled is concealed from visible lists and search results.
 
-Compact labels are used in both the persistent header and account menu so the account icon and menu affordance remain readable on narrow phones. These labels still map to the same local Development fixture subjects; they are not production roles.
+The active Development identity is shown in the compact header subtitle, while the account menu trigger is icon-sized so labels such as **Standard** do not truncate on narrow phones. The same concise labels remain in the menu and still map to local Development fixture subjects; they are not production roles.
 
 ## Store sections
 
@@ -69,13 +69,13 @@ Shows a centered compact disconnected-state card rather than repeating the same 
 
 ### Library
 
-Shows device-local **Favorites** and **Saved for later** collections for the active Development identity, plus a compact **Installed history** status row. Installed-library history and Everkeep-backed cross-device recovery have not yet been connected.
+Shows device-local **Favorites** and **Saved for later** collections for the active Development identity, plus a bounded **Recently opened** collection for the current App Store session and a compact **Installed history** status row. The Library includes compact collection counts and a single search field across local collections. Recently opened items remain in memory only, are separated by Development identity, are re-filtered through current entitlements, and are not restored as durable browsing history. Installed-library history and Everkeep-backed cross-device recovery have not yet been connected.
 
 ## Search
 
 Use the section-specific search field (**Search apps and services**, **Search apps**, or **Search services**) to filter the current entitled section by application/service name, summary, or category. The Android Search keyboard action dismisses the keyboard while keeping the current live-filtered results in place. When a query is active, use the trailing clear-search action to reset it immediately. A selected category shows a close glyph and can be tapped again to clear it. If search or category filtering produces no matches, use **Reset** in the empty-result card to clear both filters in one action.
 
-Search operates only on entries already available to the active development identity. It does not reveal entries that were filtered out by entitlement rules.
+Search operates only on entries already available to the active development identity. It does not reveal entries that were filtered out by entitlement rules. **Search your library** applies the same entitlement boundary while filtering Favorites, Saved for later, and Recently opened together.
 
 ## Application and service artwork
 
