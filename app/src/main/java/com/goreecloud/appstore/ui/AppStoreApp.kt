@@ -773,7 +773,7 @@ private fun FeaturedShelf(
 private fun FeaturedItemCard(item: StoreItem, onClick: () -> Unit) {
     ElevatedCard(
         modifier = Modifier
-            .width(224.dp)
+            .width(180.dp)
             .clickable(onClick = onClick),
         shape = GlazeCardShape,
         colors = CardDefaults.elevatedCardColors(
@@ -782,14 +782,14 @@ private fun FeaturedItemCard(item: StoreItem, onClick: () -> Unit) {
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            StoreArtwork(item = item, size = 68.dp)
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            StoreArtwork(item = item, size = 56.dp)
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(
                     item.name,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -799,13 +799,6 @@ private fun FeaturedItemCard(item: StoreItem, onClick: () -> Unit) {
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    item.summary,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
