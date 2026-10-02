@@ -33,6 +33,7 @@ import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkBorder
@@ -82,6 +83,7 @@ import com.goreecloud.appstore.domain.StoreItem
 import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
 import com.goreecloud.appstore.library.FavoriteCatalogStore
+import com.goreecloud.appstore.library.RecentlyViewedCatalogStore
 import com.goreecloud.appstore.library.SavedCatalogStore
 import com.goreecloud.appstore.onboarding.AppStoreGuidanceState
 import com.goreecloud.appstore.platform.IntegrationState
@@ -111,6 +113,9 @@ fun GoreeCloudAppStore(
     val favoriteCatalogStore = remember(context.applicationContext) {
         FavoriteCatalogStore(context.applicationContext)
     }
+    val recentlyViewedCatalogStore = remember(context.applicationContext) {
+        RecentlyViewedCatalogStore(context.applicationContext)
+    }
     val listState = rememberLazyListState()
 
     var session by remember { mutableStateOf(identityGateway.initialSession) }
@@ -124,7 +129,11 @@ fun GoreeCloudAppStore(
     var favoriteItemIds by remember(session.subjectId) {
         mutableStateOf(favoriteCatalogStore.load(session.subjectId))
     }
+    var recentlyViewedItemIds by remember(session.subjectId) {
+        mutableStateOf(recentlyViewedCatalogStore.load(session.subjectId))
+    }
     var confirmClearSaved by remember(session.subjectId) { mutableStateOf(false) }
+    var confirmClearRecentlyViewed by remember(session.subjectId) { mutableStateOf(false) }
 
     val entitled = remember(session, allItems) {
         EntitlementEngine.visibleItems(session, allItems)
@@ -134,6 +143,18 @@ fun GoreeCloudAppStore(
     }
     val favoriteVisible = remember(entitled, favoriteItemIds) {
         entitled.filter { it.id in favoriteItemIds }
+    }
+    val recentlyViewedVisible = remember(entitled, recentlyViewedItemIds) {
+        val entitledById = entitled.associateBy(StoreItem::id)
+        recentlyViewedItemIds.mapNotNull(entitledById::get)
+    }
+
+    fun openItem(item: StoreItem) {
+        recentlyViewedItemIds = recentlyViewedCatalogStore.record(
+            subjectId = session.subjectId,
+            itemId = item.id,
+        )
+        selectedItem = item
     }
     val visible = remember(entitled, selectedTab, query) {
         val tabItems = when (selectedTab) {
@@ -248,7 +269,7 @@ fun GoreeCloudAppStore(
                         item {
                             TabIntro(
                                 title = "Library",
-                                body = "Keep device-local Favorites and Save for later collections for entitled GoreeCloud items. Installed and historical library state remains separate and unavailable.",
+                                body = "Keep device-local Favorites, Recently viewed, and Save for later collections for entitled GoreeCloud items. Installed and account history remain separate and unavailable.",
                             )
                         }
                         item {
@@ -265,7 +286,33 @@ fun GoreeCloudAppStore(
                             item { FavoriteLibraryEmptyState() }
                         } else {
                             items(favoriteVisible, key = { "favorite:${it.id}" }) { item ->
-                                StoreItemCard(item = item, onClick = { selectedItem = item })
+                                StoreItemCard(item = item, onClick = { openItem(item) })
+                            }
+                        }
+                        item { Spacer(Modifier.height(6.dp)) }
+                        item {
+                            StoreSectionHeading(
+                                title = "Recently viewed",
+                                subtitle = if (recentlyViewedVisible.size == 1) {
+                                    "1 recently viewed item for this development identity"
+                                } else {
+                                    "${recentlyViewedVisible.size} recently viewed items for this development identity"
+                                },
+                            )
+                        }
+                        if (recentlyViewedVisible.isEmpty()) {
+                            item { RecentlyViewedLibraryEmptyState() }
+                        } else {
+                            item {
+                                TextButton(
+                                    modifier = Modifier.heightIn(min = 48.dp),
+                                    onClick = { confirmClearRecentlyViewed = true },
+                                ) {
+                                    Text("Clear recently viewed")
+                                }
+                            }
+                            items(recentlyViewedVisible, key = { "recent:${it.id}" }) { item ->
+                                StoreItemCard(item = item, onClick = { openItem(item) })
                             }
                         }
                         item { Spacer(Modifier.height(6.dp)) }
@@ -293,7 +340,7 @@ fun GoreeCloudAppStore(
                                 }
                             }
                             items(savedVisible, key = { "saved:${it.id}" }) { item ->
-                                StoreItemCard(item = item, onClick = { selectedItem = item })
+                                StoreItemCard(item = item, onClick = { openItem(item) })
                             }
                         }
                         item {
@@ -321,13 +368,42 @@ fun GoreeCloudAppStore(
                         }
                     } else {
                         items(visible, key = { it.id }) { item ->
-                            StoreItemCard(item = item, onClick = { selectedItem = item })
+                            StoreItemCard(item = item, onClick = { openItem(item) })
                         }
                     }
                 }
 
                 item { Spacer(Modifier.height(8.dp)) }
             }
+        }
+
+        if (confirmClearRecentlyViewed) {
+            AlertDialog(
+                onDismissRequest = { confirmClearRecentlyViewed = false },
+                title = { Text("Clear recently viewed?") },
+                text = {
+                    Text(
+                        "This removes only this development identity’s device-local recently viewed list. " +
+                            "It does not uninstall software, change entitlements, or erase account history.",
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            recentlyViewedItemIds =
+                                recentlyViewedCatalogStore.clear(session.subjectId)
+                            confirmClearRecentlyViewed = false
+                        },
+                    ) {
+                        Text("Clear recently viewed")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmClearRecentlyViewed = false }) {
+                        Text("Cancel")
+                    }
+                },
+            )
         }
 
         if (confirmClearSaved) {
@@ -783,6 +859,40 @@ private fun FavoriteLibraryEmptyState() {
             )
             Text(
                 "Open an entitled app or service and choose Add to Favorites. Favorites remain device-local and separated by development identity.",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun RecentlyViewedLibraryEmptyState() {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = GlazeCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 28.dp, vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(
+                Icons.Rounded.History,
+                contentDescription = null,
+                modifier = Modifier.size(32.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                "Nothing viewed yet",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                "Items you open appear here on this device for the active development identity. This is browsing recency, not install or purchase history.",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
