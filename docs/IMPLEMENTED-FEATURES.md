@@ -16,7 +16,7 @@
 - Complete official catalog artwork coverage for all 34 entries, sourced from `GoreeCloud/branding-assets`; empty, generic, initial, and monogram fallbacks are prohibited and repository validation fails closed on missing mappings/resources.
 - Device-review mobile layout refinement with compact account/status/hero/search surfaces, smaller Featured cards, denser catalog rows, section-specific search prompts, filtered result counts, suppressed redundant Development pills, and compact Updates/Library states.
 - Representative-device onboarding/status refinement with a top-anchored progress-led three-step first-use flow, bottom-anchored navigation, structured availability summaries, current Glaze naming, compact integration cards, and additional catalog-row density improvements.
-- Follow-up compact-phone polish: active-identity checkmark and concise account labels, redundant Discover status-strip removal, identity-scoped available-count wording, tighter category/Featured browsing, compact disconnected Updates state, and a compact Library installed-history row.
+- Follow-up compact-phone polish: active-identity checkmark and concise account labels, redundant Discover status-strip removal, identity-scoped available-count wording, tighter category/Featured browsing, explicit clear-search action, centered compact disconnected Updates state, and a compact Library installed-history row.
 - Application and service item models.
 - Development JSON catalog loader.
 - Multi-user development session switcher.
