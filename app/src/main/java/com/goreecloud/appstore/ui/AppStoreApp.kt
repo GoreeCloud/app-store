@@ -124,6 +124,7 @@ fun GoreeCloudAppStore(
     var favoriteItemIds by remember(session.subjectId) {
         mutableStateOf(favoriteCatalogStore.load(session.subjectId))
     }
+    var confirmClearFavorites by remember(session.subjectId) { mutableStateOf(false) }
     var confirmClearSaved by remember(session.subjectId) { mutableStateOf(false) }
 
     val entitled = remember(session, allItems) {
@@ -264,6 +265,14 @@ fun GoreeCloudAppStore(
                         if (favoriteVisible.isEmpty()) {
                             item { FavoriteLibraryEmptyState() }
                         } else {
+                            item {
+                                TextButton(
+                                    modifier = Modifier.heightIn(min = 48.dp),
+                                    onClick = { confirmClearFavorites = true },
+                                ) {
+                                    Text("Clear Favorites")
+                                }
+                            }
                             items(favoriteVisible, key = { "favorite:${it.id}" }) { item ->
                                 StoreItemCard(item = item, onClick = { selectedItem = item })
                             }
@@ -328,6 +337,34 @@ fun GoreeCloudAppStore(
 
                 item { Spacer(Modifier.height(8.dp)) }
             }
+        }
+
+        if (confirmClearFavorites) {
+            AlertDialog(
+                onDismissRequest = { confirmClearFavorites = false },
+                title = { Text("Clear Favorites?") },
+                text = {
+                    Text(
+                        "This removes only this development identity’s device-local Favorites list. " +
+                            "It does not uninstall apps, change entitlements, or affect account-wide history.",
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            favoriteItemIds = favoriteCatalogStore.clear(session.subjectId)
+                            confirmClearFavorites = false
+                        },
+                    ) {
+                        Text("Clear Favorites")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmClearFavorites = false }) {
+                        Text("Cancel")
+                    }
+                },
+            )
         }
 
         if (confirmClearSaved) {
