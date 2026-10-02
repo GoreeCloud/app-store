@@ -60,8 +60,7 @@ internal object RecentlyViewedCatalogSelection {
             if (end > raw.length) return emptyList()
             val id = raw.substring(start, end)
             if (id.isBlank()) return emptyList()
-            if (id !in result) result += id
-            if (result.size >= MAX_ITEMS) break
+            if (id !in result && result.size < MAX_ITEMS) result += id
             cursor = end
         }
         return result
