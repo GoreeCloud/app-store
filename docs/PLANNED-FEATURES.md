@@ -1,5 +1,9 @@
 # GoreeCloud App Store — Planned Features
 
+## October 2, 2026 — device-local Favorites candidate
+
+The current stacked capability candidate adds **Favorites** as a collection distinct from **Save for later** in the Android Library. Favorite IDs use a separate SHA-256-derived per-development-identity preference namespace that does not embed the raw identity subject. Product details expose Add/Remove Favorite, while Library renders currently entitled favorites independently from saved-for-later items. This state is presentation metadata only: it does not establish installation, ownership, purchase/history, account sync, Everkeep recovery, release, or package-delivery authority. Focused JVM coverage verifies namespace separation and fail-closed identity handling. This remains Development candidate work and is not eligible to merge until the parent stabilization candidate is integrated under effective protected-main governance and fresh exact-head validation succeeds.
+
 **Status:** Active repository-native planned-feature control  
 **As of:** 2026-09-29  
 **Current project specification:** `SPECIFICATIONS.md` on authoritative repository `main`  
