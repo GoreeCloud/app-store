@@ -356,7 +356,7 @@ fun GoreeCloudAppStore(
                             confirmClearFavorites = false
                         },
                     ) {
-                        Text("Clear Favorites")
+                        Text("Clear all Favorites")
                     }
                 },
                 dismissButton = {
