@@ -39,7 +39,6 @@ import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkBorder
@@ -396,11 +395,13 @@ fun GoreeCloudAppStore(
                                 body = "Manage device-local collections and this session’s recently opened items for the active identity.",
                             )
                         }
-                        if (
+
+                        val hasLibraryItems =
                             favoriteVisible.isNotEmpty() ||
-                            savedVisible.isNotEmpty() ||
-                            recentlyViewedVisible.isNotEmpty()
-                        ) {
+                                savedVisible.isNotEmpty() ||
+                                recentlyViewedVisible.isNotEmpty()
+
+                        if (hasLibraryItems) {
                             item {
                                 LibraryCollectionSummary(
                                     favorites = favoriteVisible.size,
@@ -408,13 +409,6 @@ fun GoreeCloudAppStore(
                                     recent = recentlyViewedVisible.size,
                                 )
                             }
-                        }
-
-                        val hasLibraryItems =
-                            favoriteVisible.isNotEmpty() ||
-                                savedVisible.isNotEmpty() ||
-                                recentlyViewedVisible.isNotEmpty()
-                        if (hasLibraryItems) {
                             item {
                                 StoreSearch(
                                     query = libraryQuery,
@@ -424,132 +418,111 @@ fun GoreeCloudAppStore(
                             }
                         }
 
-                        if (
-                            libraryQuery.isNotBlank() &&
-                            favoriteLibraryVisible.isEmpty() &&
-                            savedLibraryVisible.isEmpty() &&
-                            recentLibraryVisible.isEmpty()
-                        ) {
+                        val searchingLibrary = libraryQuery.isNotBlank()
+                        val hasLibraryMatches =
+                            favoriteLibraryVisible.isNotEmpty() ||
+                                savedLibraryVisible.isNotEmpty() ||
+                                recentLibraryVisible.isNotEmpty()
+
+                        if (searchingLibrary && !hasLibraryMatches) {
                             item {
                                 EmptyLibrarySearchState(
                                     onReset = { libraryQuery = "" },
                                 )
                             }
                         } else {
-                            item {
-                                LibrarySectionHeading(
-                                    title = "Favorites",
-                                    subtitle = libraryCollectionCountLabel(
-                                        favoriteLibraryVisible.size,
-                                        singular = "favorite",
-                                        plural = "favorites",
-                                    ),
-                                    actionLabel = if (
-                                        libraryQuery.isBlank() && favoriteVisible.isNotEmpty()
-                                    ) {
-                                        "Clear"
-                                    } else {
-                                        null
-                                    },
-                                    onAction = { confirmClearFavorites = true },
-                                )
-                            }
-                            if (favoriteLibraryVisible.isEmpty()) {
+                            if (recentLibraryVisible.isNotEmpty()) {
                                 item {
-                                    if (libraryQuery.isBlank()) {
-                                        FavoriteLibraryEmptyState()
-                                    } else {
-                                        LibraryCollectionNoMatches("No matching Favorites")
-                                    }
-                                }
-                            } else {
-                                items(
-                                    favoriteLibraryVisible,
-                                    key = { "favorite:${it.id}" },
-                                ) { item ->
-                                    StoreItemCard(
-                                        item = item,
-                                        isFavorite = true,
-                                        isSaved = item.id in savedItemIds,
-                                        onClick = { openItem(item) },
+                                    LibrarySectionHeading(
+                                        title = "Recently opened",
+                                        subtitle = libraryCollectionCountLabel(
+                                            recentLibraryVisible.size,
+                                            singular = "item this session",
+                                            plural = "items this session",
+                                        ),
+                                        actionLabel = if (!searchingLibrary) "Clear" else null,
+                                        onAction = { confirmClearRecentlyViewed = true },
                                     )
                                 }
-                            }
-
-                            item { Spacer(Modifier.height(4.dp)) }
-                            item {
-                                LibrarySectionHeading(
-                                    title = "Saved for later",
-                                    subtitle = libraryCollectionCountLabel(
-                                        savedLibraryVisible.size,
-                                        singular = "saved item",
-                                        plural = "saved items",
-                                    ),
-                                    actionLabel = if (
-                                        libraryQuery.isBlank() && savedVisible.isNotEmpty()
-                                    ) {
-                                        "Clear"
-                                    } else {
-                                        null
-                                    },
-                                    onAction = { confirmClearSaved = true },
-                                )
-                            }
-                            if (savedLibraryVisible.isEmpty()) {
-                                item {
-                                    if (libraryQuery.isBlank()) {
-                                        SavedLibraryEmptyState()
-                                    } else {
-                                        LibraryCollectionNoMatches("No matching saved items")
-                                    }
-                                }
-                            } else {
-                                items(
-                                    savedLibraryVisible,
-                                    key = { "saved:${it.id}" },
-                                ) { item ->
-                                    StoreItemCard(
-                                        item = item,
-                                        isFavorite = item.id in favoriteItemIds,
-                                        isSaved = true,
-                                        onClick = { openItem(item) },
-                                    )
-                                }
-                            }
-
-                            item { Spacer(Modifier.height(4.dp)) }
-                            item {
-                                LibrarySectionHeading(
-                                    title = "Recently opened",
-                                    subtitle = libraryCollectionCountLabel(
-                                        recentLibraryVisible.size,
-                                        singular = "item this session",
-                                        plural = "items this session",
-                                    ),
-                                    actionLabel = if (
-                                        libraryQuery.isBlank() && recentlyViewedVisible.isNotEmpty()
-                                    ) {
-                                        "Clear"
-                                    } else {
-                                        null
-                                    },
-                                    onAction = { confirmClearRecentlyViewed = true },
-                                )
-                            }
-                            if (recentLibraryVisible.isEmpty()) {
-                                item {
-                                    if (libraryQuery.isBlank()) {
-                                        RecentlyOpenedEmptyState()
-                                    } else {
-                                        LibraryCollectionNoMatches("No matching recent items")
-                                    }
-                                }
-                            } else {
                                 item {
                                     FeaturedShelf(
                                         items = recentLibraryVisible,
                                         onItemClick = openItem,
                                     )
+                                }
+                                item { Spacer(Modifier.height(4.dp)) }
+                            }
+
+                            if (!searchingLibrary || favoriteLibraryVisible.isNotEmpty()) {
+                                item {
+                                    LibrarySectionHeading(
+                                        title = "Favorites",
+                                        subtitle = libraryCollectionCountLabel(
+                                            favoriteLibraryVisible.size,
+                                            singular = "favorite",
+                                            plural = "favorites",
+                                        ),
+                                        actionLabel = if (
+                                            !searchingLibrary && favoriteVisible.isNotEmpty()
+                                        ) {
+                                            "Clear"
+                                        } else {
+                                            null
+                                        },
+                                        onAction = { confirmClearFavorites = true },
+                                    )
+                                }
+                                if (favoriteLibraryVisible.isEmpty()) {
+                                    item { FavoriteLibraryEmptyState() }
+                                } else {
+                                    items(
+                                        favoriteLibraryVisible,
+                                        key = { "favorite:${it.id}" },
+                                    ) { item ->
+                                        StoreItemCard(
+                                            item = item,
+                                            isFavorite = true,
+                                            isSaved = item.id in savedItemIds,
+                                            onClick = { openItem(item) },
+                                        )
+                                    }
+                                }
+                                item { Spacer(Modifier.height(4.dp)) }
+                            }
+
+                            if (!searchingLibrary || savedLibraryVisible.isNotEmpty()) {
+                                item {
+                                    LibrarySectionHeading(
+                                        title = "Saved for later",
+                                        subtitle = libraryCollectionCountLabel(
+                                            savedLibraryVisible.size,
+                                            singular = "saved item",
+                                            plural = "saved items",
+                                        ),
+                                        actionLabel = if (
+                                            !searchingLibrary && savedVisible.isNotEmpty()
+                                        ) {
+                                            "Clear"
+                                        } else {
+                                            null
+                                        },
+                                        onAction = { confirmClearSaved = true },
+                                    )
+                                }
+                                if (savedLibraryVisible.isEmpty()) {
+                                    item { SavedLibraryEmptyState() }
+                                } else {
+                                    items(
+                                        savedLibraryVisible,
+                                        key = { "saved:${it.id}" },
+                                    ) { item ->
+                                        StoreItemCard(
+                                            item = item,
+                                            isFavorite = item.id in favoriteItemIds,
+                                            isSaved = true,
+                                            onClick = { openItem(item) },
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -1270,22 +1243,6 @@ private fun LibrarySectionHeading(
 }
 
 @Composable
-private fun LibraryCollectionNoMatches(title: String) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = GlazeSmallCardShape,
-        color = MaterialTheme.colorScheme.surfaceVariant,
-    ) {
-        Text(
-            title,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
-@Composable
 private fun EmptyLibrarySearchState(onReset: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -1320,15 +1277,6 @@ private fun EmptyLibrarySearchState(onReset: () -> Unit) {
             }
         }
     }
-}
-
-@Composable
-private fun RecentlyOpenedEmptyState() {
-    LibraryCollectionEmptyState(
-        icon = Icons.Rounded.History,
-        title = "Nothing opened this session",
-        body = "Open any available item to keep quick access here until the App Store closes.",
-    )
 }
 
 @Composable
