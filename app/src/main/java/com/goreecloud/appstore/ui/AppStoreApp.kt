@@ -708,20 +708,20 @@ private fun CategoryStrip(
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
-        contentPadding = PaddingValues(end = 4.dp),
+        contentPadding = PaddingValues(end = 18.dp),
     ) {
         item {
             FilterChip(
                 selected = selected == null,
                 onClick = { onSelected(null) },
-                label = { Text("All") },
+                label = { Text("All", style = MaterialTheme.typography.labelMedium) },
             )
         }
         items(categories, key = { "category:$it" }) { category ->
             FilterChip(
                 selected = selected == category,
                 onClick = { onSelected(if (selected == category) null else category) },
-                label = { Text(category, maxLines = 1) },
+                label = { Text(category, style = MaterialTheme.typography.labelMedium, maxLines = 1) },
             )
         }
     }
