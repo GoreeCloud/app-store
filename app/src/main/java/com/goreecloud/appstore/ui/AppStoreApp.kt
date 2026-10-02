@@ -314,7 +314,7 @@ fun GoreeCloudAppStore(
                         item {
                             TabIntro(
                                 title = "Updates",
-                                body = "Application updates will appear here when production release delivery is connected.",
+                                body = "Release delivery is not connected yet.",
                             )
                         }
                         item {
