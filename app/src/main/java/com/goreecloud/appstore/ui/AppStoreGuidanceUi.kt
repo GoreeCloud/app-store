@@ -3,6 +3,7 @@
 package com.goreecloud.appstore.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -108,6 +109,7 @@ private fun AppStoreOnboardingWizard(
     onCancelReplay: () -> Unit,
 ) {
     val step = state.setupStep
+    val stepCount = AppStoreGuidanceState.LAST_SETUP_STEP + 1
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -119,128 +121,156 @@ private fun AppStoreOnboardingWizard(
                 .statusBarsPadding()
                 .navigationBarsPadding(),
         ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp, vertical = 28.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp),
-            ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 18.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     "GoreeCloud App Store",
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
                 )
                 if (state.replayActive) {
                     TextButton(onClick = onCancelReplay) {
-                        Text("Close replay")
+                        Text("Close")
                     }
                 }
             }
-            Text(
-                "Step ${step + 1} of ${AppStoreGuidanceState.LAST_SETUP_STEP + 1}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
 
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = GlazeCardShape,
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 2.dp,
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center,
             ) {
                 Column(
-                    modifier = Modifier.padding(24.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 24.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
-                    when (step) {
-                        0 -> {
-                            Text(
-                                "Welcome to your GoreeCloud catalog",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold,
-                            )
-                            Text(
-                                "Browse applications and services that the active identity is allowed to see. " +
-                                    "Your catalog can change when identity, entitlement, or release state changes.",
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                            Text(
-                                "This setup explains the current Development boundaries before ordinary use.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        repeat(stepCount) { index ->
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(4.dp),
+                                shape = GlazeCapsuleShape,
+                                color = if (index <= step) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.surfaceVariant
+                                },
+                            ) {}
                         }
+                    }
 
-                        1 -> {
-                            Text(
-                                "Know what the Store can do today",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold,
-                            )
-                            Text(
-                                "This Development build can present catalog and integration status, but it " +
-                                    "does not manufacture Identity, entitlement, package trust, release approval, " +
-                                    "or installation authority.",
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                            Text(
-                                "Install, update, library, and production service actions remain unavailable " +
-                                    "until their authoritative integrations are connected and accepted.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
+                    Text(
+                        "${step + 1} of $stepCount",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
 
-                        else -> {
-                            Text(
-                                "Choose helpful guidance",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold,
-                            )
-                            Text(
-                                "Short contextual tips can explain catalog and Development behavior while you " +
-                                    "use the Store. You can turn all ordinary tips off, turn them back on, reset " +
-                                    "dismissed tips, or replay this setup later.",
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            ) {
-                                Column(
-                                    modifier = Modifier.weight(1f),
-                                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                                ) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = GlazeSmallCardShape,
+                        color = MaterialTheme.colorScheme.surface,
+                        tonalElevation = 1.dp,
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            when (step) {
+                                0 -> {
                                     Text(
-                                        "Contextual tips",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.SemiBold,
+                                        "Welcome to your GoreeCloud catalog",
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        fontWeight = FontWeight.Bold,
                                     )
                                     Text(
-                                        if (state.hintsEnabled) "On" else "Off",
-                                        style = MaterialTheme.typography.bodySmall,
+                                        "Browse apps and services available to the active identity.",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                    )
+                                    Text(
+                                        "Your catalog updates when identity, entitlement, or release state changes.",
+                                        style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
-                                Switch(
-                                    checked = state.hintsEnabled,
-                                    onCheckedChange = onHintsEnabledChanged,
-                                )
+
+                                1 -> {
+                                    Text(
+                                        "Know what the Store can do today",
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                    OnboardingCapabilityRow(
+                                        title = "Available now",
+                                        body = "Browse the entitled catalog and inspect integration status.",
+                                    )
+                                    HorizontalDivider()
+                                    OnboardingCapabilityRow(
+                                        title = "Not connected yet",
+                                        body = "Install, update, production service, and historical library actions.",
+                                    )
+                                }
+
+                                else -> {
+                                    Text(
+                                        "Choose helpful guidance",
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                    Text(
+                                        "Show short contextual tips while you use the Store. You can change this later.",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Surface(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = GlazeSmallCardShape,
+                                        color = MaterialTheme.colorScheme.surfaceVariant,
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        ) {
+                                            Column(
+                                                modifier = Modifier.weight(1f),
+                                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                                            ) {
+                                                Text(
+                                                    "Contextual tips",
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                )
+                                                Text(
+                                                    if (state.hintsEnabled) "Enabled" else "Disabled",
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                )
+                                            }
+                                            Switch(
+                                                checked = state.hintsEnabled,
+                                                onCheckedChange = onHintsEnabledChanged,
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            }
-
-            Spacer(Modifier.height(4.dp))
             }
 
             Row(
@@ -258,11 +288,7 @@ private fun AppStoreOnboardingWizard(
                 }
                 Spacer(Modifier.weight(1f))
                 Button(
-                    onClick = if (step == AppStoreGuidanceState.LAST_SETUP_STEP) {
-                        onComplete
-                    } else {
-                        onNext
-                    },
+                    onClick = if (step == AppStoreGuidanceState.LAST_SETUP_STEP) onComplete else onNext,
                 ) {
                     Text(
                         if (step == AppStoreGuidanceState.LAST_SETUP_STEP) {
@@ -274,6 +300,28 @@ private fun AppStoreOnboardingWizard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun OnboardingCapabilityRow(
+    title: String,
+    body: String,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        Text(
+            title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(
+            body,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
