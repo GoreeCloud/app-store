@@ -200,8 +200,8 @@ fun GoreeCloudAppStore(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(scaffoldPadding),
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 18.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
+                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 when (selectedTab) {
                     StoreTab.DISCOVER -> {
@@ -547,7 +547,7 @@ private fun StoreTopBar(
                 )
             }
 
-            Box(modifier = Modifier.widthIn(min = 128.dp, max = 164.dp)) {
+            Box(modifier = Modifier.widthIn(min = 104.dp, max = 136.dp)) {
                 TextButton(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -558,7 +558,7 @@ private fun StoreTopBar(
                     Icon(Icons.Rounded.AccountCircle, contentDescription = null)
                     Spacer(Modifier.size(5.dp))
                     Text(
-                        session.displayName,
+                        session.displayName.removeSuffix(" demo"),
                         modifier = Modifier.weight(1f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
