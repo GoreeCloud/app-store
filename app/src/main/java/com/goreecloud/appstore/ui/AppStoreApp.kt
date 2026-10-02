@@ -923,31 +923,28 @@ private fun EmptyCatalogState(authenticated: Boolean, hasQuery: Boolean) {
         else -> "Sign in to see your catalog"
     }
     val body = when {
-        hasQuery -> "Try a different search term within the catalog available to this identity."
-        authenticated -> "This development identity has no matching entries in the current section."
+        hasQuery -> "Try a different search term or category."
+        authenticated -> "This identity has no matching entries in this section."
         else -> "Production sign-in will be provided by GoreeCloud Identity."
     }
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = GlazeCardShape,
+        shape = GlazeSmallCardShape,
         color = MaterialTheme.colorScheme.surfaceVariant,
     ) {
         Column(
-            modifier = Modifier.padding(28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
                 title,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
             )
             Text(
                 body,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
