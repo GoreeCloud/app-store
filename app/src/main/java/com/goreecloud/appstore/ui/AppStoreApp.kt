@@ -321,12 +321,19 @@ fun GoreeCloudAppStore(
                             )
                         }
                         item {
-                            UnavailableState(
-                                icon = Icons.Rounded.Update,
-                                title = "Release delivery not connected",
-                                body = "Available app updates will appear here after authenticated release metadata and package delivery are connected.",
-                                onDetails = { showPlatformStatus = true },
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillParentMaxHeight(0.55f)
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                UnavailableState(
+                                    icon = Icons.Rounded.Update,
+                                    title = "Release delivery not connected",
+                                    body = "Available app updates will appear here after authenticated release metadata and package delivery are connected.",
+                                    onDetails = { showPlatformStatus = true },
+                                )
+                            }
                         }
                     }
 
