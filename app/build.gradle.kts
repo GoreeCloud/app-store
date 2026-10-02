@@ -21,8 +21,8 @@ android {
         applicationId = "com.goreecloud.appstore"
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
-        versionName = "0.1.2-dev"
+        versionCode = 4
+        versionName = "0.1.3-dev"
         manifestPlaceholders["appLabel"] = "GoreeCloud App Store"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -62,4 +62,9 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
 
     testImplementation("junit:junit:4.13.2")
+
+    androidTestImplementation("androidx.test:core:1.6.1")
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
 }

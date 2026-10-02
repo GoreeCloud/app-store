@@ -1,16 +1,16 @@
 # GoreeCloud App Store — Planned Features
 
-**Status:** Active roadmap control  
-**As of:** 2026-09-17  
-**Authoritative project record:** Project Specification — App Store  
-**Canonical repository:** GoreeCloud/goreecloud-app-store  
-**Detailed planned capability record:** `GoreeCloud/Feature Roadmap/GoreeCloud App Store/goreecloud-app-store-update.md`
+**Status:** Active repository-native planned-feature control  
+**As of:** 2026-09-29  
+**Current project specification:** `SPECIFICATIONS.md` on authoritative repository `main`  
+**Canonical repository:** `GoreeCloud/app-store`  
+**Detailed planned capability record:** `docs/plans/goreecloud-app-store-update.md`
 
 ## Purpose
 
-This file is the repository-side feature roadmap control for GoreeCloud App Store. It records current planned and recommended feature work without replacing the authoritative project record, implementation evidence, release gates, or GoreeCloud Tasks Management.
+This file is the repository-native planned-feature control for GoreeCloud App Store and is maintained alongside `IMPLEMENTED-FEATURES.md` and `CHANGELOGS.md`. Live GitHub and the current repository source control factual implementation/provider state; GoreeCloud Tasks Management carries actionable obligations that outlive immediate execution.
 
-The detailed App Store update is maintained as a planned feature-and-capability record in the canonical GoreeCloud Feature Roadmap location. Its contents describe intended product direction and do not establish implementation, Production Acceptance, Release Candidate status, Stable status, deployment, or runtime acceptance.
+Google Drive roadmap synchronization is retired and must not be recreated as feature-state authority. The migrated detailed capability record at `docs/plans/goreecloud-app-store-update.md` preserves planned product direction only and does not establish implementation, Production Acceptance, Release Candidate status, Stable status, deployment, or runtime acceptance.
 
 ## Roadmap
 
@@ -19,7 +19,13 @@ The detailed App Store update is maintained as a planned feature-and-capability 
 | FR-001 | Reconcile and maintain every current planned or recommended GoreeCloud App Store feature from the authoritative project record and verified repository evidence in this roadmap. | High | Ongoing control |
 | FR-002 | Move actionable feature obligations into GoreeCloud Tasks Management when required, preserving priority, dependency, and lifecycle disposition. | High | Ongoing control |
 | FR-003 | Do not mark features implemented, complete, cancelled, or superseded without authoritative evidence and repository-native feature-record updates. | High | Ongoing control |
-| FR-004 | Develop the GoreeCloud App Store as the first-party-only GoreeCloud software discovery, distribution, update, management, security, privacy-intelligence, device-aware, cross-platform, and lifecycle control center defined by `goreecloud-app-store-update.md`, while preserving the boundary that third-party software and repositories are outside the dedicated GoreeCloud App Store catalog. | High | In Progress |
+| FR-004 | Develop the GoreeCloud App Store as the first-party-only GoreeCloud software discovery, distribution, update, management, security, privacy-intelligence, device-aware, cross-platform, and lifecycle control center defined by `docs/plans/goreecloud-app-store-update.md`, while preserving the boundary that third-party software and repositories are outside the dedicated GoreeCloud App Store catalog. | High | In Progress |
+
+## Current stabilization candidate — 2026-09-30
+
+The active Development candidate consolidates current-main package-delivery/Glaze stabilization, repository-native feature authority, mandatory first-use guidance, and bounded device-local **Save for later** behavior onto one current-main line. Saved-item preference namespacing preserves the exact opaque development identity subject before SHA-256 derivation so distinct subjects cannot collapse through whitespace normalization.
+
+This source state remains Development-only. Production Identity/catalog authority, authoritative package/release evidence providers, installation/update/rollback execution, synchronized or Everkeep-backed Library state, representative-device/accessibility acceptance, protected signing/distribution, Production Acceptance, Release Candidate qualification where applicable, and Stable qualification remain planned or blocked by separate acceptance gates.
 
 ## Current implementation increment
 

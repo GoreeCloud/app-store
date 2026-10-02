@@ -24,8 +24,14 @@ jobs:
           test "$ACTUAL_SHA" = "$EXPECTED_SHA"
           mkdir -p build-evidence
           printf '%s\n' "$ACTUAL_SHA" | tee build-evidence/source-commit.txt
+      - name: Validate repository structure
+        run: python3 scripts/validate_repository_structure.py
       - name: Approved branding validation
         run: python3 scripts/validate_branding.py
+      - name: Validate exact-package installed-state boundary
+        run: python3 scripts/validate_android_installed_state_observation.py
+      - name: Validate read-only package delivery preflight
+        run: python3 scripts/validate_package_delivery_preflight.py
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -37,8 +43,8 @@ jobs:
         run: gradle :app:testDebugUnitTest
       - name: Lint
         run: gradle :app:lintDebug
-      - name: Assemble development APK
-        run: gradle :app:assembleDebug
+      - name: Assemble development APK and runtime test APK
+        run: gradle :app:assembleDebug :app:assembleDebugAndroidTest
       - name: Verify development APK
         shell: bash
         run: |
@@ -56,7 +62,7 @@ jobs:
           "$AAPT" dump badging "$APK" | tee build-evidence/app-debug.badging.txt
           "$APKSIGNER" verify --print-certs "$APK" | tee build-evidence/app-debug.signing.txt
 
-          grep -Fq "package: name='com.goreecloud.appstore.dev' versionCode='3' versionName='0.1.2-dev'" build-evidence/app-debug.badging.txt
+          grep -Fq "package: name='com.goreecloud.appstore.dev' versionCode='4' versionName='0.1.3-dev'" build-evidence/app-debug.badging.txt
           grep -Fq "application-label:'GoreeCloud App Store Dev'" build-evidence/app-debug.badging.txt
           grep -Fiq "certificate SHA-256 digest: 38d543bbc137dbf4e7a299ff2d2dd06555a5c20d110a9ada4de5e9e0d9055145" build-evidence/app-debug.signing.txt
       - name: Upload development APK evidence
@@ -70,4 +76,60 @@ jobs:
             build-evidence/app-debug.badging.txt
             build-evidence/app-debug.signing.txt
           if-no-files-found: error
+          retention-days: 14
+
+
+  runtime:
+    name: App Store Android 16 onboarding runtime
+    needs: validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Verify exact source revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '9.5.0'
+      - name: Detect Android emulator acceleration
+        id: emulator-accel
+        shell: bash
+        run: |
+          if [ -e /dev/kvm ]; then
+            sudo chmod 0666 /dev/kvm || true
+          fi
+          if [ -r /dev/kvm ] && [ -w /dev/kvm ]; then
+            echo "kvm_available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "kvm_available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::KVM acceleration is unavailable; App Store Android 16 runtime will use software acceleration."
+          fi
+      - name: Run App Store Android 16 onboarding instrumentation
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        with:
+          api-level: 36
+          target: default
+          arch: x86_64
+          disable-animations: true
+          disable-linux-hw-accel: ${{ steps.emulator-accel.outputs.kvm_available != 'true' }}
+          script: gradle --no-daemon :app:connectedDebugAndroidTest --stacktrace
+      - name: Upload App Store Android 16 test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-store-android16-runtime-reports
+          path: |
+            app/build/reports/androidTests/connected/**
+            app/build/outputs/androidTest-results/connected/**
+          if-no-files-found: warn
           retention-days: 14
