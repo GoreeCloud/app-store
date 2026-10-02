@@ -4,12 +4,12 @@
 
 - Added a bounded, session-local **Recently opened** Library collection that moves revisited items to the front without creating durable browsing history.
 - Kept recent items separated by the active Development identity and re-filtered them through current entitlements.
-- Added Library-wide search across Favorites, Saved for later, and Recently opened, with one-tap reset when no collection matches.
-- Added compact collection-count chips and moved clear actions into their section headings.
+- Added Library-wide search across Favorites, Saved for later, and Recently opened, with one-tap reset when no collection matches; active searches now hide unmatched collection sections instead of filling the page with redundant no-match cards.
+- Added compact collection-count chips, moved clear actions into section headings, and show Recently opened only when the session actually contains recent items.
 - Added **Continue browsing** on Discover when session recency exists, without showing it while catalog search/category filters are active.
 - Moved the active Development identity into the header subtitle and reduced the account trigger to an icon-sized control so compact phones no longer truncate labels such as **Standard**.
 - Updated onboarding capability copy and Android runtime coverage for the revised Library flow.
-- Advanced the persistent Development package to `0.1.11-dev` / versionCode `12`.
+- Advanced the persistent Development package to `0.1.12-dev` / versionCode `13`.
 - Fresh exact-head Android validation and Android 16 runtime evidence are required before this candidate is treated as validated Development evidence.
 
 ## 2026-10-02 — Mobile interaction and accessibility polish
