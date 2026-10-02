@@ -18,7 +18,7 @@ Current development/debug builds use:
 
 - application ID `com.goreecloud.appstore.dev`;
 - Android label **GoreeCloud App Store Dev**;
-- development version line `0.1.11-dev` / version code `12` at this checkpoint;
+- development version line `0.1.12-dev` / version code `13` at this checkpoint;
 - the repository-managed, development-only signing certificate documented in `development/signing/README.md`.
 
 The development package is intentionally separate from the reserved future production application ID `com.goreecloud.appstore`. The development signing identity is non-production test material and must never sign the production package or a Stable artifact.
