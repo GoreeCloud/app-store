@@ -648,49 +648,26 @@ private fun StoreHero(
         modifier = Modifier.fillMaxWidth(),
         shape = GlazeCardShape,
         color = MaterialTheme.colorScheme.primaryContainer,
-        tonalElevation = 2.dp,
+        tonalElevation = 1.dp,
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 22.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Surface(
-                    modifier = Modifier.size(64.dp),
-                    shape = GlazeSmallCardShape,
-                    color = MaterialTheme.colorScheme.surface,
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Image(
-                            painter = painterResource(R.drawable.goreecloud_app_store_icon),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(50.dp)
-                                .clip(GlazeArtworkShape),
-                        )
-                    }
-                }
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
-                ) {
-                    Text(
-                        "Explore GoreeCloud",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
-                    Text(
-                        "Apps and services available to the active identity, organized for faster browsing.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
-                }
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    "Explore GoreeCloud",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+                Text(
+                    "Apps and services available to this identity.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                 CatalogStatChip("$visibleCount total")
                 CatalogStatChip("$appCount apps")
                 CatalogStatChip("$serviceCount services")
