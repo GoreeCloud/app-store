@@ -170,7 +170,7 @@ private fun AppStoreOnboardingWizard(
                 }
 
                 Text(
-                    "Step ${step + 1} of $stepCount",
+                    "${step + 1} of $stepCount",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -188,16 +188,16 @@ private fun AppStoreOnboardingWizard(
                         when (step) {
                             0 -> {
                                 Text(
-                                    "Welcome to your GoreeCloud catalog",
+                                    "Welcome to GoreeCloud App Store",
                                     style = MaterialTheme.typography.headlineSmall,
                                     fontWeight = FontWeight.Bold,
                                 )
                                 Text(
-                                    "Browse apps and services available to the active identity.",
+                                    "Browse the apps and services available to this identity.",
                                     style = MaterialTheme.typography.bodyLarge,
                                 )
                                 Text(
-                                    "Your catalog updates when identity, entitlement, or release state changes.",
+                                    "Your catalog updates as access and release state change.",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -205,29 +205,29 @@ private fun AppStoreOnboardingWizard(
 
                             1 -> {
                                 Text(
-                                    "Know what the Store can do today",
+                                    "What works today",
                                     style = MaterialTheme.typography.headlineSmall,
                                     fontWeight = FontWeight.Bold,
                                 )
                                 OnboardingCapabilityRow(
                                     title = "Available now",
-                                    body = "Browse the entitled catalog and inspect integration status.",
+                                    body = "Browse your catalog and view development integration status.",
                                 )
                                 HorizontalDivider()
                                 OnboardingCapabilityRow(
                                     title = "Not connected yet",
-                                    body = "Install, update, production service, and historical library actions.",
+                                    body = "Install, updates, service launch, and installed history.",
                                 )
                             }
 
                             else -> {
                                 Text(
-                                    "Choose helpful guidance",
+                                    "Helpful tips",
                                     style = MaterialTheme.typography.headlineSmall,
                                     fontWeight = FontWeight.Bold,
                                 )
                                 Text(
-                                    "Show short contextual tips while you use the Store. You can change this later.",
+                                    "Show short tips while you browse. You can change this later.",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -286,7 +286,7 @@ private fun AppStoreOnboardingWizard(
                 ) {
                     Text(
                         if (step == AppStoreGuidanceState.LAST_SETUP_STEP) {
-                            "Finish setup"
+                            "Start browsing"
                         } else {
                             "Continue"
                         },
