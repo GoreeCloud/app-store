@@ -264,7 +264,7 @@ fun GoreeCloudAppStore(
                         item {
                             TabIntro(
                                 title = "Apps",
-                                body = "$appCount available to this identity",
+                                body = catalogCountLabel(visible.size),
                             )
                         }
                         item {
@@ -289,7 +289,7 @@ fun GoreeCloudAppStore(
                         item {
                             TabIntro(
                                 title = "Services",
-                                body = "$serviceCount available to this identity",
+                                body = catalogCountLabel(visible.size),
                             )
                         }
                         item {
