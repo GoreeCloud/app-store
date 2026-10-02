@@ -29,13 +29,13 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ChevronRight
 import androidx.compose.material.icons.automirrored.rounded.LibraryBooks
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
@@ -1078,7 +1078,7 @@ private fun StoreItemCard(
                 }
             }
             Icon(
-                Icons.AutoMirrored.Rounded.ChevronRight,
+                Icons.Rounded.ChevronRight,
                 contentDescription = "View ${item.name}",
                 modifier = Modifier.size(22.dp),
             )
@@ -1376,7 +1376,7 @@ private fun LibraryHistoryStatusRow(
                 )
             }
             Icon(
-                Icons.AutoMirrored.Rounded.ChevronRight,
+                Icons.Rounded.ChevronRight,
                 contentDescription = "View Development status",
                 modifier = Modifier.size(22.dp),
             )
@@ -1433,7 +1433,7 @@ private fun UnavailableState(
                 )
             }
             Icon(
-                Icons.AutoMirrored.Rounded.ChevronRight,
+                Icons.Rounded.ChevronRight,
                 contentDescription = "View Development status",
                 modifier = Modifier.size(22.dp),
             )
