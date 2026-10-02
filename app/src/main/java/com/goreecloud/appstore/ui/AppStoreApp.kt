@@ -564,7 +564,7 @@ private fun StoreTopBar(
                     Icon(Icons.Rounded.AccountCircle, contentDescription = null)
                     Spacer(Modifier.size(5.dp))
                     Text(
-                        session.displayName.removeSuffix(" demo"),
+                        session.compactDisplayName(),
                         modifier = Modifier.weight(1f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -1372,6 +1372,14 @@ private fun StoreItem.artworkResource(): Int = when (id) {
     "goreecloud.notify" -> R.drawable.goreecloud_notify_icon
     "goreecloud.network" -> R.drawable.goreecloud_network_icon
     else -> error("Missing official catalog artwork mapping for $id")
+}
+
+private fun IdentitySession.compactDisplayName(): String = when (displayName) {
+    "Standard demo" -> "Standard"
+    "Preview tester demo" -> "Preview"
+    "Administrator demo" -> "Admin"
+    "Developer demo" -> "Developer"
+    else -> displayName.removeSuffix(" demo")
 }
 
 private fun StoreItemType.label(): String = when (this) {
