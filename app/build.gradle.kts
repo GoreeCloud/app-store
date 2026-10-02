@@ -21,8 +21,8 @@ android {
         applicationId = "com.goreecloud.appstore"
         minSdk = 26
         targetSdk = 36
-        versionCode = 11
-        versionName = "0.1.10-dev"
+        versionCode = 12
+        versionName = "0.1.11-dev"
         manifestPlaceholders["appLabel"] = "GoreeCloud App Store"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
