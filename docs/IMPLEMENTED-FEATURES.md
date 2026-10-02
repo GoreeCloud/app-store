@@ -45,3 +45,5 @@
 - Download/install queue and resilient retry state.
 - Per-account update policy and optional automatic-update controls where Android policy permits.
 - Accessibility, tablet, foldable, keyboard/mouse, and large-window acceptance.
+
+- Device-review UI refinement in progress: compact mobile hierarchy, reduced repetition, and denser empty-state presentation.
