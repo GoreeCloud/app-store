@@ -1,5 +1,14 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-02 — Official catalog artwork completeness
+
+- Replaced the expanded-catalog monogram fallback with mandatory official artwork for every App Store application and service.
+- Bound all 34 current catalog entries to canonical `GoreeCloud/branding-assets` provenance at exact branding main `ccfa74b3ffed12db285d32bcb5289821a1daf86e`.
+- Added Android derivatives for 27 entries that previously fell back to generated initials; the seven already mapped official identities remain in place.
+- Consumed newly established canonical Dialer, Camera, PDF Manager, and GitHub Dashboard identities from branding-assets PR #31.
+- Added `branding-provenance.json` plus fail-closed validation requiring a total non-null catalog mapping and rejecting placeholder/monogram rendering paths.
+- Advanced the Development package to `0.1.5-dev` / versionCode `6` for update continuity.
+- Fresh exact-head Android validation and Android 16 runtime evidence are required for this materially changed candidate.
 ## 2026-10-02 — Catalog expansion and browsing UI rebuild
 
 - Replaced the six-entry bootstrap catalog fixture with a 34-entry non-production GoreeCloud portfolio fixture while preserving explicit audience filtering and non-authoritative package/version/endpoint boundaries.

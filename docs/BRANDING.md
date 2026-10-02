@@ -34,20 +34,15 @@ Identity Center must not reuse the complete `products/identity/app-icon.svg` app
 
 ## Expanded development-catalog artwork review
 
-The October 2, 2026 Development catalog expansion intentionally exposes a broader GoreeCloud portfolio before approved Android derivatives have been imported for every item. This is a presentation/testing fixture, not a branding registry.
+**Official artwork is mandatory** for every application and service exposed by the App Store. User-facing empty tiles, initials, monograms, lettered stand-ins, generic application/service glyphs, and other placeholders are prohibited.
 
-Approved local artwork mappings remain limited to App Store, Browser, Messenger, Location, Manager, Identity Center, and Mesh Center. Every other expanded fixture entry must render the reviewed **non-authoritative text monogram placeholder** rather than inventing, approximating, recoloring, or borrowing a first-party product identity.
+The complete 34-entry Development catalog is now bound to canonical artwork from `GoreeCloud/branding-assets` at exact branding source revision `ccfa74b3ffed12db285d32bcb5289821a1daf86e`. Branding PR #31 added the previously missing canonical product identities for GoreeCloud Dialer, GoreeCloud Camera, GoreeCloud PDF Manager, and GoreeCloud GitHub Dashboard. The remaining catalog identities already existed in the canonical branding repository.
 
-The monogram placeholder:
+The machine-readable consumer provenance is `app/src/main/assets/catalog/branding-provenance.json`. For every current catalog ID it records the canonical branding path, pinned Git blob, and Android drawable derivative. The App Store UI uses a total, non-null artwork mapping. A missing mapping fails closed in source and in repository validation rather than rendering substitute artwork.
 
-- is generated from the catalog display name at runtime;
-- is not a logo, icon, registered identity, canonical asset, or branding authority;
-- must not be exported or reused as product artwork;
-- must be replaced only after the applicable canonical `GoreeCloud/branding-assets` identity and provenance are reviewed and an explicit Android derivative mapping is added;
-- does not imply package trust, installability, release acceptance, lifecycle status, or production readiness.
+Approved service-specific identities remain authoritative where they exist: Identity Center uses `services/identity-center/service-icon.svg`, and Mesh Center uses `services/mesh-center/service-icon.svg`. Sync, Notify, and Network currently use their canonical GoreeCloud product identities from `products/sync/`, `products/notify/`, and `products/network/`.
 
-Repository validation pins the complete reviewed Development catalog identity set and fails closed if a new catalog identity appears without another explicit branding review. It also fails if a placeholder entry gains a local drawable mapping without approved provenance.
-
+Branding completeness does not establish package trust, installation authority, runtime availability, production Identity acceptance, release acceptance, or Stable status.
 ## Consumer-derivative rules
 
 - Local Android resources are packaging derivatives only; canonical SVGs and their pinned Git blobs remain authoritative.

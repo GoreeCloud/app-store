@@ -19,6 +19,7 @@ The current development branch establishes:
 - distinct application and service catalog entries;
 - Discover, Apps, Services, Updates, and Library surfaces;
 - search constrained to the already-entitled catalog;\n- category filtering and a horizontally browsable Featured shelf for the expanded development catalog;\n- an expanded 34-entry non-production portfolio fixture so ordinary browsing is no longer limited to the original six bootstrap items;
+- official canonical artwork for every catalog application and service, with user-facing placeholder/monogram fallbacks prohibited and CI-enforced;
 - per-development-identity device-local Save for later state for currently entitled items, with Library presentation that remains explicitly separate from installed/history/Everkeep authority and hashed local preference namespaces that do not embed the raw identity subject;
 - store-style application/service cards and product-detail bottom sheets;
 - approved first-party artwork derivatives tied to canonical assets in `GoreeCloud/branding-assets`;
@@ -36,7 +37,7 @@ The interface now uses a rebuilt catalog-browsing hierarchy with a compact brand
 
 CI/debug builds install as `com.goreecloud.appstore.dev` with the Android label **GoreeCloud App Store Dev**. They are signed with one repository-managed development-only certificate so successive development builds can update each other instead of receiving a new ephemeral Android debug identity from every CI runner.
 
-The current development version line is `0.1.4-dev` with version code `5`.
+The current development version line is `0.1.5-dev` with version code `6`.
 
 The reserved future production application ID remains `com.goreecloud.appstore`. The development signing key MUST NOT sign that production package or any artifact represented as production-approved or Stable. See `development/signing/README.md` for the explicit boundary and certificate fingerprint.
 

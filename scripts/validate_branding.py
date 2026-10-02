@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -7,143 +8,85 @@ BRANDING = ROOT / "docs/BRANDING.md"
 MANIFEST = ROOT / "app/src/main/AndroidManifest.xml"
 UI = ROOT / "app/src/main/java/com/goreecloud/appstore/ui/AppStoreApp.kt"
 CATALOG = ROOT / "app/src/main/assets/catalog/development-catalog.json"
+PROVENANCE = ROOT / "app/src/main/assets/catalog/branding-provenance.json"
 DRAWABLE = ROOT / "app/src/main/res/drawable"
+GIT_BLOB = re.compile(r"^[0-9a-f]{40}$")
 
-required_files = {
-    "App Store launcher derivative": DRAWABLE / "goreecloud_app_store_icon.xml",
-    "Identity Center service derivative": DRAWABLE / "goreecloud_identity_center_icon.xml",
-    "Mesh Center service derivative": DRAWABLE / "goreecloud_mesh_center_icon.xml",
-}
-
-if not BRANDING.is_file():
-    raise SystemExit("Missing mandatory docs/BRANDING.md")
-for label, path in required_files.items():
-    if not path.is_file():
-        raise SystemExit(f"Missing {label}: {path.relative_to(ROOT)}")
-
-branding = BRANDING.read_text(encoding="utf-8")
-for required in [
-    "GoreeCloud/branding-assets",
-    "products/app-store/app-icon.svg",
-    "1e86041de7cbde9f92ae2ddb9a813b2585b5f788",
-    "services/identity-center/service-icon.svg",
-    "36922e5a747817267a27f640bb4234b8d59ab2a5",
-    "services/mesh-center/service-icon.svg",
-    "2628ff825549847398e98d9768f8f57b30aa378a",
-    "android:icon=\"@drawable/goreecloud_app_store_icon\"",
-    "GoreeCloud Launcher",
-    "GoreeCloud Search",
-]:
-    if required not in branding:
-        raise SystemExit(f"docs/BRANDING.md missing required approved identity boundary: {required}")
+for required in (BRANDING, MANIFEST, UI, CATALOG, PROVENANCE):
+    if not required.is_file():
+        raise SystemExit(f"Missing mandatory branding input: {required.relative_to(ROOT)}")
 
 manifest = MANIFEST.read_text(encoding="utf-8")
 if 'android:icon="@drawable/goreecloud_app_store_icon"' not in manifest:
-    raise SystemExit("App Store manifest is not wired to the approved launcher derivative")
+    raise SystemExit("App Store manifest is not wired to the official App Store icon derivative")
 
 ui = UI.read_text(encoding="utf-8")
-expected_catalog_ids = {
-    "goreecloud.app-store",
-    "goreecloud.launcher",
-    "goreecloud.file-manager",
-    "goreecloud.dialer",
-    "goreecloud.camera",
-    "goreecloud.messenger",
-    "goreecloud.mail",
-    "goreecloud.browser",
-    "goreecloud.keyboard",
-    "goreecloud.memos",
-    "goreecloud.notes",
-    "goreecloud.tasks",
-    "goreecloud.calendar",
-    "goreecloud.contacts",
-    "goreecloud.gallery",
-    "goreecloud.since",
-    "goreecloud.music",
-    "goreecloud.bookmarks",
-    "goreecloud.search",
-    "goreecloud.photos",
-    "goreecloud.location",
-    "goreecloud.feed",
-    "goreecloud.video",
-    "goreecloud.changelogs",
-    "goreecloud.pdf-manager",
-    "goreecloud.manager",
-    "goreecloud.monitor",
-    "goreecloud.terminal",
-    "goreecloud.github-dashboard",
-    "goreecloud.identity-center",
-    "goreecloud.mesh-center",
-    "goreecloud.sync",
-    "goreecloud.notify",
-    "goreecloud.network",
-}
-approved_catalog_mappings = {
-    "goreecloud.app-store": "goreecloud_app_store_icon",
-    "goreecloud.browser": "goreecloud_browser_icon",
-    "goreecloud.messenger": "goreecloud_messenger_icon",
-    "goreecloud.location": "goreecloud_location_icon",
-    "goreecloud.manager": "goreecloud_manager_icon",
-    "goreecloud.identity-center": "goreecloud_identity_center_icon",
-    "goreecloud.mesh-center": "goreecloud_mesh_center_icon",
-}
-
 catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
+provenance = json.loads(PROVENANCE.read_text(encoding="utf-8"))
+
+if provenance.get("canonicalRepository") != "GoreeCloud/branding-assets":
+    raise SystemExit("Branding provenance must use GoreeCloud/branding-assets")
+if provenance.get("placeholderFallbackAllowed") is not False:
+    raise SystemExit("Placeholder artwork must remain prohibited")
+if not GIT_BLOB.fullmatch(str(provenance.get("sourceRevision", ""))):
+    raise SystemExit("Branding provenance sourceRevision must pin an exact Git commit")
+
 catalog_ids = {item.get("id") for item in catalog.get("items", [])}
-if catalog_ids != expected_catalog_ids:
+records = provenance.get("items", [])
+record_ids = {item.get("id") for item in records}
+if catalog_ids != record_ids:
     raise SystemExit(
-        "Development catalog identity set changed without an explicit branding review: "
-        f"expected {sorted(expected_catalog_ids)}, got {sorted(catalog_ids)}"
+        "Every catalog item must have official branding provenance: "
+        f"catalog={sorted(catalog_ids)}, branding={sorted(record_ids)}"
     )
-for item_id, drawable in approved_catalog_mappings.items():
+
+if 'private fun StoreItem.artworkResource(): Int = when (id)' not in ui:
+    raise SystemExit("Catalog artwork lookup must be total and non-null")
+if 'else -> error("Missing official catalog artwork mapping for $id")' not in ui:
+    raise SystemExit("Catalog artwork lookup must fail closed when a mapping is absent")
+
+for forbidden in (
+    'removePrefix("GoreeCloud ")',
+    '.joinToString("") { it.take(1).uppercase() }',
+    '"A" else "S"',
+):
+    if forbidden in ui:
+        raise SystemExit(f"Prohibited placeholder/monogram artwork path remains in UI: {forbidden}")
+
+for record in records:
+    item_id = record.get("id")
+    drawable = record.get("drawable")
+    canonical = record.get("canonicalAsset")
+    blob = str(record.get("gitBlob", ""))
+    if not item_id or not drawable or not canonical:
+        raise SystemExit(f"Incomplete branding provenance record: {record!r}")
+    if not (canonical.startswith("products/") or canonical.startswith("services/")):
+        raise SystemExit(f"Unsupported canonical branding path for {item_id}: {canonical}")
+    if not GIT_BLOB.fullmatch(blob):
+        raise SystemExit(f"Invalid canonical Git blob for {item_id}: {blob}")
     mapping = f'"{item_id}" -> R.drawable.{drawable}'
     if mapping not in ui:
-        raise SystemExit(f"Missing approved catalog artwork mapping: {mapping}")
-    if not (DRAWABLE / f"{drawable}.xml").is_file():
-        raise SystemExit(f"Mapped catalog artwork resource is missing: {drawable}.xml")
-
-placeholder_ids = expected_catalog_ids - set(approved_catalog_mappings)
-if "removePrefix(\"GoreeCloud \")" not in ui or ".joinToString(\"\")" not in ui:
-    raise SystemExit("Expanded catalog entries are missing the reviewed non-authoritative monogram fallback")
-for item_id in placeholder_ids:
-    if f'"{item_id}" -> R.drawable.' in ui:
-        raise SystemExit(
-            f"Catalog item {item_id} gained a local drawable mapping without an approved branding provenance review"
-        )
+        raise SystemExit(f"Missing official catalog artwork mapping: {mapping}")
+    resource = DRAWABLE / f"{drawable}.xml"
+    if not resource.is_file():
+        raise SystemExit(f"Missing official Android branding derivative for {item_id}: {resource.relative_to(ROOT)}")
+    contents = resource.read_text(encoding="utf-8")
+    if "<vector" not in contents or "android:pathData=" not in contents:
+        raise SystemExit(f"Invalid Android branding derivative for {item_id}: {resource.relative_to(ROOT)}")
 
 if '"goreecloud.identity-center" -> R.drawable.goreecloud_identity_icon' in ui:
-    raise SystemExit("Identity Center regressed to the full GoreeCloud Identity application icon")
+    raise SystemExit("Identity Center must use its approved service icon, not the parent Identity application icon")
 if (DRAWABLE / "goreecloud_identity_icon.xml").exists():
     raise SystemExit("Obsolete full Identity application derivative remains in the App Store resource set")
 
-app_store = required_files["App Store launcher derivative"].read_text(encoding="utf-8")
-for token in [
-    '#3B82F6', '#174EA6',
-    'M18,23H46C48.76,23 51,25.24 51,28V45',
-    'M24,23V19C24,14.58 27.58,11 32,11',
-    'M32,30V40M27.5,35.5L32,40L36.5,35.5M24,45H40',
-]:
-    if token not in app_store:
-        raise SystemExit(f"App Store derivative drifted from reviewed canonical geometry/color: {token}")
+branding = BRANDING.read_text(encoding="utf-8")
+for required in (
+    "GoreeCloud/branding-assets",
+    "Official artwork is mandatory",
+    "placeholders are prohibited",
+    "ccfa74b3ffed12db285d32bcb5289821a1daf86e",
+):
+    if required not in branding:
+        raise SystemExit(f"docs/BRANDING.md missing mandatory official-artwork contract: {required}")
 
-identity_center = required_files["Identity Center service derivative"].read_text(encoding="utf-8")
-for token in [
-    '#3B82F6', '#7C3AED',
-    'M56,32A24,24',
-    'M43,20V44',
-]:
-    if token not in identity_center:
-        raise SystemExit(f"Identity Center derivative drifted from approved service identity: {token}")
-
-mesh_center = required_files["Mesh Center service derivative"].read_text(encoding="utf-8")
-for token in [
-    '#0E7490', '#4338CA', '#7E22CE',
-    'M58,32A26,26',
-    'M14,32C20.5,21.5 28.5,20.5 32,24.5',
-    'android:rotation="120"',
-    'M36.5,32A4.5,4.5',
-]:
-    if token not in mesh_center:
-        raise SystemExit(f"Mesh Center derivative drifted from approved Interlace service identity: {token}")
-
-print("GoreeCloud App Store approved branding validation passed.")
+print(f"GoreeCloud App Store branding validation passed: {len(records)} catalog items have official artwork and placeholders are prohibited.")

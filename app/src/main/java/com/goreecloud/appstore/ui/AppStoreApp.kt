@@ -1346,37 +1346,13 @@ private fun PlatformStatusSheet(onDismiss: () -> Unit) {
 
 @Composable
 private fun StoreArtwork(item: StoreItem, size: Dp) {
-    val resource = item.artworkResource()
-    if (resource != null) {
-        Image(
-            painter = painterResource(resource),
-            contentDescription = item.name,
-            modifier = Modifier
-                .size(size)
-                .clip(GlazeArtworkShape),
-        )
-    } else {
-        Surface(
-            modifier = Modifier.size(size),
-            shape = GlazeArtworkShape,
-            color = MaterialTheme.colorScheme.primaryContainer,
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text(
-                    item.name
-                        .removePrefix("GoreeCloud ")
-                        .split(" ")
-                        .filter { it.isNotBlank() }
-                        .take(2)
-                        .joinToString("") { it.take(1).uppercase() }
-                        .ifBlank { if (item.type == StoreItemType.APPLICATION) "A" else "S" },
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-        }
-    }
+    Image(
+        painter = painterResource(item.artworkResource()),
+        contentDescription = item.name,
+        modifier = Modifier
+            .size(size)
+            .clip(GlazeArtworkShape),
+    )
 }
 
 private fun catalogCountLabel(count: Int): String = when (count) {
@@ -1384,15 +1360,42 @@ private fun catalogCountLabel(count: Int): String = when (count) {
     else -> "$count items available"
 }
 
-private fun StoreItem.artworkResource(): Int? = when (id) {
+private fun StoreItem.artworkResource(): Int = when (id) {
     "goreecloud.app-store" -> R.drawable.goreecloud_app_store_icon
-    "goreecloud.browser" -> R.drawable.goreecloud_browser_icon
+    "goreecloud.launcher" -> R.drawable.goreecloud_launcher_icon
+    "goreecloud.file-manager" -> R.drawable.goreecloud_file_manager_icon
+    "goreecloud.dialer" -> R.drawable.goreecloud_dialer_icon
+    "goreecloud.camera" -> R.drawable.goreecloud_camera_icon
     "goreecloud.messenger" -> R.drawable.goreecloud_messenger_icon
+    "goreecloud.mail" -> R.drawable.goreecloud_mail_icon
+    "goreecloud.browser" -> R.drawable.goreecloud_browser_icon
+    "goreecloud.keyboard" -> R.drawable.goreecloud_keyboard_icon
+    "goreecloud.memos" -> R.drawable.goreecloud_memos_icon
+    "goreecloud.notes" -> R.drawable.goreecloud_notes_icon
+    "goreecloud.tasks" -> R.drawable.goreecloud_tasks_icon
+    "goreecloud.calendar" -> R.drawable.goreecloud_calendar_icon
+    "goreecloud.contacts" -> R.drawable.goreecloud_contacts_icon
+    "goreecloud.gallery" -> R.drawable.goreecloud_gallery_icon
+    "goreecloud.since" -> R.drawable.goreecloud_since_icon
+    "goreecloud.music" -> R.drawable.goreecloud_music_icon
+    "goreecloud.bookmarks" -> R.drawable.goreecloud_bookmarks_icon
+    "goreecloud.search" -> R.drawable.goreecloud_search_icon
+    "goreecloud.photos" -> R.drawable.goreecloud_photos_icon
     "goreecloud.location" -> R.drawable.goreecloud_location_icon
+    "goreecloud.feed" -> R.drawable.goreecloud_feed_icon
+    "goreecloud.video" -> R.drawable.goreecloud_video_icon
+    "goreecloud.changelogs" -> R.drawable.goreecloud_changelogs_icon
+    "goreecloud.pdf-manager" -> R.drawable.goreecloud_pdf_manager_icon
     "goreecloud.manager" -> R.drawable.goreecloud_manager_icon
+    "goreecloud.monitor" -> R.drawable.goreecloud_monitor_icon
+    "goreecloud.terminal" -> R.drawable.goreecloud_terminal_icon
+    "goreecloud.github-dashboard" -> R.drawable.goreecloud_github_dashboard_icon
     "goreecloud.identity-center" -> R.drawable.goreecloud_identity_center_icon
     "goreecloud.mesh-center" -> R.drawable.goreecloud_mesh_center_icon
-    else -> null
+    "goreecloud.sync" -> R.drawable.goreecloud_sync_icon
+    "goreecloud.notify" -> R.drawable.goreecloud_notify_icon
+    "goreecloud.network" -> R.drawable.goreecloud_network_icon
+    else -> error("Missing official catalog artwork mapping for $id")
 }
 
 private fun StoreItemType.label(): String = when (this) {

@@ -10,6 +10,7 @@
 - Glaze-oriented tangible cards/surfaces, capsule-shaped search/account controls, adaptive Compose layout, and accessible 48dp-class controls.
 - Discover, Apps, Services, Updates, and Library navigation.
 - Search constrained to the already-entitled client catalog.\n- Category filtering for entitled Discover, Apps, and Services entries.\n- Featured horizontal catalog shelf plus denser all-items browsing for a larger portfolio.\n- Expanded 34-entry non-production portfolio fixture replacing the original six-entry bootstrap catalog.
+- Complete official catalog artwork coverage for all 34 entries, sourced from `GoreeCloud/branding-assets`; empty, generic, initial, and monogram fallbacks are prohibited and repository validation fails closed on missing mappings/resources.
 - Application and service item models.
 - Development JSON catalog loader.
 - Multi-user development session switcher.
