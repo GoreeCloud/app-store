@@ -229,7 +229,6 @@ fun GoreeCloudAppStore(
                                 )
                             }
                         }
-                        item { DevelopmentStatusStrip(onClick = { showPlatformStatus = true }) }
                         if (guidanceState.isHintVisible(APP_STORE_CATALOG_HINT_ID)) {
                             item {
                                 AppStoreCatalogGuidanceHint(
