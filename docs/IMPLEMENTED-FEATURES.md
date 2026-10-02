@@ -9,7 +9,7 @@
 - Native Android application shell using Kotlin and Jetpack Compose.
 - Glaze-oriented tangible cards/surfaces, capsule-shaped search/account controls, adaptive Compose layout, and accessible 48dp-class controls.
 - Discover, Apps, Services, Updates, and Library navigation.
-- Search constrained to the already-entitled client catalog.
+- Search constrained to the already-entitled client catalog.\n- Category filtering for entitled Discover, Apps, and Services entries.\n- Featured horizontal catalog shelf plus denser all-items browsing for a larger portfolio.\n- Expanded 34-entry non-production portfolio fixture replacing the original six-entry bootstrap catalog.
 - Application and service item models.
 - Development JSON catalog loader.
 - Multi-user development session switcher.
@@ -38,7 +38,7 @@
 - Everkeep protection contract and recovery evidence for library/history/catalog configuration.
 - GoreeCloud Mesh lifecycle/capability events.
 - Rich app pages: screenshots, changelog, source/license, permissions, compatibility, privacy, security, continuity, support.
-- Categories, collections, editorial surfaces, recommendations, richer saved-item organization/synchronization where separately accepted, and notification preferences where privacy policy permits.
+- Editorial collections, recommendations, richer saved-item organization/synchronization where separately accepted, and notification preferences where privacy policy permits.
 - Multiple release channels with per-user/channel entitlements.
 - Device compatibility and architecture filtering.
 - Download/install queue and resilient retry state.
