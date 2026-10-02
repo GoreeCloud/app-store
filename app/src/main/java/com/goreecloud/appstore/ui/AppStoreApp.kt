@@ -45,6 +45,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -82,6 +83,8 @@ import com.goreecloud.appstore.domain.StoreItem
 import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
 import com.goreecloud.appstore.library.FavoriteCatalogStore
+import com.goreecloud.appstore.library.LibraryCatalogFilter
+import com.goreecloud.appstore.library.LibraryItemTypeFilter
 import com.goreecloud.appstore.library.SavedCatalogStore
 import com.goreecloud.appstore.onboarding.AppStoreGuidanceState
 import com.goreecloud.appstore.platform.IntegrationState
@@ -125,6 +128,7 @@ fun GoreeCloudAppStore(
         mutableStateOf(favoriteCatalogStore.load(session.subjectId))
     }
     var confirmClearSaved by remember(session.subjectId) { mutableStateOf(false) }
+    var libraryTypeFilter by remember { mutableStateOf(LibraryItemTypeFilter.ALL) }
 
     val entitled = remember(session, allItems) {
         EntitlementEngine.visibleItems(session, allItems)
@@ -134,6 +138,20 @@ fun GoreeCloudAppStore(
     }
     val favoriteVisible = remember(entitled, favoriteItemIds) {
         entitled.filter { it.id in favoriteItemIds }
+    }
+    val filteredSavedVisible = remember(savedVisible, query, libraryTypeFilter) {
+        LibraryCatalogFilter.apply(
+            items = savedVisible,
+            query = query,
+            typeFilter = libraryTypeFilter,
+        )
+    }
+    val filteredFavoriteVisible = remember(favoriteVisible, query, libraryTypeFilter) {
+        LibraryCatalogFilter.apply(
+            items = favoriteVisible,
+            query = query,
+            typeFilter = libraryTypeFilter,
+        )
     }
     val visible = remember(entitled, selectedTab, query) {
         val tabItems = when (selectedTab) {
@@ -252,19 +270,34 @@ fun GoreeCloudAppStore(
                             )
                         }
                         item {
+                            StoreSearch(
+                                query = query,
+                                onQueryChanged = { query = it },
+                            )
+                        }
+                        item {
+                            LibraryTypeFilterRow(
+                                selected = libraryTypeFilter,
+                                onSelected = { libraryTypeFilter = it },
+                            )
+                        }
+                        item {
                             StoreSectionHeading(
                                 title = "Favorites",
-                                subtitle = if (favoriteVisible.size == 1) {
-                                    "1 favorite for this development identity"
-                                } else {
-                                    "${favoriteVisible.size} favorites for this development identity"
-                                },
+                                subtitle = libraryCollectionCountLabel(
+                                    visibleCount = filteredFavoriteVisible.size,
+                                    totalCount = favoriteVisible.size,
+                                    singular = "favorite",
+                                    plural = "favorites",
+                                ),
                             )
                         }
                         if (favoriteVisible.isEmpty()) {
                             item { FavoriteLibraryEmptyState() }
+                        } else if (filteredFavoriteVisible.isEmpty()) {
+                            item { LibraryNoMatchesState(collectionName = "Favorites") }
                         } else {
-                            items(favoriteVisible, key = { "favorite:${it.id}" }) { item ->
+                            items(filteredFavoriteVisible, key = { "favorite:${it.id}" }) { item ->
                                 StoreItemCard(item = item, onClick = { selectedItem = item })
                             }
                         }
@@ -272,11 +305,12 @@ fun GoreeCloudAppStore(
                         item {
                             StoreSectionHeading(
                                 title = "Saved for later",
-                                subtitle = if (savedVisible.size == 1) {
-                                    "1 item saved for this development identity"
-                                } else {
-                                    "${savedVisible.size} items saved for this development identity"
-                                },
+                                subtitle = libraryCollectionCountLabel(
+                                    visibleCount = filteredSavedVisible.size,
+                                    totalCount = savedVisible.size,
+                                    singular = "saved item",
+                                    plural = "saved items",
+                                ),
                             )
                         }
                         if (savedVisible.isEmpty()) {
@@ -292,8 +326,12 @@ fun GoreeCloudAppStore(
                                     Text("Clear saved for later")
                                 }
                             }
-                            items(savedVisible, key = { "saved:${it.id}" }) { item ->
-                                StoreItemCard(item = item, onClick = { selectedItem = item })
+                            if (filteredSavedVisible.isEmpty()) {
+                                item { LibraryNoMatchesState(collectionName = "Saved for later") }
+                            } else {
+                                items(filteredSavedVisible, key = { "saved:${it.id}" }) { item ->
+                                    StoreItemCard(item = item, onClick = { selectedItem = item })
+                                }
                             }
                         }
                         item {
@@ -754,6 +792,63 @@ private fun EmptyCatalogState(authenticated: Boolean, hasQuery: Boolean) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+    }
+}
+
+@Composable
+private fun LibraryTypeFilterRow(
+    selected: LibraryItemTypeFilter,
+    onSelected: (LibraryItemTypeFilter) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        LibraryItemTypeFilter.entries.forEach { filter ->
+            FilterChip(
+                selected = selected == filter,
+                onClick = { onSelected(filter) },
+                label = {
+                    Text(
+                        when (filter) {
+                            LibraryItemTypeFilter.ALL -> "All"
+                            LibraryItemTypeFilter.APPS -> "Apps"
+                            LibraryItemTypeFilter.SERVICES -> "Services"
+                        },
+                    )
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun LibraryNoMatchesState(collectionName: String) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = GlazeCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Text(
+            text = "No $collectionName items match the current Library search and type filter.",
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+private fun libraryCollectionCountLabel(
+    visibleCount: Int,
+    totalCount: Int,
+    singular: String,
+    plural: String,
+): String {
+    val totalLabel = if (totalCount == 1) "1 $singular" else "$totalCount $plural"
+    return if (visibleCount == totalCount) {
+        "$totalLabel for this development identity"
+    } else {
+        "$visibleCount of $totalLabel for this development identity"
     }
 }
 
