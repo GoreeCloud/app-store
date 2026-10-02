@@ -1253,9 +1253,9 @@ private fun PlatformStatusSheet(onDismiss: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 20.dp)
                 .navigationBarsPadding(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
                 "Development status",
@@ -1263,59 +1263,78 @@ private fun PlatformStatusSheet(onDismiss: () -> Unit) {
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                "These diagnostics describe current implementation boundaries. They are not production trust or acceptance badges.",
-                style = MaterialTheme.typography.bodyMedium,
+                "Current integration boundaries for this build.",
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            PlatformIntegrationRegistry.current.forEachIndexed { index, integration ->
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+            PlatformIntegrationRegistry.current.forEach { integration ->
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = GlazeSmallCardShape,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(5.dp),
                     ) {
-                        Text(
-                            integration.system,
-                            modifier = Modifier.weight(1f),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                        Surface(
-                            shape = GlazeCapsuleShape,
-                            color = MaterialTheme.colorScheme.surfaceVariant,
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                integration.state.label(),
-                                modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
-                                style = MaterialTheme.typography.labelSmall,
-                                maxLines = 1,
+                                integration.system,
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
                             )
+                            Surface(
+                                shape = GlazeCapsuleShape,
+                                color = MaterialTheme.colorScheme.surface,
+                            ) {
+                                Text(
+                                    integration.state.label(),
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    maxLines = 1,
+                                )
+                            }
                         }
+                        Text(
+                            integration.detail,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
-                    Text(
-                        integration.detail,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                if (index != PlatformIntegrationRegistry.current.lastIndex) {
-                    HorizontalDivider()
                 }
             }
 
             Surface(
+                modifier = Modifier.fillMaxWidth(),
                 shape = GlazeSmallCardShape,
                 color = MaterialTheme.colorScheme.secondaryContainer,
             ) {
-                Text(
-                    "Production acceptance remains false for this App Store build.",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        "Production acceptance",
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                    Text(
+                        "Not accepted",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                }
             }
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(8.dp))
         }
     }
 }
