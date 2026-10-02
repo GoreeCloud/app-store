@@ -775,8 +775,8 @@ private fun FeaturedShelf(
     onItemClick: (StoreItem) -> Unit,
 ) {
     LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(end = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        contentPadding = PaddingValues(end = 18.dp),
     ) {
         items(items, key = { "featured:${it.id}" }) { item ->
             FeaturedItemCard(item = item, onClick = { onItemClick(item) })
@@ -788,7 +788,7 @@ private fun FeaturedShelf(
 private fun FeaturedItemCard(item: StoreItem, onClick: () -> Unit) {
     ElevatedCard(
         modifier = Modifier
-            .width(180.dp)
+            .width(168.dp)
             .clickable(onClick = onClick),
         shape = GlazeSmallCardShape,
         colors = CardDefaults.elevatedCardColors(
@@ -800,7 +800,7 @@ private fun FeaturedItemCard(item: StoreItem, onClick: () -> Unit) {
             modifier = Modifier.padding(14.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            StoreArtwork(item = item, size = 56.dp)
+            StoreArtwork(item = item, size = 52.dp)
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(
                     item.name,
