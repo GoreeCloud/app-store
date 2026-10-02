@@ -92,6 +92,7 @@ import com.goreecloud.appstore.domain.StoreItem
 import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
 import com.goreecloud.appstore.library.FavoriteCatalogStore
+import com.goreecloud.appstore.library.RecentlyViewedCatalogSelection
 import com.goreecloud.appstore.library.SavedCatalogStore
 import com.goreecloud.appstore.onboarding.AppStoreGuidanceState
 import com.goreecloud.appstore.platform.IntegrationState
@@ -136,6 +137,11 @@ fun GoreeCloudAppStore(
     }
     var confirmClearFavorites by remember(session.subjectId) { mutableStateOf(false) }
     var confirmClearSaved by remember(session.subjectId) { mutableStateOf(false) }
+    var confirmClearRecentlyViewed by remember(session.subjectId) { mutableStateOf(false) }
+    var recentlyViewedByIdentity by remember {
+        mutableStateOf<Map<String, List<String>>>(emptyMap())
+    }
+    var libraryQuery by remember(session.subjectId) { mutableStateOf("") }
     var selectedCategory by remember(session.subjectId, selectedTab) {
         mutableStateOf<String?>(null)
     }
@@ -148,6 +154,20 @@ fun GoreeCloudAppStore(
     }
     val favoriteVisible = remember(entitled, favoriteItemIds) {
         entitled.filter { it.id in favoriteItemIds }
+    }
+    val entitledById = remember(entitled) { entitled.associateBy { it.id } }
+    val recentlyViewedIds = recentlyViewedByIdentity[session.subjectId].orEmpty()
+    val recentlyViewedVisible = remember(entitledById, recentlyViewedIds) {
+        recentlyViewedIds.mapNotNull { entitledById[it] }
+    }
+    val favoriteLibraryVisible = remember(favoriteVisible, libraryQuery) {
+        favoriteVisible.filter { it.matchesLibraryQuery(libraryQuery) }
+    }
+    val savedLibraryVisible = remember(savedVisible, libraryQuery) {
+        savedVisible.filter { it.matchesLibraryQuery(libraryQuery) }
+    }
+    val recentLibraryVisible = remember(recentlyViewedVisible, libraryQuery) {
+        recentlyViewedVisible.filter { it.matchesLibraryQuery(libraryQuery) }
     }
     val tabItems = remember(entitled, selectedTab) {
         when (selectedTab) {
@@ -175,6 +195,15 @@ fun GoreeCloudAppStore(
     }
     val serviceCount = remember(entitled) {
         entitled.count { it.type == StoreItemType.SERVICE }
+    }
+    val openItem: (StoreItem) -> Unit = { item ->
+        val subjectId = session.subjectId
+        val next = RecentlyViewedCatalogSelection.record(
+            current = recentlyViewedByIdentity[subjectId].orEmpty(),
+            itemId = item.id,
+        )
+        recentlyViewedByIdentity = recentlyViewedByIdentity + (subjectId to next)
+        selectedItem = item
     }
 
     LaunchedEffect(selectedTab, session.subjectId) {
@@ -254,7 +283,7 @@ fun GoreeCloudAppStore(
                             item {
                                 FeaturedShelf(
                                     items = visible.take(6),
-                                    onItemClick = { selectedItem = it },
+                                    onItemClick = openItem,
                                 )
                             }
                         }
@@ -345,72 +374,154 @@ fun GoreeCloudAppStore(
                         item {
                             TabIntro(
                                 title = "Library",
-                                body = "Favorites and saved items stay on this device and remain separated by identity.",
+                                body = "Manage device-local collections and this session’s recently opened items for the active identity.",
                             )
                         }
-                        item {
-                            StoreSectionHeading(
-                                title = "Favorites",
-                                subtitle = if (favoriteVisible.size == 1) {
-                                    "1 favorite"
-                                } else {
-                                    "${favoriteVisible.size} favorites"
-                                },
-                            )
-                        }
-                        if (favoriteVisible.isEmpty()) {
-                            item { FavoriteLibraryEmptyState() }
-                        } else {
+
+                        val hasLibraryItems =
+                            favoriteVisible.isNotEmpty() ||
+                                savedVisible.isNotEmpty() ||
+                                recentlyViewedVisible.isNotEmpty()
+                        if (hasLibraryItems) {
                             item {
-                                TextButton(
-                                    modifier = Modifier.heightIn(min = 48.dp),
-                                    onClick = { confirmClearFavorites = true },
-                                ) {
-                                    Text("Clear Favorites")
-                                }
-                            }
-                            items(favoriteVisible, key = { "favorite:${it.id}" }) { item ->
-                                StoreItemCard(
-                                    item = item,
-                                    isFavorite = true,
-                                    isSaved = item.id in savedItemIds,
-                                    onClick = { selectedItem = item },
+                                StoreSearch(
+                                    query = libraryQuery,
+                                    placeholder = "Search your library",
+                                    onQueryChanged = { libraryQuery = it },
                                 )
                             }
                         }
-                        item { Spacer(Modifier.height(6.dp)) }
-                        item {
-                            StoreSectionHeading(
-                                title = "Saved for later",
-                                subtitle = if (savedVisible.size == 1) {
-                                    "1 saved item"
-                                } else {
-                                    "${savedVisible.size} saved items"
-                                },
-                            )
-                        }
-                        if (savedVisible.isEmpty()) {
+
+                        if (
+                            libraryQuery.isNotBlank() &&
+                            favoriteLibraryVisible.isEmpty() &&
+                            savedLibraryVisible.isEmpty() &&
+                            recentLibraryVisible.isEmpty()
+                        ) {
                             item {
-                                SavedLibraryEmptyState()
+                                EmptyLibrarySearchState(
+                                    onReset = { libraryQuery = "" },
+                                )
                             }
                         } else {
                             item {
-                                TextButton(
-                                    modifier = Modifier.heightIn(min = 48.dp),
-                                    onClick = { confirmClearSaved = true },
-                                ) {
-                                    Text("Clear saved for later")
-                                }
-                            }
-                            items(savedVisible, key = { "saved:${it.id}" }) { item ->
-                                StoreItemCard(
-                                    item = item,
-                                    isFavorite = item.id in favoriteItemIds,
-                                    isSaved = true,
-                                    onClick = { selectedItem = item },
+                                LibrarySectionHeading(
+                                    title = "Favorites",
+                                    subtitle = libraryCollectionCountLabel(
+                                        favoriteLibraryVisible.size,
+                                        singular = "favorite",
+                                        plural = "favorites",
+                                    ),
+                                    actionLabel = if (
+                                        libraryQuery.isBlank() && favoriteVisible.isNotEmpty()
+                                    ) {
+                                        "Clear"
+                                    } else {
+                                        null
+                                    },
+                                    onAction = { confirmClearFavorites = true },
                                 )
                             }
+                            if (favoriteLibraryVisible.isEmpty()) {
+                                item {
+                                    if (libraryQuery.isBlank()) {
+                                        FavoriteLibraryEmptyState()
+                                    } else {
+                                        LibraryCollectionNoMatches("No matching Favorites")
+                                    }
+                                }
+                            } else {
+                                items(
+                                    favoriteLibraryVisible,
+                                    key = { "favorite:${it.id}" },
+                                ) { item ->
+                                    StoreItemCard(
+                                        item = item,
+                                        isFavorite = true,
+                                        isSaved = item.id in savedItemIds,
+                                        onClick = { openItem(item) },
+                                    )
+                                }
+                            }
+
+                            item { Spacer(Modifier.height(4.dp)) }
+                            item {
+                                LibrarySectionHeading(
+                                    title = "Saved for later",
+                                    subtitle = libraryCollectionCountLabel(
+                                        savedLibraryVisible.size,
+                                        singular = "saved item",
+                                        plural = "saved items",
+                                    ),
+                                    actionLabel = if (
+                                        libraryQuery.isBlank() && savedVisible.isNotEmpty()
+                                    ) {
+                                        "Clear"
+                                    } else {
+                                        null
+                                    },
+                                    onAction = { confirmClearSaved = true },
+                                )
+                            }
+                            if (savedLibraryVisible.isEmpty()) {
+                                item {
+                                    if (libraryQuery.isBlank()) {
+                                        SavedLibraryEmptyState()
+                                    } else {
+                                        LibraryCollectionNoMatches("No matching saved items")
+                                    }
+                                }
+                            } else {
+                                items(
+                                    savedLibraryVisible,
+                                    key = { "saved:${it.id}" },
+                                ) { item ->
+                                    StoreItemCard(
+                                        item = item,
+                                        isFavorite = item.id in favoriteItemIds,
+                                        isSaved = true,
+                                        onClick = { openItem(item) },
+                                    )
+                                }
+                            }
+
+                            item { Spacer(Modifier.height(4.dp)) }
+                            item {
+                                LibrarySectionHeading(
+                                    title = "Recently opened",
+                                    subtitle = libraryCollectionCountLabel(
+                                        recentLibraryVisible.size,
+                                        singular = "item this session",
+                                        plural = "items this session",
+                                    ),
+                                    actionLabel = if (
+                                        libraryQuery.isBlank() && recentlyViewedVisible.isNotEmpty()
+                                    ) {
+                                        "Clear"
+                                    } else {
+                                        null
+                                    },
+                                    onAction = { confirmClearRecentlyViewed = true },
+                                )
+                            }
+                            if (recentLibraryVisible.isEmpty()) {
+                                item {
+                                    if (libraryQuery.isBlank()) {
+                                        RecentlyOpenedEmptyState()
+                                    } else {
+                                        LibraryCollectionNoMatches("No matching recent items")
+                                    }
+                                }
+                            } else {
+                                item {
+                                    FeaturedShelf(
+                                        items = recentLibraryVisible,
+                                        onItemClick = openItem,
+                                    )
+                                }
+                            }
                         }
+
                         item {
                             LibraryHistoryStatusRow(
                                 onClick = { showPlatformStatus = true },
@@ -442,7 +553,7 @@ fun GoreeCloudAppStore(
                                 item = item,
                                 isFavorite = item.id in favoriteItemIds,
                                 isSaved = item.id in savedItemIds,
-                                onClick = { selectedItem = item },
+                                onClick = { openItem(item) },
                             )
                         }
                     }
@@ -502,6 +613,35 @@ fun GoreeCloudAppStore(
                 },
                 dismissButton = {
                     TextButton(onClick = { confirmClearSaved = false }) {
+                        Text("Cancel")
+                    }
+                },
+            )
+        }
+
+        if (confirmClearRecentlyViewed) {
+            AlertDialog(
+                onDismissRequest = { confirmClearRecentlyViewed = false },
+                title = { Text("Clear recently opened?") },
+                text = {
+                    Text(
+                        "This clears only this session’s recently opened items for the active development identity. " +
+                            "Favorites and saved items are not changed.",
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            recentlyViewedByIdentity =
+                                recentlyViewedByIdentity - session.subjectId
+                            confirmClearRecentlyViewed = false
+                        },
+                    ) {
+                        Text("Clear recent")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmClearRecentlyViewed = false }) {
                         Text("Cancel")
                     }
                 },
@@ -577,28 +717,26 @@ private fun StoreTopBar(
                     maxLines = 1,
                 )
                 Text(
-                    "GoreeCloud · Development",
+                    "Development · ${session.compactDisplayName()}",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
 
-            Box(modifier = Modifier.widthIn(min = 92.dp, max = 124.dp)) {
+            Box(modifier = Modifier.width(64.dp)) {
                 TextButton(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 48.dp),
-                    contentPadding = PaddingValues(horizontal = 6.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp),
                     onClick = { expanded = true },
                 ) {
-                    Icon(Icons.Rounded.AccountCircle, contentDescription = "Switch development identity")
-                    Spacer(Modifier.size(5.dp))
-                    Text(
-                        session.compactDisplayName(),
-                        modifier = Modifier.weight(1f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                    Icon(
+                        Icons.Rounded.AccountCircle,
+                        contentDescription =
+                            "Current development identity: ${session.compactDisplayName()}. Open account menu.",
                     )
                     Icon(Icons.Rounded.ExpandMore, contentDescription = null)
                 }
@@ -1013,6 +1151,120 @@ private fun EmptyCatalogState(
             }
         }
     }
+}
+
+private fun StoreItem.matchesLibraryQuery(query: String): Boolean {
+    if (query.isBlank()) return true
+    return name.contains(query, ignoreCase = true) ||
+        summary.contains(query, ignoreCase = true) ||
+        category.contains(query, ignoreCase = true) ||
+        type.label().contains(query, ignoreCase = true)
+}
+
+private fun libraryCollectionCountLabel(
+    count: Int,
+    singular: String,
+    plural: String,
+): String = if (count == 1) "1 $singular" else "$count $plural"
+
+@Composable
+private fun LibrarySectionHeading(
+    title: String,
+    subtitle: String,
+    actionLabel: String?,
+    onAction: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(
+                title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        if (actionLabel != null) {
+            TextButton(
+                modifier = Modifier.heightIn(min = 40.dp),
+                onClick = onAction,
+            ) {
+                Text(actionLabel)
+            }
+        }
+    }
+}
+
+@Composable
+private fun LibraryCollectionNoMatches(title: String) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = GlazeSmallCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Text(
+            title,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun EmptyLibrarySearchState(onReset: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = GlazeSmallCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                Text(
+                    "No library matches",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    "Try another search or clear the library search.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            TextButton(
+                modifier = Modifier.heightIn(min = 40.dp),
+                onClick = onReset,
+            ) {
+                Text("Reset")
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecentlyOpenedEmptyState() {
+    LibraryCollectionEmptyState(
+        icon = Icons.Rounded.Update,
+        title = "Nothing opened this session",
+        body = "Open any available item to keep quick access here until the App Store closes.",
+    )
 }
 
 @Composable
