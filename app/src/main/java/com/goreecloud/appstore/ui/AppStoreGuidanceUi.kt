@@ -283,23 +283,17 @@ internal fun AppStoreCatalogGuidanceHint(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = GlazeSmallCardShape,
+        shape = GlazeCapsuleShape,
         color = MaterialTheme.colorScheme.secondaryContainer,
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+        Row(
+            modifier = Modifier.padding(start = 14.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                "Catalog tip",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-            )
-            Text(
-                "Tap an item to inspect its channel and delivery availability. Installation stays " +
-                    "disabled until trusted release metadata, provenance, verification, and package " +
-                    "delivery are connected.",
+                "Tip: Open an item for release and delivery details.",
+                modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
             )
