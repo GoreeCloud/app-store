@@ -312,16 +312,17 @@ fun GoreeCloudAppStore(
 
                     StoreTab.UPDATES -> {
                         item {
-                            TabIntro(
-                                title = "Updates",
-                                body = "Release delivery is not connected yet.",
+                            Text(
+                                "Updates",
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold,
                             )
                         }
                         item {
                             UnavailableState(
                                 icon = Icons.Rounded.Update,
-                                title = "Updates not connected",
-                                body = "Authenticated release metadata and package delivery must be accepted before update actions become available.",
+                                title = "Release delivery not connected",
+                                body = "Available app updates will appear here after authenticated release metadata and package delivery are connected.",
                                 onDetails = { showPlatformStatus = true },
                             )
                         }
@@ -388,11 +389,8 @@ fun GoreeCloudAppStore(
                             }
                         }
                         item {
-                            UnavailableState(
-                                icon = Icons.Rounded.LibraryBooks,
-                                title = "Installed history not connected",
-                                body = "Install history and cross-device recovery remain unavailable until delivery and library contracts are connected.",
-                                onDetails = { showPlatformStatus = true },
+                            LibraryHistoryStatusRow(
+                                onClick = { showPlatformStatus = true },
                             )
                         }
                     }
