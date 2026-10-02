@@ -212,7 +212,13 @@ fun GoreeCloudAppStore(
                                 serviceCount = serviceCount,
                             )
                         }
-                        item { StoreSearch(query = query, onQueryChanged = { query = it }) }
+                        item {
+                            StoreSearch(
+                                query = query,
+                                placeholder = "Search apps and services",
+                                onQueryChanged = { query = it },
+                            )
+                        }
                         if (categories.isNotEmpty()) {
                             item {
                                 CategoryStrip(
@@ -261,7 +267,13 @@ fun GoreeCloudAppStore(
                                 body = "$appCount available to this identity",
                             )
                         }
-                        item { StoreSearch(query = query, onQueryChanged = { query = it }) }
+                        item {
+                            StoreSearch(
+                                query = query,
+                                placeholder = "Search apps",
+                                onQueryChanged = { query = it },
+                            )
+                        }
                         if (categories.isNotEmpty()) {
                             item {
                                 CategoryStrip(
@@ -280,7 +292,13 @@ fun GoreeCloudAppStore(
                                 body = "$serviceCount available to this identity",
                             )
                         }
-                        item { StoreSearch(query = query, onQueryChanged = { query = it }) }
+                        item {
+                            StoreSearch(
+                                query = query,
+                                placeholder = "Search services",
+                                onQueryChanged = { query = it },
+                            )
+                        }
                         if (categories.isNotEmpty()) {
                             item {
                                 CategoryStrip(
@@ -694,7 +712,11 @@ private fun TabIntro(title: String, body: String) {
 }
 
 @Composable
-private fun StoreSearch(query: String, onQueryChanged: (String) -> Unit) {
+private fun StoreSearch(
+    query: String,
+    placeholder: String,
+    onQueryChanged: (String) -> Unit,
+) {
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChanged,
@@ -706,7 +728,7 @@ private fun StoreSearch(query: String, onQueryChanged: (String) -> Unit) {
         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
         placeholder = {
             Text(
-                "Search apps and services",
+                placeholder,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
