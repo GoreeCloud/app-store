@@ -141,160 +141,155 @@ private fun AppStoreOnboardingWizard(
                 }
             }
 
-            Box(
+            Column(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.TopCenter,
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 24.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        repeat(stepCount) { index ->
-                            Surface(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(4.dp),
-                                shape = GlazeCapsuleShape,
-                                color = if (index <= step) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.surfaceVariant
-                                },
-                            ) {}
-                        }
+                    repeat(stepCount) { index ->
+                        Surface(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(4.dp),
+                            shape = GlazeCapsuleShape,
+                            color = if (index <= step) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            },
+                        ) {}
                     }
+                }
 
-                    Text(
-                        "Step ${step + 1} of $stepCount",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                Text(
+                    "Step ${step + 1} of $stepCount",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
 
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = GlazeSmallCardShape,
-                        color = MaterialTheme.colorScheme.surface,
-                        tonalElevation = 1.dp,
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = GlazeSmallCardShape,
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 1.dp,
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Column(
-                            modifier = Modifier.padding(20.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            when (step) {
-                                0 -> {
-                                    Text(
-                                        "Welcome to your GoreeCloud catalog",
-                                        style = MaterialTheme.typography.headlineSmall,
-                                        fontWeight = FontWeight.Bold,
-                                    )
-                                    Text(
-                                        "Browse apps and services available to the active identity.",
-                                        style = MaterialTheme.typography.bodyLarge,
-                                    )
-                                    Text(
-                                        "Your catalog updates when identity, entitlement, or release state changes.",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
+                        when (step) {
+                            0 -> {
+                                Text(
+                                    "Welcome to your GoreeCloud catalog",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                                Text(
+                                    "Browse apps and services available to the active identity.",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                                Text(
+                                    "Your catalog updates when identity, entitlement, or release state changes.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
 
-                                1 -> {
-                                    Text(
-                                        "Know what the Store can do today",
-                                        style = MaterialTheme.typography.headlineSmall,
-                                        fontWeight = FontWeight.Bold,
-                                    )
-                                    OnboardingCapabilityRow(
-                                        title = "Available now",
-                                        body = "Browse the entitled catalog and inspect integration status.",
-                                    )
-                                    HorizontalDivider()
-                                    OnboardingCapabilityRow(
-                                        title = "Not connected yet",
-                                        body = "Install, update, production service, and historical library actions.",
-                                    )
-                                }
+                            1 -> {
+                                Text(
+                                    "Know what the Store can do today",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                                OnboardingCapabilityRow(
+                                    title = "Available now",
+                                    body = "Browse the entitled catalog and inspect integration status.",
+                                )
+                                HorizontalDivider()
+                                OnboardingCapabilityRow(
+                                    title = "Not connected yet",
+                                    body = "Install, update, production service, and historical library actions.",
+                                )
+                            }
 
-                                else -> {
-                                    Text(
-                                        "Choose helpful guidance",
-                                        style = MaterialTheme.typography.headlineSmall,
-                                        fontWeight = FontWeight.Bold,
-                                    )
-                                    Text(
-                                        "Show short contextual tips while you use the Store. You can change this later.",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Surface(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = GlazeSmallCardShape,
-                                        color = MaterialTheme.colorScheme.surfaceVariant,
+                            else -> {
+                                Text(
+                                    "Choose helpful guidance",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                                Text(
+                                    "Show short contextual tips while you use the Store. You can change this later.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = GlazeSmallCardShape,
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     ) {
-                                        Row(
-                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        Column(
+                                            modifier = Modifier.weight(1f),
+                                            verticalArrangement = Arrangement.spacedBy(2.dp),
                                         ) {
-                                            Column(
-                                                modifier = Modifier.weight(1f),
-                                                verticalArrangement = Arrangement.spacedBy(2.dp),
-                                            ) {
-                                                Text(
-                                                    "Contextual tips",
-                                                    style = MaterialTheme.typography.titleMedium,
-                                                    fontWeight = FontWeight.SemiBold,
-                                                )
-                                                Text(
-                                                    if (state.hintsEnabled) "Enabled" else "Disabled",
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                )
-                                            }
-                                            Switch(
-                                                checked = state.hintsEnabled,
-                                                onCheckedChange = onHintsEnabledChanged,
+                                            Text(
+                                                "Contextual tips",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.SemiBold,
+                                            )
+                                            Text(
+                                                if (state.hintsEnabled) "Enabled" else "Disabled",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             )
                                         }
+                                        Switch(
+                                            checked = state.hintsEnabled,
+                                            onCheckedChange = onHintsEnabledChanged,
+                                        )
                                     }
                                 }
                             }
                         }
                     }
+                }
+            }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        if (step > 0) {
-                            TextButton(onClick = onPrevious) {
-                                Text("Back")
-                            }
-                        }
-                        Spacer(Modifier.weight(1f))
-                        Button(
-                            onClick = if (step == AppStoreGuidanceState.LAST_SETUP_STEP) onComplete else onNext,
-                        ) {
-                            Text(
-                                if (step == AppStoreGuidanceState.LAST_SETUP_STEP) {
-                                    "Finish setup"
-                                } else {
-                                    "Continue"
-                                },
-                            )
-                        }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (step > 0) {
+                    TextButton(onClick = onPrevious) {
+                        Text("Back")
                     }
-                    Spacer(Modifier.height(8.dp))
+                }
+                Spacer(Modifier.weight(1f))
+                Button(
+                    onClick = if (step == AppStoreGuidanceState.LAST_SETUP_STEP) onComplete else onNext,
+                ) {
+                    Text(
+                        if (step == AppStoreGuidanceState.LAST_SETUP_STEP) {
+                            "Finish setup"
+                        } else {
+                            "Continue"
+                        },
+                    )
                 }
             }
         }
