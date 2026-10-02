@@ -100,7 +100,7 @@ class AppStoreOnboardingRuntimeTest {
 
                 clickTextButton(device, "Library")
                 waitForText(device, favoriteItem.name)
-                clickTextButton(device, "Clear Favorites")
+                clickTextButton(device, "Clear")
                 waitForText(device, "Clear Favorites?")
                 clickTextButton(device, "Clear all Favorites")
                 waitForText(device, "No Favorites yet")
@@ -109,6 +109,37 @@ class AppStoreOnboardingRuntimeTest {
             }
         } finally {
             favoriteStore.clear(session.subjectId)
+        }
+    }
+
+    @Test
+    fun recentlyOpenedAppearsDuringCurrentSession() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = resetGuidance()
+        val device = UiDevice.getInstance(instrumentation)
+        val session = DevelopmentIdentityGateway.initialSession
+        val item = EntitlementEngine.visibleItems(
+            session,
+            CatalogJsonLoader.load(context),
+        ).first()
+
+        ActivityScenario.launch(MainActivity::class.java).use {
+            waitForText(device, "Welcome to GoreeCloud App Store")
+            clickTextButton(device, "Continue")
+            waitForText(device, "What works today")
+            clickTextButton(device, "Continue")
+            waitForText(device, "Helpful tips")
+            clickTextButton(device, "Start browsing")
+            waitForText(device, "Discover")
+
+            clickTextButton(device, item.name)
+            waitForText(device, item.name)
+            device.pressBack()
+            device.waitForIdle()
+
+            clickTextButton(device, "Library")
+            waitForText(device, "Recently opened")
+            waitForText(device, item.name)
         }
     }
 
