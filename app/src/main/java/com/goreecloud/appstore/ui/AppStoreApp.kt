@@ -30,6 +30,8 @@ import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Bookmark
@@ -79,6 +81,7 @@ import com.goreecloud.appstore.domain.ReleaseChannel
 import com.goreecloud.appstore.domain.StoreItem
 import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
+import com.goreecloud.appstore.library.FavoriteCatalogStore
 import com.goreecloud.appstore.library.SavedCatalogStore
 import com.goreecloud.appstore.onboarding.AppStoreGuidanceState
 import com.goreecloud.appstore.platform.IntegrationState
@@ -105,6 +108,9 @@ fun GoreeCloudAppStore(
     val savedCatalogStore = remember(context.applicationContext) {
         SavedCatalogStore(context.applicationContext)
     }
+    val favoriteCatalogStore = remember(context.applicationContext) {
+        FavoriteCatalogStore(context.applicationContext)
+    }
     val listState = rememberLazyListState()
 
     var session by remember { mutableStateOf(identityGateway.initialSession) }
@@ -115,6 +121,9 @@ fun GoreeCloudAppStore(
     var savedItemIds by remember(session.subjectId) {
         mutableStateOf(savedCatalogStore.load(session.subjectId))
     }
+    var favoriteItemIds by remember(session.subjectId) {
+        mutableStateOf(favoriteCatalogStore.load(session.subjectId))
+    }
     var confirmClearSaved by remember(session.subjectId) { mutableStateOf(false) }
 
     val entitled = remember(session, allItems) {
@@ -122,6 +131,9 @@ fun GoreeCloudAppStore(
     }
     val savedVisible = remember(entitled, savedItemIds) {
         entitled.filter { it.id in savedItemIds }
+    }
+    val favoriteVisible = remember(entitled, favoriteItemIds) {
+        entitled.filter { it.id in favoriteItemIds }
     }
     val visible = remember(entitled, selectedTab, query) {
         val tabItems = when (selectedTab) {
@@ -236,9 +248,27 @@ fun GoreeCloudAppStore(
                         item {
                             TabIntro(
                                 title = "Library",
-                                body = "Save entitled GoreeCloud items for later on this device. Installed and historical library state remains separate and unavailable.",
+                                body = "Keep device-local Favorites and Save for later collections for entitled GoreeCloud items. Installed and historical library state remains separate and unavailable.",
                             )
                         }
+                        item {
+                            StoreSectionHeading(
+                                title = "Favorites",
+                                subtitle = if (favoriteVisible.size == 1) {
+                                    "1 favorite for this development identity"
+                                } else {
+                                    "${favoriteVisible.size} favorites for this development identity"
+                                },
+                            )
+                        }
+                        if (favoriteVisible.isEmpty()) {
+                            item { FavoriteLibraryEmptyState() }
+                        } else {
+                            items(favoriteVisible, key = { "favorite:${it.id}" }) { item ->
+                                StoreItemCard(item = item, onClick = { selectedItem = item })
+                            }
+                        }
+                        item { Spacer(Modifier.height(6.dp)) }
                         item {
                             StoreSectionHeading(
                                 title = "Saved for later",
@@ -331,6 +361,14 @@ fun GoreeCloudAppStore(
         selectedItem?.let { item ->
             StoreItemSheet(
                 item = item,
+                isFavorite = item.id in favoriteItemIds,
+                onFavoriteChanged = { favorite ->
+                    favoriteItemIds = favoriteCatalogStore.setFavorite(
+                        subjectId = session.subjectId,
+                        itemId = item.id,
+                        favorite = favorite,
+                    )
+                },
                 isSaved = item.id in savedItemIds,
                 onSavedChanged = { saved ->
                     savedItemIds = savedCatalogStore.setSaved(
@@ -720,6 +758,40 @@ private fun EmptyCatalogState(authenticated: Boolean, hasQuery: Boolean) {
 }
 
 @Composable
+private fun FavoriteLibraryEmptyState() {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = GlazeCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 28.dp, vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(
+                Icons.Rounded.FavoriteBorder,
+                contentDescription = null,
+                modifier = Modifier.size(32.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                "No Favorites yet",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                "Open an entitled app or service and choose Add to Favorites. Favorites remain device-local and separated by development identity.",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
 private fun SavedLibraryEmptyState() {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -825,6 +897,8 @@ private fun StoreNavigation(selected: StoreTab, onSelected: (StoreTab) -> Unit) 
 @Composable
 private fun StoreItemSheet(
     item: StoreItem,
+    isFavorite: Boolean,
+    onFavoriteChanged: (Boolean) -> Unit,
     isSaved: Boolean,
     onSavedChanged: (Boolean) -> Unit,
     onDismiss: () -> Unit,
@@ -882,6 +956,26 @@ private fun StoreItemSheet(
                     )
                 }
             }
+
+            TextButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp),
+                onClick = { onFavoriteChanged(!isFavorite) },
+            ) {
+                Icon(
+                    if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                    contentDescription = null,
+                )
+                Spacer(Modifier.size(8.dp))
+                Text(if (isFavorite) "Remove from Favorites" else "Add to Favorites")
+            }
+
+            Text(
+                "Favorites stay on this device for the active development identity and do not represent install ownership, account history, or Everkeep recovery.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
 
             TextButton(
                 modifier = Modifier
