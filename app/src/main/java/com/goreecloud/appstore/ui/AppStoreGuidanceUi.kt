@@ -3,6 +3,7 @@
 package com.goreecloud.appstore.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -333,12 +335,16 @@ internal fun AppStoreCatalogGuidanceHint(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                "Tip: Open an item for release and delivery details.",
+                "Tip: Tap an item for details.",
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
             )
-            TextButton(onClick = onDismiss) {
+            TextButton(
+                modifier = Modifier.heightIn(min = 40.dp),
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                onClick = onDismiss,
+            ) {
                 Text("Dismiss")
             }
         }
