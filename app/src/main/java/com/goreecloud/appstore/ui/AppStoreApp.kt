@@ -1188,7 +1188,7 @@ private fun StoreNavigation(selected: StoreTab, onSelected: (StoreTab) -> Unit) 
             NavigationBarItem(
                 selected = selected == tab,
                 onClick = { onSelected(tab) },
-                icon = { Icon(tab.icon, contentDescription = tab.title) },
+                icon = { Icon(tab.icon, contentDescription = null) },
                 label = { Text(tab.title, maxLines = 1) },
             )
         }
