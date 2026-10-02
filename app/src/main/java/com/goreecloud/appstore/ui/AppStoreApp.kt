@@ -681,7 +681,7 @@ private fun CatalogStatChip(label: String) {
     Surface(shape = GlazeCapsuleShape, color = MaterialTheme.colorScheme.surface) {
         Text(
             label,
-            modifier = Modifier.padding(horizontal = 11.dp, vertical = 7.dp),
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary,
             maxLines = 1,
@@ -710,13 +710,15 @@ private fun StoreSearch(query: String, onQueryChanged: (String) -> Unit) {
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChanged,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp),
         singleLine = true,
         shape = GlazeCapsuleShape,
         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
         placeholder = {
             Text(
-                "Search your available catalog",
+                "Search apps and services",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -732,8 +734,8 @@ private fun CategoryStrip(
     onSelected: (String?) -> Unit,
 ) {
     LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(end = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        contentPadding = PaddingValues(end = 4.dp),
     ) {
         item {
             FilterChip(
