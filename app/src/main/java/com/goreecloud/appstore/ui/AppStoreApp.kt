@@ -673,10 +673,10 @@ private fun StoreHero(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                CatalogStatChip("$visibleCount total")
-                CatalogStatChip("$appCount apps")
-                CatalogStatChip("$serviceCount services")
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                item { CatalogStatChip("$visibleCount total") }
+                item { CatalogStatChip("$appCount apps") }
+                item { CatalogStatChip("$serviceCount services") }
             }
         }
     }
@@ -722,7 +722,7 @@ private fun StoreSearch(
         onValueChange = onQueryChanged,
         modifier = Modifier
             .fillMaxWidth()
-            .height(52.dp),
+            .heightIn(min = 52.dp),
         singleLine = true,
         shape = GlazeCapsuleShape,
         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
