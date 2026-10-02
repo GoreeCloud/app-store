@@ -6,7 +6,7 @@
 - Added Android search-keyboard completion behavior so the Search IME action clears focus/keyboard without changing live filtering semantics.
 - Added an explicit close glyph to the selected category chip so the toggle-off behavior is visually obvious without introducing a second interaction target.
 - Added compact Favorite and Saved-for-later state glyphs to catalog rows so local Library state is visible before opening a detail sheet.
-- Added explicit accessibility labels for the development-identity account icon and bottom-navigation icons.
+- Added an explicit accessibility label for the development-identity account control while keeping already-labeled bottom-navigation icons decorative to avoid duplicate spoken labels.
 - Advanced the persistent Development package to `0.1.10-dev` / versionCode `11`.
 - Fresh exact-head Android validation and Android 16 onboarding/runtime evidence are required before this candidate is treated as validated Development evidence.
 
