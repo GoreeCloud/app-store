@@ -1,13 +1,14 @@
 package com.goreecloud.appstore
 
 import android.content.Context
-import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.goreecloud.appstore.onboarding.SharedPreferencesAppStoreGuidanceStore
+import org.junit.Assert.assertTrue
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
@@ -27,7 +28,7 @@ class AppStoreOnboardingRuntimeTest {
         composeRule.onNodeWithText("Know what the Store can do today")
             .assertIsDisplayed()
 
-        composeRule.activityRule.scenario.recreate()
+        composeRule.activity.recreate()
         composeRule.waitForIdle()
         composeRule.onNodeWithText("Know what the Store can do today")
             .assertIsDisplayed()
@@ -40,10 +41,12 @@ class AppStoreOnboardingRuntimeTest {
         composeRule.onNodeWithText("Available to you")
             .assertIsDisplayed()
 
-        composeRule.activityRule.scenario.recreate()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val persisted = SharedPreferencesAppStoreGuidanceStore(context).read()
+        assertTrue("Completed onboarding must be durably persisted", persisted?.setupCompleted == true)
+
+        composeRule.activity.recreate()
         composeRule.waitForIdle()
-        composeRule.onNodeWithText("Welcome to your GoreeCloud catalog")
-            .assertDoesNotExist()
         composeRule.onNodeWithText("Available to you")
             .assertIsDisplayed()
     }
