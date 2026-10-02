@@ -338,9 +338,9 @@ fun GoreeCloudAppStore(
                             StoreSectionHeading(
                                 title = "Favorites",
                                 subtitle = if (favoriteVisible.size == 1) {
-                                    "1 favorite for this development identity"
+                                    "1 favorite"
                                 } else {
-                                    "${favoriteVisible.size} favorites for this development identity"
+                                    "${favoriteVisible.size} favorites"
                                 },
                             )
                         }
