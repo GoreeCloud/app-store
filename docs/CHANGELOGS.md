@@ -1,5 +1,9 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-02 — Representative-device polish pass in progress
+
+- Additional onboarding, account-menu, Discover, Updates, Library, and compact-width refinements are being implemented from owner device screenshots. This entry remains Development-only until fresh exact-head validation completes.
+
 ## 2026-10-02 — Onboarding and status refinement
 
 - Rebuilt the three-step first-use experience from representative-device review: centered content, explicit progress segments, shorter copy, structured capability rows, and in-flow navigation actions replace the oversized document-like cards and avoid an intermittent accessibility-tree loss of the final setup action.
