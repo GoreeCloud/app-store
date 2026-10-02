@@ -46,6 +46,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -83,6 +84,8 @@ import com.goreecloud.appstore.domain.StoreItem
 import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
 import com.goreecloud.appstore.library.FavoriteCatalogStore
+import com.goreecloud.appstore.library.LibraryCatalogFilter
+import com.goreecloud.appstore.library.LibraryItemTypeFilter
 import com.goreecloud.appstore.library.RecentlyViewedCatalogStore
 import com.goreecloud.appstore.library.SavedCatalogStore
 import com.goreecloud.appstore.onboarding.AppStoreGuidanceState
@@ -132,6 +135,10 @@ fun GoreeCloudAppStore(
     var recentlyViewedItemIds by remember(session.subjectId) {
         mutableStateOf(recentlyViewedCatalogStore.load(session.subjectId))
     }
+    var libraryTypeFilter by remember(session.subjectId) {
+        mutableStateOf(LibraryItemTypeFilter.ALL)
+    }
+    var confirmClearFavorites by remember(session.subjectId) { mutableStateOf(false) }
     var confirmClearSaved by remember(session.subjectId) { mutableStateOf(false) }
     var confirmClearRecentlyViewed by remember(session.subjectId) { mutableStateOf(false) }
 
@@ -147,6 +154,15 @@ fun GoreeCloudAppStore(
     val recentlyViewedVisible = remember(entitled, recentlyViewedItemIds) {
         val entitledById = entitled.associateBy(StoreItem::id)
         recentlyViewedItemIds.mapNotNull(entitledById::get)
+    }
+    val filteredFavoriteVisible = remember(favoriteVisible, query, libraryTypeFilter) {
+        LibraryCatalogFilter.apply(favoriteVisible, query, libraryTypeFilter)
+    }
+    val filteredRecentlyViewedVisible = remember(recentlyViewedVisible, query, libraryTypeFilter) {
+        LibraryCatalogFilter.apply(recentlyViewedVisible, query, libraryTypeFilter)
+    }
+    val filteredSavedVisible = remember(savedVisible, query, libraryTypeFilter) {
+        LibraryCatalogFilter.apply(savedVisible, query, libraryTypeFilter)
     }
 
     fun openItem(item: StoreItem) {
@@ -176,6 +192,7 @@ fun GoreeCloudAppStore(
 
     LaunchedEffect(selectedTab, session.subjectId) {
         query = ""
+        libraryTypeFilter = LibraryItemTypeFilter.ALL
         listState.scrollToItem(0)
     }
 
