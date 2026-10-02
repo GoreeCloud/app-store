@@ -258,7 +258,7 @@ fun GoreeCloudAppStore(
                         item {
                             TabIntro(
                                 title = "Apps",
-                                body = "$appCount applications are available to the active development identity.",
+                                body = "$appCount available to this identity",
                             )
                         }
                         item { StoreSearch(query = query, onQueryChanged = { query = it }) }
@@ -270,12 +270,6 @@ fun GoreeCloudAppStore(
                                     onSelected = { selectedCategory = it },
                                 )
                             }
-                        }
-                        item {
-                            StoreSectionHeading(
-                                title = "Browse apps",
-                                subtitle = catalogCountLabel(visible.size),
-                            )
                         }
                     }
 
@@ -283,7 +277,7 @@ fun GoreeCloudAppStore(
                         item {
                             TabIntro(
                                 title = "Services",
-                                body = "$serviceCount services are available to the active development identity.",
+                                body = "$serviceCount available to this identity",
                             )
                         }
                         item { StoreSearch(query = query, onQueryChanged = { query = it }) }
@@ -295,12 +289,6 @@ fun GoreeCloudAppStore(
                                     onSelected = { selectedCategory = it },
                                 )
                             }
-                        }
-                        item {
-                            StoreSectionHeading(
-                                title = "Browse services",
-                                subtitle = catalogCountLabel(visible.size),
-                            )
                         }
                     }
 
