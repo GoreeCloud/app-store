@@ -637,7 +637,7 @@ private fun StoreHero(
                 )
             }
             LazyRow(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                item { CatalogStatChip("$visibleCount total") }
+                item { CatalogStatChip("$visibleCount available") }
                 item { CatalogStatChip("$appCount apps") }
                 item { CatalogStatChip("$serviceCount services") }
             }
