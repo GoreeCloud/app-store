@@ -19,6 +19,7 @@
 - Follow-up compact-phone polish: active-identity checkmark and concise account labels, redundant Discover status-strip removal, identity-scoped available-count wording, tighter category/Featured browsing, explicit clear-search action, centered compact disconnected Updates state, and a compact Library installed-history row.
 - One-tap empty-result recovery, tighter Featured/category geometry, compact top-bar spacing, actionable unavailable-state rows, and consolidated product-detail Favorite/Save actions with one local-state explanation.
 - Search IME completion behavior, explicit selected-category clear affordance, catalog-row Favorite/Saved state glyphs, an explicitly labeled development-identity account control, and shorter first-use guidance ending in **Start browsing**.
+- Session-local **Recently opened** Library recency with per-identity separation, bounded ordering, Library-wide search, compact collection counts/actions, and Discover **Continue browsing** while keeping persistent history disconnected.
 - Application and service item models.
 - Development JSON catalog loader.
 - Multi-user development session switcher.
