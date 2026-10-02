@@ -28,7 +28,9 @@ class AppStoreOnboardingRuntimeTest {
         composeRule.onNodeWithText("Know what the Store can do today")
             .assertIsDisplayed()
 
-        composeRule.activity.recreate()
+        composeRule.activity.runOnUiThread {
+            composeRule.activity.recreate()
+        }
         composeRule.waitForIdle()
         composeRule.onNodeWithText("Know what the Store can do today")
             .assertIsDisplayed()
@@ -45,7 +47,9 @@ class AppStoreOnboardingRuntimeTest {
         val persisted = SharedPreferencesAppStoreGuidanceStore(context).read()
         assertTrue("Completed onboarding must be durably persisted", persisted?.setupCompleted == true)
 
-        composeRule.activity.recreate()
+        composeRule.activity.runOnUiThread {
+            composeRule.activity.recreate()
+        }
         composeRule.waitForIdle()
         composeRule.onNodeWithText("Available to you")
             .assertIsDisplayed()
