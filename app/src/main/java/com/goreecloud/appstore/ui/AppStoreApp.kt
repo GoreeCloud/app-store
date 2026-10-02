@@ -18,8 +18,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -45,6 +47,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -126,6 +129,9 @@ fun GoreeCloudAppStore(
     }
     var confirmClearFavorites by remember(session.subjectId) { mutableStateOf(false) }
     var confirmClearSaved by remember(session.subjectId) { mutableStateOf(false) }
+    var selectedCategory by remember(session.subjectId, selectedTab) {
+        mutableStateOf<String?>(null)
+    }
 
     val entitled = remember(session, allItems) {
         EntitlementEngine.visibleItems(session, allItems)
@@ -136,26 +142,37 @@ fun GoreeCloudAppStore(
     val favoriteVisible = remember(entitled, favoriteItemIds) {
         entitled.filter { it.id in favoriteItemIds }
     }
-    val visible = remember(entitled, selectedTab, query) {
-        val tabItems = when (selectedTab) {
+    val tabItems = remember(entitled, selectedTab) {
+        when (selectedTab) {
             StoreTab.DISCOVER -> entitled
             StoreTab.APPS -> entitled.filter { it.type == StoreItemType.APPLICATION }
             StoreTab.SERVICES -> entitled.filter { it.type == StoreItemType.SERVICE }
             StoreTab.UPDATES, StoreTab.LIBRARY -> emptyList()
         }
-        if (query.isBlank()) {
-            tabItems
-        } else {
-            tabItems.filter {
-                it.name.contains(query, ignoreCase = true) ||
-                    it.summary.contains(query, ignoreCase = true) ||
-                    it.category.contains(query, ignoreCase = true)
-            }
+    }
+    val categories = remember(tabItems) {
+        tabItems.map { it.category }.distinct().sorted()
+    }
+    val visible = remember(tabItems, query, selectedCategory) {
+        tabItems.filter { item ->
+            val matchesCategory = selectedCategory == null || item.category == selectedCategory
+            val matchesQuery = query.isBlank() ||
+                item.name.contains(query, ignoreCase = true) ||
+                item.summary.contains(query, ignoreCase = true) ||
+                item.category.contains(query, ignoreCase = true)
+            matchesCategory && matchesQuery
         }
+    }
+    val appCount = remember(entitled) {
+        entitled.count { it.type == StoreItemType.APPLICATION }
+    }
+    val serviceCount = remember(entitled) {
+        entitled.count { it.type == StoreItemType.SERVICE }
     }
 
     LaunchedEffect(selectedTab, session.subjectId) {
         query = ""
+        selectedCategory = null
         listState.scrollToItem(0)
     }
 
@@ -189,7 +206,23 @@ fun GoreeCloudAppStore(
                 when (selectedTab) {
                     StoreTab.DISCOVER -> {
                         item { DevelopmentStatusStrip(onClick = { showPlatformStatus = true }) }
-                        item { StoreHero(visibleCount = entitled.size) }
+                        item {
+                            StoreHero(
+                                visibleCount = entitled.size,
+                                appCount = appCount,
+                                serviceCount = serviceCount,
+                            )
+                        }
+                        item { StoreSearch(query = query, onQueryChanged = { query = it }) }
+                        if (categories.isNotEmpty()) {
+                            item {
+                                CategoryStrip(
+                                    categories = categories,
+                                    selected = selectedCategory,
+                                    onSelected = { selectedCategory = it },
+                                )
+                            }
+                        }
                         if (guidanceState.isHintVisible(APP_STORE_CATALOG_HINT_ID)) {
                             item {
                                 AppStoreCatalogGuidanceHint(
@@ -199,10 +232,23 @@ fun GoreeCloudAppStore(
                                 )
                             }
                         }
-                        item { StoreSearch(query = query, onQueryChanged = { query = it }) }
+                        if (visible.isNotEmpty()) {
+                            item {
+                                StoreSectionHeading(
+                                    title = "Featured",
+                                    subtitle = "A quick look at what is available to this identity",
+                                )
+                            }
+                            item {
+                                FeaturedShelf(
+                                    items = visible.take(6),
+                                    onItemClick = { selectedItem = it },
+                                )
+                            }
+                        }
                         item {
                             StoreSectionHeading(
-                                title = "Available to you",
+                                title = "All available",
                                 subtitle = catalogCountLabel(visible.size),
                             )
                         }
@@ -212,20 +258,50 @@ fun GoreeCloudAppStore(
                         item {
                             TabIntro(
                                 title = "Apps",
-                                body = "GoreeCloud applications available to the active development identity.",
+                                body = "$appCount applications are available to the active development identity.",
                             )
                         }
                         item { StoreSearch(query = query, onQueryChanged = { query = it }) }
+                        if (categories.isNotEmpty()) {
+                            item {
+                                CategoryStrip(
+                                    categories = categories,
+                                    selected = selectedCategory,
+                                    onSelected = { selectedCategory = it },
+                                )
+                            }
+                        }
+                        item {
+                            StoreSectionHeading(
+                                title = "Browse apps",
+                                subtitle = catalogCountLabel(visible.size),
+                            )
+                        }
                     }
 
                     StoreTab.SERVICES -> {
                         item {
                             TabIntro(
                                 title = "Services",
-                                body = "GoreeCloud services available to the active development identity.",
+                                body = "$serviceCount services are available to the active development identity.",
                             )
                         }
                         item { StoreSearch(query = query, onQueryChanged = { query = it }) }
+                        if (categories.isNotEmpty()) {
+                            item {
+                                CategoryStrip(
+                                    categories = categories,
+                                    selected = selectedCategory,
+                                    onSelected = { selectedCategory = it },
+                                )
+                            }
+                        }
+                        item {
+                            StoreSectionHeading(
+                                title = "Browse services",
+                                subtitle = catalogCountLabel(visible.size),
+                            )
+                        }
                     }
 
                     StoreTab.UPDATES -> {
@@ -434,52 +510,44 @@ private fun StoreTopBar(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Surface(tonalElevation = 2.dp, color = MaterialTheme.colorScheme.surface) {
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        tonalElevation = 0.dp,
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(horizontal = 20.dp, vertical = 12.dp),
+                .padding(horizontal = 18.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            Image(
+                painter = painterResource(R.drawable.goreecloud_app_store_icon),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(GlazeArtworkShape),
+            )
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+                verticalArrangement = Arrangement.spacedBy(1.dp),
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Text(
-                        "GoreeCloud",
-                        style = MaterialTheme.typography.labelLarge,
-                        maxLines = 1,
-                    )
-                    Surface(
-                        shape = GlazeCapsuleShape,
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                    ) {
-                        Text(
-                            "Development",
-                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            maxLines = 1,
-                        )
-                    }
-                }
                 Text(
                     "App Store",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                 )
+                Text(
+                    "GoreeCloud · Development",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                )
             }
 
-            Box(
-                modifier = Modifier.widthIn(min = 138.dp, max = 172.dp),
-            ) {
+            Box(modifier = Modifier.widthIn(min = 128.dp, max = 164.dp)) {
                 TextButton(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -507,6 +575,7 @@ private fun StoreTopBar(
                             },
                         )
                     }
+                    HorizontalDivider()
                     DropdownMenuItem(
                         text = { Text("Guidance & setup") },
                         leadingIcon = { Icon(Icons.Rounded.Info, contentDescription = null) },
@@ -515,7 +584,6 @@ private fun StoreTopBar(
                             onShowGuidanceSettings()
                         },
                     )
-                    HorizontalDivider()
                     DropdownMenuItem(
                         text = { Text("Development status") },
                         leadingIcon = { Icon(Icons.Rounded.Info, contentDescription = null) },
@@ -574,7 +642,11 @@ private fun DevelopmentStatusStrip(onClick: () -> Unit) {
 }
 
 @Composable
-private fun StoreHero(visibleCount: Int) {
+private fun StoreHero(
+    visibleCount: Int,
+    appCount: Int,
+    serviceCount: Int,
+) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = GlazeCardShape,
@@ -582,45 +654,64 @@ private fun StoreHero(visibleCount: Int) {
         tonalElevation = 2.dp,
     ) {
         Column(
-            modifier = Modifier.padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.padding(horizontal = 22.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Surface(
-                modifier = Modifier.size(52.dp),
-                shape = GlazeSmallCardShape,
-                color = MaterialTheme.colorScheme.surface,
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Image(
-                        painter = painterResource(R.drawable.goreecloud_app_store_icon),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(GlazeArtworkShape),
+                Surface(
+                    modifier = Modifier.size(64.dp),
+                    shape = GlazeSmallCardShape,
+                    color = MaterialTheme.colorScheme.surface,
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Image(
+                            painter = painterResource(R.drawable.goreecloud_app_store_icon),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(50.dp)
+                                .clip(GlazeArtworkShape),
+                        )
+                    }
+                }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                ) {
+                    Text(
+                        "Explore GoreeCloud",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                    Text(
+                        "Apps and services available to the active identity, organized for faster browsing.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                 }
             }
-            Text(
-                "Your GoreeCloud, in one place.",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-            Text(
-                "Discover applications and services that this development identity is authorized to see.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-            Surface(shape = GlazeCapsuleShape, color = MaterialTheme.colorScheme.surface) {
-                Text(
-                    "$visibleCount available",
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    maxLines = 1,
-                )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                CatalogStatChip("$visibleCount total")
+                CatalogStatChip("$appCount apps")
+                CatalogStatChip("$serviceCount services")
             }
         }
+    }
+}
+
+@Composable
+private fun CatalogStatChip(label: String) {
+    Surface(shape = GlazeCapsuleShape, color = MaterialTheme.colorScheme.surface) {
+        Text(
+            label,
+            modifier = Modifier.padding(horizontal = 11.dp, vertical = 7.dp),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            maxLines = 1,
+        )
     }
 }
 
@@ -657,6 +748,93 @@ private fun StoreSearch(query: String, onQueryChanged: (String) -> Unit) {
             )
         },
     )
+}
+
+
+@Composable
+private fun CategoryStrip(
+    categories: List<String>,
+    selected: String?,
+    onSelected: (String?) -> Unit,
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(end = 8.dp),
+    ) {
+        item {
+            FilterChip(
+                selected = selected == null,
+                onClick = { onSelected(null) },
+                label = { Text("All") },
+            )
+        }
+        items(categories, key = { "category:$it" }) { category ->
+            FilterChip(
+                selected = selected == category,
+                onClick = { onSelected(if (selected == category) null else category) },
+                label = { Text(category, maxLines = 1) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun FeaturedShelf(
+    items: List<StoreItem>,
+    onItemClick: (StoreItem) -> Unit,
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(end = 8.dp),
+    ) {
+        items(items, key = { "featured:${it.id}" }) { item ->
+            FeaturedItemCard(item = item, onClick = { onItemClick(item) })
+        }
+    }
+}
+
+@Composable
+private fun FeaturedItemCard(item: StoreItem, onClick: () -> Unit) {
+    ElevatedCard(
+        modifier = Modifier
+            .width(224.dp)
+            .clickable(onClick = onClick),
+        shape = GlazeCardShape,
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            StoreArtwork(item = item, size = 68.dp)
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    item.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    item.category,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    item.summary,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -1184,15 +1362,17 @@ private fun StoreArtwork(item: StoreItem, size: Dp) {
             color = MaterialTheme.colorScheme.primaryContainer,
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    if (item.type == StoreItemType.APPLICATION) {
-                        Icons.Rounded.Apps
-                    } else {
-                        Icons.Rounded.Cloud
-                    },
-                    contentDescription = item.name,
-                    modifier = Modifier.size(size * 0.46f),
-                    tint = MaterialTheme.colorScheme.primary,
+                Text(
+                    item.name
+                        .removePrefix("GoreeCloud ")
+                        .split(" ")
+                        .filter { it.isNotBlank() }
+                        .take(2)
+                        .joinToString("") { it.take(1).uppercase() }
+                        .ifBlank { if (item.type == StoreItemType.APPLICATION) "A" else "S" },
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
         }
@@ -1200,11 +1380,12 @@ private fun StoreArtwork(item: StoreItem, size: Dp) {
 }
 
 private fun catalogCountLabel(count: Int): String = when (count) {
-    1 -> "1 item in this development catalog"
-    else -> "$count items in this development catalog"
+    1 -> "1 item available"
+    else -> "$count items available"
 }
 
 private fun StoreItem.artworkResource(): Int? = when (id) {
+    "goreecloud.app-store" -> R.drawable.goreecloud_app_store_icon
     "goreecloud.browser" -> R.drawable.goreecloud_browser_icon
     "goreecloud.messenger" -> R.drawable.goreecloud_messenger_icon
     "goreecloud.location" -> R.drawable.goreecloud_location_icon
