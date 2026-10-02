@@ -52,9 +52,9 @@ class AppStoreOnboardingRuntimeTest {
             waitForText(device, "Welcome to your GoreeCloud catalog")
             waitForText(device, "Continue").click()
             waitForText(device, "Know what the Store can do today")
-            waitForText(device, "Continue").click()
+            waitForTextWithScroll(device, "Continue").click()
             waitForText(device, "Choose helpful guidance")
-            waitForText(device, "Finish setup").click()
+            waitForTextWithScroll(device, "Finish setup").click()
 
             waitForText(device, "Available to you")
 
@@ -93,7 +93,32 @@ class AppStoreOnboardingRuntimeTest {
         }
     }
 
+    private fun waitForTextWithScroll(
+        device: UiDevice,
+        text: String,
+    ): UiObject2 {
+        device.wait(Until.findObject(By.text(text)), SHORT_UI_TIMEOUT_MS)?.let { return it }
+
+        repeat(MAX_SCROLL_ATTEMPTS) {
+            val centerX = device.displayWidth / 2
+            val height = device.displayHeight
+            device.swipe(
+                centerX,
+                (height * 0.82f).toInt(),
+                centerX,
+                (height * 0.34f).toInt(),
+                24,
+            )
+            device.waitForIdle()
+            device.wait(Until.findObject(By.text(text)), SHORT_UI_TIMEOUT_MS)?.let { return it }
+        }
+
+        error("Timed out waiting for visible text after scrolling: $text")
+    }
+
     private companion object {
         const val UI_TIMEOUT_MS = 10_000L
+        const val SHORT_UI_TIMEOUT_MS = 1_500L
+        const val MAX_SCROLL_ATTEMPTS = 4
     }
 }
