@@ -430,6 +430,34 @@ fun GoreeCloudAppStore(
             }
         }
 
+        if (confirmClearFavorites) {
+            AlertDialog(
+                onDismissRequest = { confirmClearFavorites = false },
+                title = { Text("Clear Favorites?") },
+                text = {
+                    Text(
+                        "This removes only this development identity’s device-local Favorites list. " +
+                            "It does not uninstall apps, change entitlements, or affect account-wide history.",
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            favoriteItemIds = favoriteCatalogStore.clear(session.subjectId)
+                            confirmClearFavorites = false
+                        },
+                    ) {
+                        Text("Clear all Favorites")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmClearFavorites = false }) {
+                        Text("Cancel")
+                    }
+                },
+            )
+        }
+
         if (confirmClearRecentlyViewed) {
             AlertDialog(
                 onDismissRequest = { confirmClearRecentlyViewed = false },
@@ -883,6 +911,63 @@ private fun EmptyCatalogState(authenticated: Boolean, hasQuery: Boolean) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+    }
+}
+
+@Composable
+private fun LibraryTypeFilterRow(
+    selected: LibraryItemTypeFilter,
+    onSelected: (LibraryItemTypeFilter) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        LibraryItemTypeFilter.entries.forEach { filter ->
+            FilterChip(
+                selected = selected == filter,
+                onClick = { onSelected(filter) },
+                label = {
+                    Text(
+                        when (filter) {
+                            LibraryItemTypeFilter.ALL -> "All"
+                            LibraryItemTypeFilter.APPS -> "Apps"
+                            LibraryItemTypeFilter.SERVICES -> "Services"
+                        },
+                    )
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun LibraryNoMatchesState(collectionName: String) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = GlazeCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Text(
+            text = "No $collectionName items match the current Library search and type filter.",
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+private fun libraryCollectionCountLabel(
+    visibleCount: Int,
+    totalCount: Int,
+    singular: String,
+    plural: String,
+): String {
+    val totalLabel = if (totalCount == 1) "1 $singular" else "$totalCount $plural"
+    return if (visibleCount == totalCount) {
+        "$totalLabel for this development identity"
+    } else {
+        "$visibleCount of $totalLabel for this development identity"
     }
 }
 
