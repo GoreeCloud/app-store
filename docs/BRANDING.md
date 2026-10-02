@@ -32,6 +32,22 @@ The native development catalog renders first-party artwork from traceable Androi
 
 Identity Center must not reuse the complete `products/identity/app-icon.svg` application identity. Mesh Center must not fall back to a generic cloud/network glyph. The Mesh Center derivative follows the approved GoreeCloud Mesh **Interlace** Identity DNA while remaining a reduced service-specific mark. Both service identities remain reduced derivatives of their registered parent Identity DNA, and runtime state is communicated separately from the stable mark.
 
+## Expanded development-catalog artwork review
+
+The October 2, 2026 Development catalog expansion intentionally exposes a broader GoreeCloud portfolio before approved Android derivatives have been imported for every item. This is a presentation/testing fixture, not a branding registry.
+
+Approved local artwork mappings remain limited to App Store, Browser, Messenger, Location, Manager, Identity Center, and Mesh Center. Every other expanded fixture entry must render the reviewed **non-authoritative text monogram placeholder** rather than inventing, approximating, recoloring, or borrowing a first-party product identity.
+
+The monogram placeholder:
+
+- is generated from the catalog display name at runtime;
+- is not a logo, icon, registered identity, canonical asset, or branding authority;
+- must not be exported or reused as product artwork;
+- must be replaced only after the applicable canonical `GoreeCloud/branding-assets` identity and provenance are reviewed and an explicit Android derivative mapping is added;
+- does not imply package trust, installability, release acceptance, lifecycle status, or production readiness.
+
+Repository validation pins the complete reviewed Development catalog identity set and fails closed if a new catalog identity appears without another explicit branding review. It also fails if a placeholder entry gains a local drawable mapping without approved provenance.
+
 ## Consumer-derivative rules
 
 - Local Android resources are packaging derivatives only; canonical SVGs and their pinned Git blobs remain authoritative.
