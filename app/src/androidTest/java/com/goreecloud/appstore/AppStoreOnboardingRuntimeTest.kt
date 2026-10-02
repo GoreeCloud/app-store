@@ -56,7 +56,7 @@ class AppStoreOnboardingRuntimeTest {
             waitForText(device, "Choose helpful guidance")
             waitForText(device, "Finish setup").click()
 
-            waitForText(device, "Available to you")
+            waitForText(device, "Discover")
 
             val persisted = SharedPreferencesAppStoreGuidanceStore(context).read()
             assertTrue(
@@ -65,7 +65,7 @@ class AppStoreOnboardingRuntimeTest {
             )
 
             scenario.recreate()
-            waitForText(device, "Available to you")
+            waitForText(device, "Discover")
         }
     }
 
