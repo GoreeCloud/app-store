@@ -290,31 +290,59 @@ fun GoreeCloudAppStore(
                             )
                         }
                         item {
+                            StoreSearch(
+                                query = query,
+                                onQueryChanged = { query = it },
+                            )
+                        }
+                        item {
+                            LibraryTypeFilterRow(
+                                selected = libraryTypeFilter,
+                                onSelected = { libraryTypeFilter = it },
+                            )
+                        }
+
+                        item {
                             StoreSectionHeading(
                                 title = "Favorites",
-                                subtitle = if (favoriteVisible.size == 1) {
-                                    "1 favorite for this development identity"
-                                } else {
-                                    "${favoriteVisible.size} favorites for this development identity"
-                                },
+                                subtitle = libraryCollectionCountLabel(
+                                    visibleCount = filteredFavoriteVisible.size,
+                                    totalCount = favoriteVisible.size,
+                                    singular = "favorite",
+                                    plural = "favorites",
+                                ),
                             )
                         }
                         if (favoriteVisible.isEmpty()) {
                             item { FavoriteLibraryEmptyState() }
                         } else {
-                            items(favoriteVisible, key = { "favorite:${it.id}" }) { item ->
-                                StoreItemCard(item = item, onClick = { openItem(item) })
+                            item {
+                                TextButton(
+                                    modifier = Modifier.heightIn(min = 48.dp),
+                                    onClick = { confirmClearFavorites = true },
+                                ) {
+                                    Text("Clear Favorites")
+                                }
+                            }
+                            if (filteredFavoriteVisible.isEmpty()) {
+                                item { LibraryNoMatchesState(collectionName = "Favorites") }
+                            } else {
+                                items(filteredFavoriteVisible, key = { "favorite:${it.id}" }) { item ->
+                                    StoreItemCard(item = item, onClick = { openItem(item) })
+                                }
                             }
                         }
+
                         item { Spacer(Modifier.height(6.dp)) }
                         item {
                             StoreSectionHeading(
                                 title = "Recently viewed",
-                                subtitle = if (recentlyViewedVisible.size == 1) {
-                                    "1 recently viewed item for this development identity"
-                                } else {
-                                    "${recentlyViewedVisible.size} recently viewed items for this development identity"
-                                },
+                                subtitle = libraryCollectionCountLabel(
+                                    visibleCount = filteredRecentlyViewedVisible.size,
+                                    totalCount = recentlyViewedVisible.size,
+                                    singular = "recently viewed item",
+                                    plural = "recently viewed items",
+                                ),
                             )
                         }
                         if (recentlyViewedVisible.isEmpty()) {
@@ -328,25 +356,29 @@ fun GoreeCloudAppStore(
                                     Text("Clear recently viewed")
                                 }
                             }
-                            items(recentlyViewedVisible, key = { "recent:${it.id}" }) { item ->
-                                StoreItemCard(item = item, onClick = { openItem(item) })
+                            if (filteredRecentlyViewedVisible.isEmpty()) {
+                                item { LibraryNoMatchesState(collectionName = "Recently viewed") }
+                            } else {
+                                items(filteredRecentlyViewedVisible, key = { "recent:${it.id}" }) { item ->
+                                    StoreItemCard(item = item, onClick = { openItem(item) })
+                                }
                             }
                         }
+
                         item { Spacer(Modifier.height(6.dp)) }
                         item {
                             StoreSectionHeading(
                                 title = "Saved for later",
-                                subtitle = if (savedVisible.size == 1) {
-                                    "1 item saved for this development identity"
-                                } else {
-                                    "${savedVisible.size} items saved for this development identity"
-                                },
+                                subtitle = libraryCollectionCountLabel(
+                                    visibleCount = filteredSavedVisible.size,
+                                    totalCount = savedVisible.size,
+                                    singular = "saved item",
+                                    plural = "saved items",
+                                ),
                             )
                         }
                         if (savedVisible.isEmpty()) {
-                            item {
-                                SavedLibraryEmptyState()
-                            }
+                            item { SavedLibraryEmptyState() }
                         } else {
                             item {
                                 TextButton(
@@ -356,8 +388,12 @@ fun GoreeCloudAppStore(
                                     Text("Clear saved for later")
                                 }
                             }
-                            items(savedVisible, key = { "saved:${it.id}" }) { item ->
-                                StoreItemCard(item = item, onClick = { openItem(item) })
+                            if (filteredSavedVisible.isEmpty()) {
+                                item { LibraryNoMatchesState(collectionName = "Saved for later") }
+                            } else {
+                                items(filteredSavedVisible, key = { "saved:${it.id}" }) { item ->
+                                    StoreItemCard(item = item, onClick = { openItem(item) })
+                                }
                             }
                         }
                         item {
