@@ -17,7 +17,7 @@ object PlatformIntegrationRegistry {
         PlatformIntegrationStatus(
             system = "Glaze",
             state = IntegrationState.TARGETED,
-            detail = "Targets the current Stable 2.0.0 consumer contract; conformance is not yet claimed.",
+            detail = "Targets the GLAZE UI V1.6 / 1.6.0 Official Anchor; rendered conformance is not yet claimed.",
         ),
         PlatformIntegrationStatus(
             system = "GoreeCloud Identity",
