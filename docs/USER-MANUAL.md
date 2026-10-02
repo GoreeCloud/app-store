@@ -18,7 +18,7 @@ Current development/debug builds use:
 
 - application ID `com.goreecloud.appstore.dev`;
 - Android label **GoreeCloud App Store Dev**;
-- development version line `0.1.2-dev` / version code `3` at this checkpoint;
+- development version line `0.1.7-dev` / version code `8` at this checkpoint;
 - the repository-managed, development-only signing certificate documented in `development/signing/README.md`.
 
 The development package is intentionally separate from the reserved future production application ID `com.goreecloud.appstore`. The development signing identity is non-production test material and must never sign the production package or a Stable artifact.
@@ -32,6 +32,10 @@ If the device still shows the large **Development identity adapter** panel, lett
 Remove that older bootstrap from the test device, or leave it installed only if you intentionally want to compare it. Install and launch **GoreeCloud App Store Dev** for current testing. The `.dev` package can coexist with the old package because they have different Android application IDs.
 
 Future development artifacts are intended to retain the same development package and signing identity so they can update earlier `.dev` installations, subject to normal Android version-code rules.
+
+## First-use guidance
+
+The first launch presents a concise three-step guide with visible progress. It explains the entitled catalog, distinguishes currently available browsing/status functions from install/update/production-service actions that remain disconnected, and lets you enable or disable contextual tips. Progress is persisted so an interrupted setup resumes at the last durable step, and the guide can be replayed later from **Guidance & setup**.
 
 ## Development account switcher
 
@@ -69,21 +73,21 @@ Shows a dedicated development unavailable state. Per-identity installed/library 
 
 ## Search
 
-Use **Search your available catalog** to filter the current entitled section by application/service name, summary, or category.
+Use the section-specific search field (**Search apps and services**, **Search apps**, or **Search services**) to filter the current entitled section by application/service name, summary, or category.
 
 Search operates only on entries already available to the active development identity. It does not reveal entries that were filtered out by entitlement rules.
 
 ## Application and service artwork
 
-Where approved assets exist, the Android client uses native VectorDrawable derivatives tied to canonical assets in `GoreeCloud/goreecloud-branding-assets`.
+Every current catalog application and service uses a native VectorDrawable derivative tied to a canonical official asset in `GoreeCloud/branding-assets`; empty, lettered, monogram, and generic placeholder artwork is prohibited.
 
 The branding repository remains authoritative. Copies in this App Store repository are implementation derivatives only. See `BRANDING.md` for the exact canonical asset and Git-blob mappings.
 
 ## Catalog cards and release channels
 
-Catalog cards show artwork, name, summary, type/category metadata, release channel, and a product-navigation affordance.
+Catalog cards show official artwork, name, a compact summary, type/category metadata, and a product-navigation affordance. Development channel pills are suppressed on Development rows because the entire build already carries that context; non-Development channel pills remain available for future mixed-channel catalogs.
 
-The card layout gives the primary type/category metadata flexible width while keeping the release-channel capsule on one line. On compact widths, long metadata is ellipsized rather than squeezing labels such as **Development** into vertical single-character wrapping. Product titles may use up to two lines when needed.
+The card layout gives primary text flexible width and uses a single-line summary plus a compact metadata line. On compact widths, long metadata is ellipsized rather than forcing wrapping or pushing navigation controls off screen. Product titles may use up to two lines when needed.
 
 ## Product details
 
@@ -97,11 +101,11 @@ The **Install** or **Open** action remains disabled because package/service deli
 
 Open the account menu and choose **Development status**, or use the development-status affordance on Discover, to inspect current integration boundaries. These diagnostics are development state, not production trust badges.
 
-Status names are given flexible width while state capsules remain single-line so compact layouts do not force status text into unreadable vertical wrapping.
+Status entries use compact integration cards. System names retain flexible width while state capsules remain single-line so compact layouts do not force status text into unreadable vertical wrapping.
 
 The status surface covers:
 
-- **Glaze UI** — current design-system target is 2.0.0; conformance is not yet claimed.
+- **Glaze** — current user-facing system identity; this App Store remains targeted at the historical **GLAZE UI V1.6 / 1.6.0 Official Anchor**, and rendered conformance is not yet claimed.
 - **GoreeCloud Identity** — production authentication/authorization integration is not connected.
 - **Wardveil Security** — package trust and verification integration is not connected.
 - **Privacy Shield** — production privacy-policy integration is not connected; development analytics are off.
@@ -120,7 +124,7 @@ Client-side catalog filtering is not the future sole authorization boundary. Pro
 
 The application currently has no production login, server-authoritative production catalog service, APK download/install flow, service-launch flow, production update delivery, installed-library reconciliation, production signing, Wardveil package-verification acceptance, Privacy Shield runtime acceptance, Everkeep runtime recovery acceptance, Mesh runtime event transport, or Stable Glaze UI conformance acceptance.
 
-The compact-width corrections described above are source-validated but still require continued real-device review across supported screen sizes and font-scale/accessibility settings before any form-factor or Glaze UI conformance claim is made.
+The compact-width and onboarding/status refinements described above remain Development work and still require continued real-device review across supported screen sizes and font-scale/accessibility settings before any form-factor or Glaze conformance claim is made.
 
 These limitations are deliberate fail-closed boundaries, not hidden features.
 
