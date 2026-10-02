@@ -102,7 +102,7 @@ class AppStoreOnboardingRuntimeTest {
                 waitForText(device, favoriteItem.name)
                 clickTextButton(device, "Clear Favorites")
                 waitForText(device, "Clear Favorites?")
-                clickTextButton(device, "Clear Favorites")
+                clickTextButton(device, "Clear all Favorites")
                 waitForText(device, "No Favorites yet")
 
                 assertTrue(favoriteStore.load(session.subjectId).isEmpty())
