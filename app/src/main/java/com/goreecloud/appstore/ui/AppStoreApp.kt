@@ -390,8 +390,8 @@ fun GoreeCloudAppStore(
                         item {
                             UnavailableState(
                                 icon = Icons.Rounded.LibraryBooks,
-                                title = "Installed library history is unavailable",
-                                body = "Install history, cross-device library recovery, and previously owned state remain disabled until the authoritative delivery and Everkeep-backed library contracts are connected.",
+                                title = "Installed history not connected",
+                                body = "Install history and cross-device recovery remain unavailable until delivery and library contracts are connected.",
                                 onDetails = { showPlatformStatus = true },
                             )
                         }
