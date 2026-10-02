@@ -18,7 +18,7 @@ Current development/debug builds use:
 
 - application ID `com.goreecloud.appstore.dev`;
 - Android label **GoreeCloud App Store Dev**;
-- development version line `0.1.9-dev` / version code `10` at this checkpoint;
+- development version line `0.1.10-dev` / version code `11` at this checkpoint;
 - the repository-managed, development-only signing certificate documented in `development/signing/README.md`.
 
 The development package is intentionally separate from the reserved future production application ID `com.goreecloud.appstore`. The development signing identity is non-production test material and must never sign the production package or a Stable artifact.
@@ -35,7 +35,7 @@ Future development artifacts are intended to retain the same development package
 
 ## First-use guidance
 
-The first launch presents a concise three-step guide with visible progress near the top of the usable screen. It explains the entitled catalog, distinguishes currently available browsing/status functions from install/update/production-service actions that remain disconnected, and lets you enable or disable contextual tips. Back/Continue/Finish navigation stays anchored to the bottom safe area while step content remains independently scrollable for constrained or accessibility-scaled layouts. Step 1 omits the inactive Back action. Progress is persisted so an interrupted setup resumes at the last durable step, and the guide can be replayed later from **Guidance & setup**.
+The first launch presents a concise three-step guide with visible progress near the top of the usable screen. It explains the entitled catalog, distinguishes currently available browsing/status functions from install/update/production-service actions that remain disconnected, and lets you enable or disable contextual tips. Back/Continue/**Start browsing** navigation stays anchored to the bottom safe area while step content remains independently scrollable for constrained or accessibility-scaled layouts. Step 1 omits the inactive Back action. Progress is persisted so an interrupted setup resumes at the last durable step, and the guide can be replayed later from **Guidance & setup**.
 
 ## Development account switcher
 
@@ -73,7 +73,7 @@ Shows device-local **Favorites** and **Saved for later** collections for the act
 
 ## Search
 
-Use the section-specific search field (**Search apps and services**, **Search apps**, or **Search services**) to filter the current entitled section by application/service name, summary, or category. When a query is active, use the trailing clear-search action to reset it immediately. If search or category filtering produces no matches, use **Reset** in the empty-result card to clear both filters in one action.
+Use the section-specific search field (**Search apps and services**, **Search apps**, or **Search services**) to filter the current entitled section by application/service name, summary, or category. The Android Search keyboard action dismisses the keyboard while keeping the current live-filtered results in place. When a query is active, use the trailing clear-search action to reset it immediately. A selected category shows a close glyph and can be tapped again to clear it. If search or category filtering produces no matches, use **Reset** in the empty-result card to clear both filters in one action.
 
 Search operates only on entries already available to the active development identity. It does not reveal entries that were filtered out by entitlement rules.
 
@@ -85,7 +85,7 @@ The branding repository remains authoritative. Copies in this App Store reposito
 
 ## Catalog cards and release channels
 
-Catalog cards show official artwork, name, a compact summary, type/category metadata, and a product-navigation affordance. Development channel pills are suppressed on Development rows because the entire build already carries that context; non-Development channel pills remain available for future mixed-channel catalogs.
+Catalog cards show official artwork, name, a compact summary, type/category metadata, local Favorite/Saved-for-later state glyphs when applicable, and a product-navigation affordance. Development channel pills are suppressed on Development rows because the entire build already carries that context; non-Development channel pills remain available for future mixed-channel catalogs.
 
 The card layout gives primary text flexible width and uses a single-line summary plus a compact metadata line. On compact widths, long metadata is ellipsized rather than forcing wrapping or pushing navigation controls off screen. Product titles may use up to two lines when needed.
 
