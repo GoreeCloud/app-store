@@ -1,5 +1,19 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-02 — Representative-device mobile UI refinement
+
+- Refined the Android browsing experience from owner-supplied physical-device screenshots.
+- Prioritized the Discover catalog hero/search/category controls and reduced Development status to a compact secondary capsule.
+- Reduced hero, stat-chip, Featured shelf, section-heading, and catalog-row visual weight so more actual catalog content is visible per screen.
+- Removed duplicate Apps/Services browse headings and made their result counts reflect active search/category filters.
+- Added section-specific search prompts for Discover, Apps, and Services.
+- Shortened compact account labels while preserving full development-session names in the selector.
+- Suppressed the redundant Development release pill on Development catalog rows while retaining channel pills for future non-Development entries and detail surfaces.
+- Replaced oversized catalog guidance, Updates, Library, and catalog-empty panels with compact utility states while preserving authority/privacy explanations.
+- Improved large-text resilience by allowing search height to expand and making hero statistics horizontally scrollable rather than forcing compression.
+- Advanced the persistent Development package to `0.1.6-dev` / versionCode `7`.
+- Fresh exact-head Android validation and Android 16 runtime evidence are required before this materially changed UI candidate is treated as validated Development evidence.
+
 ## 2026-10-02 — Official catalog artwork completeness
 
 - Replaced the expanded-catalog monogram fallback with mandatory official artwork for every App Store application and service.
