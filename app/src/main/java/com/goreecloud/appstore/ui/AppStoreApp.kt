@@ -273,6 +273,24 @@ fun GoreeCloudAppStore(
                                 )
                             }
                         }
+                        if (
+                            query.isBlank() &&
+                            selectedCategory == null &&
+                            recentlyViewedVisible.isNotEmpty()
+                        ) {
+                            item {
+                                StoreSectionHeading(
+                                    title = "Continue browsing",
+                                    subtitle = "Recently opened this session",
+                                )
+                            }
+                            item {
+                                FeaturedShelf(
+                                    items = recentlyViewedVisible.take(6),
+                                    onItemClick = openItem,
+                                )
+                            }
+                        }
                         if (visible.isNotEmpty()) {
                             item {
                                 StoreSectionHeading(
@@ -376,6 +394,19 @@ fun GoreeCloudAppStore(
                                 title = "Library",
                                 body = "Manage device-local collections and this session’s recently opened items for the active identity.",
                             )
+                        }
+                        if (
+                            favoriteVisible.isNotEmpty() ||
+                            savedVisible.isNotEmpty() ||
+                            recentlyViewedVisible.isNotEmpty()
+                        ) {
+                            item {
+                                LibraryCollectionSummary(
+                                    favorites = favoriteVisible.size,
+                                    saved = savedVisible.size,
+                                    recent = recentlyViewedVisible.size,
+                                )
+                            }
                         }
 
                         val hasLibraryItems =
@@ -1150,6 +1181,38 @@ private fun EmptyCatalogState(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun LibraryCollectionSummary(
+    favorites: Int,
+    saved: Int,
+    recent: Int,
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        contentPadding = PaddingValues(end = 8.dp),
+    ) {
+        item { LibraryCountChip("$favorites Favorites") }
+        item { LibraryCountChip("$saved Saved") }
+        item { LibraryCountChip("$recent Recent") }
+    }
+}
+
+@Composable
+private fun LibraryCountChip(label: String) {
+    Surface(
+        shape = GlazeCapsuleShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Text(
+            label,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+        )
     }
 }
 
