@@ -23,6 +23,7 @@ The current development branch establishes:
 - an expanded 34-entry non-production portfolio fixture so ordinary browsing is no longer limited to the original six bootstrap items;
 - official canonical artwork for every catalog application and service, with user-facing placeholder/monogram fallbacks prohibited and CI-enforced;
 - device-review mobile-density refinement that shortens account labels, reduces Discover chrome, removes redundant Development pills, compacts Featured/catalog cards, and uses denser Updates/Library states while preserving 48dp-class interaction targets;
+- representative-device onboarding/status refinement with centered progress-led first-run guidance, structured capability summaries, current Glaze naming, compact integration cards, and denser catalog rows;
 - per-development-identity device-local Save for later state for currently entitled items, with Library presentation that remains explicitly separate from installed/history/Everkeep authority and hashed local preference namespaces that do not embed the raw identity subject;
 - store-style application/service cards and product-detail bottom sheets;
 - approved first-party artwork derivatives tied to canonical assets in `GoreeCloud/branding-assets`;
@@ -34,13 +35,13 @@ The current development branch establishes:
 - unit tests that prevent implicit administrator bypass of catalog audience rules;
 - exact-source Android CI for tests, lint, APK assembly, package/application-label validation, signing-certificate verification, SHA-256 evidence, and development artifact publication.
 
-The interface now uses a compact catalog-browsing hierarchy validated iteratively against representative-device screenshots. Discover prioritizes the catalog hero, section-specific search, category filters, a compact Development-status capsule, a smaller Featured shelf, and a denser all-items list. Apps and Services no longer repeat browse headings or Development copy, catalog rows suppress the redundant Development channel pill while retaining future mixed-channel pills, account labels remain readable on compact widths, and Updates/Library unavailable or empty states use compact utility surfaces. Fixed-height text containers are avoided where larger text may need additional space, and horizontally constrained stat/category surfaces remain scrollable rather than forcing unsafe compression.
+The interface now uses a compact catalog-browsing hierarchy validated iteratively against representative-device screenshots. Discover prioritizes the catalog hero, section-specific search, category filters, a compact Development-status capsule, a smaller Featured shelf, and a denser all-items list. Apps and Services no longer repeat browse headings or Development copy, catalog rows suppress the redundant Development channel pill while retaining future mixed-channel pills, account labels remain readable on compact widths, and Updates/Library unavailable or empty states use compact utility surfaces. The first-use flow now centers a concise three-step guide with explicit progress and structured capability summaries; Development Status uses compact integration cards and the current Glaze identity while preserving the historical GLAZE UI V1.6 / 1.6.0 Anchor label where version provenance is required. Fixed-height text containers are avoided where larger text may need additional space, and horizontally constrained stat/category surfaces remain scrollable rather than forcing unsafe compression.
 
 ## Development APK identity
 
 CI/debug builds install as `com.goreecloud.appstore.dev` with the Android label **GoreeCloud App Store Dev**. They are signed with one repository-managed development-only certificate so successive development builds can update each other instead of receiving a new ephemeral Android debug identity from every CI runner.
 
-The current development version line is `0.1.6-dev` with version code `7`.
+The current development version line is `0.1.7-dev` with version code `8`.
 
 The reserved future production application ID remains `com.goreecloud.appstore`. The development signing key MUST NOT sign that production package or any artifact represented as production-approved or Stable. See `development/signing/README.md` for the explicit boundary and certificate fingerprint.
 
