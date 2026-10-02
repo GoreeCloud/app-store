@@ -25,6 +25,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
@@ -73,8 +75,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -366,7 +370,12 @@ fun GoreeCloudAppStore(
                                 }
                             }
                             items(favoriteVisible, key = { "favorite:${it.id}" }) { item ->
-                                StoreItemCard(item = item, onClick = { selectedItem = item })
+                                StoreItemCard(
+                                    item = item,
+                                    isFavorite = true,
+                                    isSaved = item.id in savedItemIds,
+                                    onClick = { selectedItem = item },
+                                )
                             }
                         }
                         item { Spacer(Modifier.height(6.dp)) }
@@ -394,7 +403,12 @@ fun GoreeCloudAppStore(
                                 }
                             }
                             items(savedVisible, key = { "saved:${it.id}" }) { item ->
-                                StoreItemCard(item = item, onClick = { selectedItem = item })
+                                StoreItemCard(
+                                    item = item,
+                                    isFavorite = item.id in favoriteItemIds,
+                                    isSaved = true,
+                                    onClick = { selectedItem = item },
+                                )
                             }
                         }
                         item {
@@ -424,7 +438,12 @@ fun GoreeCloudAppStore(
                         }
                     } else {
                         items(visible, key = { it.id }) { item ->
-                            StoreItemCard(item = item, onClick = { selectedItem = item })
+                            StoreItemCard(
+                                item = item,
+                                isFavorite = item.id in favoriteItemIds,
+                                isSaved = item.id in savedItemIds,
+                                onClick = { selectedItem = item },
+                            )
                         }
                     }
                 }
@@ -573,7 +592,7 @@ private fun StoreTopBar(
                     contentPadding = PaddingValues(horizontal = 6.dp),
                     onClick = { expanded = true },
                 ) {
-                    Icon(Icons.Rounded.AccountCircle, contentDescription = null)
+                    Icon(Icons.Rounded.AccountCircle, contentDescription = "Switch development identity")
                     Spacer(Modifier.size(5.dp))
                     Text(
                         session.compactDisplayName(),
@@ -694,6 +713,8 @@ private fun StoreSearch(
     placeholder: String,
     onQueryChanged: (String) -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
+
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChanged,
@@ -702,6 +723,10 @@ private fun StoreSearch(
             .heightIn(min = 52.dp),
         singleLine = true,
         shape = GlazeCapsuleShape,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(
+            onSearch = { focusManager.clearFocus() },
+        ),
         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
         trailingIcon = if (query.isNotEmpty()) {
             {
@@ -747,6 +772,17 @@ private fun CategoryStrip(
                 selected = selected == category,
                 onClick = { onSelected(if (selected == category) null else category) },
                 label = { Text(category, style = MaterialTheme.typography.labelMedium, maxLines = 1) },
+                trailingIcon = if (selected == category) {
+                    {
+                        Icon(
+                            Icons.Rounded.Close,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                } else {
+                    null
+                },
             )
         }
     }
@@ -824,7 +860,12 @@ private fun StoreSectionHeading(title: String, subtitle: String) {
 }
 
 @Composable
-private fun StoreItemCard(item: StoreItem, onClick: () -> Unit) {
+private fun StoreItemCard(
+    item: StoreItem,
+    isFavorite: Boolean,
+    isSaved: Boolean,
+    onClick: () -> Unit,
+) {
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -872,6 +913,22 @@ private fun StoreItemCard(item: StoreItem, onClick: () -> Unit) {
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    if (isFavorite) {
+                        Icon(
+                            Icons.Rounded.Favorite,
+                            contentDescription = "Favorited",
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                    if (isSaved) {
+                        Icon(
+                            Icons.Rounded.Bookmark,
+                            contentDescription = "Saved for later",
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                     if (item.releaseChannel != ReleaseChannel.DEVELOPMENT) {
                         ReleaseChannelPill(item.releaseChannel)
                     }
@@ -1131,7 +1188,7 @@ private fun StoreNavigation(selected: StoreTab, onSelected: (StoreTab) -> Unit) 
             NavigationBarItem(
                 selected = selected == tab,
                 onClick = { onSelected(tab) },
-                icon = { Icon(tab.icon, contentDescription = null) },
+                icon = { Icon(tab.icon, contentDescription = tab.title) },
                 label = { Text(tab.title, maxLines = 1) },
             )
         }
