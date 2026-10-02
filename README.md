@@ -25,6 +25,7 @@ The current development branch establishes:
 - device-review mobile-density refinement that shortens account labels, reduces Discover chrome, removes redundant Development pills, compacts Featured/catalog cards, and uses denser Updates/Library states while preserving 48dp-class interaction targets;
 - representative-device onboarding/status refinement with top-anchored progress-led first-run guidance, bottom-anchored navigation, structured capability summaries, current Glaze naming, compact integration cards, and denser catalog rows;
 - a follow-up compact-phone polish pass that removes the redundant Discover status strip, clarifies identity-scoped catalog counts, marks the active account in the selector, tightens category/Featured browsing, adds clear-search controls, centers the disconnected Updates state, and compacts Library history status;
+- filter-reset and detail-sheet polish with one-tap empty-result recovery, tighter category and Featured geometry, a more compact header, actionable disconnected-state rows, and consolidated Favorite/Save controls and local-state copy;
 - per-development-identity device-local Save for later state for currently entitled items, with Library presentation that remains explicitly separate from installed/history/Everkeep authority and hashed local preference namespaces that do not embed the raw identity subject;
 - store-style application/service cards and product-detail bottom sheets;
 - approved first-party artwork derivatives tied to canonical assets in `GoreeCloud/branding-assets`;
@@ -42,7 +43,7 @@ The interface now uses a compact catalog-browsing hierarchy validated iterativel
 
 CI/debug builds install as `com.goreecloud.appstore.dev` with the Android label **GoreeCloud App Store Dev**. They are signed with one repository-managed development-only certificate so successive development builds can update each other instead of receiving a new ephemeral Android debug identity from every CI runner.
 
-The current development version line is `0.1.8-dev` with version code `9`.
+The current development version line is `0.1.9-dev` with version code `10`.
 
 The reserved future production application ID remains `com.goreecloud.appstore`. The development signing key MUST NOT sign that production package or any artifact represented as production-approved or Stable. See `development/signing/README.md` for the explicit boundary and certificate fingerprint.
 
