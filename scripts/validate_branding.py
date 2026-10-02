@@ -42,7 +42,44 @@ if 'android:icon="@drawable/goreecloud_app_store_icon"' not in manifest:
     raise SystemExit("App Store manifest is not wired to the approved launcher derivative")
 
 ui = UI.read_text(encoding="utf-8")
-expected_catalog_mappings = {
+expected_catalog_ids = {
+    "goreecloud.app-store",
+    "goreecloud.launcher",
+    "goreecloud.file-manager",
+    "goreecloud.dialer",
+    "goreecloud.camera",
+    "goreecloud.messenger",
+    "goreecloud.mail",
+    "goreecloud.browser",
+    "goreecloud.keyboard",
+    "goreecloud.memos",
+    "goreecloud.notes",
+    "goreecloud.tasks",
+    "goreecloud.calendar",
+    "goreecloud.contacts",
+    "goreecloud.gallery",
+    "goreecloud.since",
+    "goreecloud.music",
+    "goreecloud.bookmarks",
+    "goreecloud.search",
+    "goreecloud.photos",
+    "goreecloud.location",
+    "goreecloud.feed",
+    "goreecloud.video",
+    "goreecloud.changelogs",
+    "goreecloud.pdf-manager",
+    "goreecloud.manager",
+    "goreecloud.monitor",
+    "goreecloud.terminal",
+    "goreecloud.github-dashboard",
+    "goreecloud.identity-center",
+    "goreecloud.mesh-center",
+    "goreecloud.sync",
+    "goreecloud.notify",
+    "goreecloud.network",
+}
+approved_catalog_mappings = {
+    "goreecloud.app-store": "goreecloud_app_store_icon",
     "goreecloud.browser": "goreecloud_browser_icon",
     "goreecloud.messenger": "goreecloud_messenger_icon",
     "goreecloud.location": "goreecloud_location_icon",
@@ -53,17 +90,26 @@ expected_catalog_mappings = {
 
 catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
 catalog_ids = {item.get("id") for item in catalog.get("items", [])}
-if catalog_ids != set(expected_catalog_mappings):
+if catalog_ids != expected_catalog_ids:
     raise SystemExit(
-        "Development catalog identity set changed without an explicit branding mapping review: "
-        f"expected {sorted(expected_catalog_mappings)}, got {sorted(catalog_ids)}"
+        "Development catalog identity set changed without an explicit branding review: "
+        f"expected {sorted(expected_catalog_ids)}, got {sorted(catalog_ids)}"
     )
-for item_id, drawable in expected_catalog_mappings.items():
+for item_id, drawable in approved_catalog_mappings.items():
     mapping = f'"{item_id}" -> R.drawable.{drawable}'
     if mapping not in ui:
         raise SystemExit(f"Missing approved catalog artwork mapping: {mapping}")
     if not (DRAWABLE / f"{drawable}.xml").is_file():
         raise SystemExit(f"Mapped catalog artwork resource is missing: {drawable}.xml")
+
+placeholder_ids = expected_catalog_ids - set(approved_catalog_mappings)
+if "removePrefix(\"GoreeCloud \")" not in ui or ".joinToString(\"\")" not in ui:
+    raise SystemExit("Expanded catalog entries are missing the reviewed non-authoritative monogram fallback")
+for item_id in placeholder_ids:
+    if f'"{item_id}" -> R.drawable.' in ui:
+        raise SystemExit(
+            f"Catalog item {item_id} gained a local drawable mapping without an approved branding provenance review"
+        )
 
 if '"goreecloud.identity-center" -> R.drawable.goreecloud_identity_icon' in ui:
     raise SystemExit("Identity Center regressed to the full GoreeCloud Identity application icon")
