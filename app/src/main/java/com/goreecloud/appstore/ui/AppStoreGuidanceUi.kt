@@ -323,29 +323,25 @@ private fun OnboardingCapabilityRow(
 internal fun AppStoreCatalogGuidanceHint(
     onDismiss: () -> Unit,
 ) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = GlazeCapsuleShape,
-        color = MaterialTheme.colorScheme.secondaryContainer,
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 40.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            modifier = Modifier.padding(start = 14.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        Text(
+            "Tip: Tap any item for details.",
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        TextButton(
+            modifier = Modifier.heightIn(min = 40.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+            onClick = onDismiss,
         ) {
-            Text(
-                "Tip: Tap an item for details.",
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-            )
-            TextButton(
-                modifier = Modifier.heightIn(min = 40.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-                onClick = onDismiss,
-            ) {
-                Text("Dismiss")
-            }
+            Text("Dismiss")
         }
     }
 }
