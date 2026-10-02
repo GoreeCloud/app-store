@@ -38,4 +38,25 @@ class EntitlementEngineTest {
 
         assertFalse(EntitlementEngine.canView(session, rule))
     }
+    @Test
+    fun developerDevelopmentFixtureCanBrowseStandardCatalogWithoutBypassingOtherRules() {
+        val developer = com.goreecloud.appstore.identity.DevelopmentIdentityGateway.availableSessions
+            .first { it.subjectId == "dev:developer" }
+
+        assertTrue("audience:standard" in developer.audiences)
+        assertTrue("audience:developer" in developer.audiences)
+        assertTrue(
+            EntitlementEngine.canView(
+                developer,
+                AccessRule(anyAudience = setOf("audience:standard")),
+            ),
+        )
+        assertFalse(
+            EntitlementEngine.canView(
+                developer,
+                AccessRule(anyAudience = setOf("audience:administrator")),
+            ),
+        )
+    }
+
 }

@@ -2,21 +2,96 @@
   "schemaVersion": 1,
   "environment": "development-fixture",
   "authoritative": false,
-  "notice": "Audience assignments, versions, package identities, endpoints, and release channels in this file are non-production fixtures. Package names and endpoints remain blank until approved release/service metadata is ingested.",
+  "notice": "This expanded catalog is a non-production portfolio fixture for App Store development and UI testing. Visibility audiences, versions, package identities, endpoints, release channels, installability, and service launch authority are not production assertions. Package names and endpoints remain blank until approved authoritative release/service metadata is ingested.",
   "items": [
     {
-      "id": "goreecloud.browser",
-      "name": "GoreeCloud Browser",
-      "summary": "A GoreeCloud browsing experience with platform privacy, security, sync, and identity integration targets.",
+      "id": "goreecloud.app-store",
+      "name": "GoreeCloud App Store",
+      "summary": "Discover and manage the GoreeCloud applications and services available to your identity.",
       "type": "application",
-      "category": "Internet",
+      "category": "System",
       "version": "development",
       "releaseChannel": "development",
       "packageName": "",
       "serviceUrl": "",
       "access": {
         "requireSignedIn": true,
-        "anyAudience": ["audience:standard", "audience:administrator"]
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.launcher",
+      "name": "GoreeCloud Launcher",
+      "summary": "A private, customizable GoreeCloud home screen and application launcher.",
+      "type": "application",
+      "category": "Device",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.file-manager",
+      "name": "GoreeCloud File Manager",
+      "summary": "Browse and manage local files with GoreeCloud privacy and usability conventions.",
+      "type": "application",
+      "category": "Files",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.dialer",
+      "name": "GoreeCloud Dialer",
+      "summary": "GoreeCloud phone and calling experience for supported Android devices.",
+      "type": "application",
+      "category": "Communication",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.camera",
+      "name": "GoreeCloud Camera",
+      "summary": "A focused GoreeCloud camera experience for supported Android devices.",
+      "type": "application",
+      "category": "Photography",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
       }
     },
     {
@@ -31,7 +106,262 @@
       "serviceUrl": "",
       "access": {
         "requireSignedIn": true,
-        "anyAudience": ["audience:standard", "audience:administrator"]
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.mail",
+      "name": "GoreeCloud Mail",
+      "summary": "A GoreeCloud mail client focused on privacy, clarity, and first-party platform integration.",
+      "type": "application",
+      "category": "Communication",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.browser",
+      "name": "GoreeCloud Browser",
+      "summary": "A GoreeCloud browsing experience with platform privacy, security, sync, and identity integration targets.",
+      "type": "application",
+      "category": "Internet",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.keyboard",
+      "name": "GoreeCloud Keyboard",
+      "summary": "A GoreeCloud keyboard for supported Android devices.",
+      "type": "application",
+      "category": "Device",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.memos",
+      "name": "GoreeCloud Memos",
+      "summary": "Quick private notes and memo capture across supported GoreeCloud clients.",
+      "type": "application",
+      "category": "Productivity",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.notes",
+      "name": "GoreeCloud Notes",
+      "summary": "Longer-form notes and knowledge organization in the GoreeCloud suite.",
+      "type": "application",
+      "category": "Productivity",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.tasks",
+      "name": "GoreeCloud Tasks",
+      "summary": "Task and project management for GoreeCloud workflows.",
+      "type": "application",
+      "category": "Productivity",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.calendar",
+      "name": "GoreeCloud Calendar",
+      "summary": "Calendar and scheduling for GoreeCloud users.",
+      "type": "application",
+      "category": "Productivity",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.contacts",
+      "name": "GoreeCloud Contacts",
+      "summary": "Contact management for GoreeCloud users and devices.",
+      "type": "application",
+      "category": "Communication",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.gallery",
+      "name": "GoreeCloud Gallery",
+      "summary": "A native gallery for browsing and managing local photos and videos.",
+      "type": "application",
+      "category": "Photography",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.since",
+      "name": "GoreeCloud Since",
+      "summary": "Track how long it has been since important moments and events.",
+      "type": "application",
+      "category": "Utilities",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.music",
+      "name": "GoreeCloud Music",
+      "summary": "A GoreeCloud music experience for supported clients.",
+      "type": "application",
+      "category": "Media",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.bookmarks",
+      "name": "GoreeCloud Bookmarks",
+      "summary": "Save and organize bookmarks in a focused GoreeCloud client.",
+      "type": "application",
+      "category": "Productivity",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.search",
+      "name": "GoreeCloud Search",
+      "summary": "Search across approved providers through the GoreeCloud search experience.",
+      "type": "application",
+      "category": "Internet",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.photos",
+      "name": "GoreeCloud Photos",
+      "summary": "Photo management and synchronization capabilities for GoreeCloud.",
+      "type": "application",
+      "category": "Photography",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
       }
     },
     {
@@ -46,7 +376,82 @@
       "serviceUrl": "",
       "access": {
         "requireSignedIn": true,
-        "anyAudience": ["audience:standard", "audience:administrator"]
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.feed",
+      "name": "GoreeCloud Feed",
+      "summary": "Read and manage feed content through the GoreeCloud feed experience.",
+      "type": "application",
+      "category": "News",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.video",
+      "name": "GoreeCloud Video",
+      "summary": "Video browsing and playback for the GoreeCloud media experience.",
+      "type": "application",
+      "category": "Media",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.changelogs",
+      "name": "GoreeCloud Changelogs",
+      "summary": "Browse GoreeCloud product and platform change history.",
+      "type": "application",
+      "category": "System",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.pdf-manager",
+      "name": "GoreeCloud PDF Manager",
+      "summary": "Read, organize, edit, convert, and manage PDF documents within GoreeCloud workflows.",
+      "type": "application",
+      "category": "Files",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
       }
     },
     {
@@ -61,7 +466,62 @@
       "serviceUrl": "",
       "access": {
         "requireSignedIn": true,
-        "anyAudience": ["audience:administrator"]
+        "anyAudience": [
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.monitor",
+      "name": "GoreeCloud Monitor",
+      "summary": "Operational availability and incident monitoring for authorized GoreeCloud administrators.",
+      "type": "application",
+      "category": "Administration",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.terminal",
+      "name": "GoreeCloud Terminal",
+      "summary": "A GoreeCloud terminal experience for authorized technical workflows.",
+      "type": "application",
+      "category": "Developer",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:administrator",
+          "audience:developer"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.github-dashboard",
+      "name": "GoreeCloud GitHub Dashboard",
+      "summary": "A focused dashboard for authorized GoreeCloud source-control workflows.",
+      "type": "application",
+      "category": "Developer",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:administrator",
+          "audience:developer"
+        ]
       }
     },
     {
@@ -76,7 +536,10 @@
       "serviceUrl": "",
       "access": {
         "requireSignedIn": true,
-        "anyAudience": ["audience:standard", "audience:administrator"]
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
       }
     },
     {
@@ -91,7 +554,64 @@
       "serviceUrl": "",
       "access": {
         "requireSignedIn": true,
-        "anyAudience": ["audience:administrator", "audience:developer"]
+        "anyAudience": [
+          "audience:administrator",
+          "audience:developer"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.sync",
+      "name": "GoreeCloud Sync",
+      "summary": "Synchronization capabilities for approved GoreeCloud data and workflows.",
+      "type": "service",
+      "category": "Platform",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.notify",
+      "name": "GoreeCloud Notify",
+      "summary": "Notification delivery and subscriber capabilities for GoreeCloud.",
+      "type": "service",
+      "category": "Communication",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:standard",
+          "audience:administrator"
+        ]
+      }
+    },
+    {
+      "id": "goreecloud.network",
+      "name": "GoreeCloud Network",
+      "summary": "Private networking and remote-access capabilities for GoreeCloud.",
+      "type": "service",
+      "category": "Platform",
+      "version": "development",
+      "releaseChannel": "development",
+      "packageName": "",
+      "serviceUrl": "",
+      "access": {
+        "requireSignedIn": true,
+        "anyAudience": [
+          "audience:administrator",
+          "audience:developer"
+        ]
       }
     }
   ]

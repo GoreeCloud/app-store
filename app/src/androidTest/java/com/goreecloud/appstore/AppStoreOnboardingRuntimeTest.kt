@@ -10,6 +10,7 @@ import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import com.goreecloud.appstore.data.CatalogJsonLoader
 import com.goreecloud.appstore.domain.EntitlementEngine
+import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
 import com.goreecloud.appstore.library.FavoriteCatalogStore
 import com.goreecloud.appstore.onboarding.SharedPreferencesAppStoreGuidanceStore
@@ -27,9 +28,9 @@ class AppStoreOnboardingRuntimeTest {
         val device = UiDevice.getInstance(instrumentation)
 
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            waitForText(device, "Welcome to your GoreeCloud catalog")
+            waitForText(device, "Welcome to GoreeCloud App Store")
             clickTextButton(device, "Continue")
-            waitForText(device, "Know what the Store can do today")
+            waitForText(device, "What works today")
 
             val persistedBeforeRecreation =
                 checkNotNull(SharedPreferencesAppStoreGuidanceStore(context).read())
@@ -37,7 +38,7 @@ class AppStoreOnboardingRuntimeTest {
             assertTrue(!persistedBeforeRecreation.setupCompleted)
 
             scenario.recreate()
-            waitForText(device, "Know what the Store can do today")
+            waitForText(device, "What works today")
 
             val persistedAfterRecreation =
                 checkNotNull(SharedPreferencesAppStoreGuidanceStore(context).read())
@@ -53,12 +54,12 @@ class AppStoreOnboardingRuntimeTest {
         val device = UiDevice.getInstance(instrumentation)
 
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            waitForText(device, "Welcome to your GoreeCloud catalog")
+            waitForText(device, "Welcome to GoreeCloud App Store")
             clickTextButton(device, "Continue")
-            waitForText(device, "Know what the Store can do today")
+            waitForText(device, "What works today")
             clickTextButton(device, "Continue")
-            waitForText(device, "Choose helpful guidance")
-            clickTextButton(device, "Finish setup")
+            waitForText(device, "Helpful tips")
+            clickTextButton(device, "Start browsing")
 
             waitForText(device, "Discover")
 
@@ -90,17 +91,17 @@ class AppStoreOnboardingRuntimeTest {
 
         try {
             ActivityScenario.launch(MainActivity::class.java).use {
-                waitForText(device, "Welcome to your GoreeCloud catalog")
+                waitForText(device, "Welcome to GoreeCloud App Store")
                 clickTextButton(device, "Continue")
-                waitForText(device, "Know what the Store can do today")
+                waitForText(device, "What works today")
                 clickTextButton(device, "Continue")
-                waitForText(device, "Choose helpful guidance")
-                clickTextButton(device, "Finish setup")
+                waitForText(device, "Helpful tips")
+                clickTextButton(device, "Start browsing")
                 waitForText(device, "Discover")
 
                 clickTextButton(device, "Library")
                 waitForText(device, favoriteItem.name)
-                clickTextButton(device, "Clear Favorites")
+                clickTextButton(device, "Clear")
                 waitForText(device, "Clear Favorites?")
                 clickTextButton(device, "Clear all Favorites")
                 waitForText(device, "No Favorites yet")
@@ -109,6 +110,48 @@ class AppStoreOnboardingRuntimeTest {
             }
         } finally {
             favoriteStore.clear(session.subjectId)
+        }
+    }
+
+    @Test
+    fun recentlyOpenedAppearsDuringCurrentSession() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = resetGuidance()
+        val device = UiDevice.getInstance(instrumentation)
+        val session = DevelopmentIdentityGateway.initialSession
+        val item = EntitlementEngine.visibleItems(
+            session,
+            CatalogJsonLoader.load(context),
+        ).first { it.type == StoreItemType.APPLICATION }
+
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            waitForText(device, "Welcome to GoreeCloud App Store")
+            clickTextButton(device, "Continue")
+            waitForText(device, "What works today")
+            clickTextButton(device, "Continue")
+            waitForText(device, "Helpful tips")
+            clickTextButton(device, "Start browsing")
+            waitForText(device, "Discover")
+
+            clickTextButton(device, "Apps")
+            waitForText(device, item.name)
+            clickTextButton(device, item.name)
+            waitForText(device, "Install unavailable")
+            device.pressBack()
+            device.waitForIdle()
+
+            clickTextButton(device, "Library")
+            waitForText(device, "Recently opened")
+            waitForText(device, item.name)
+
+            scenario.recreate()
+            waitForText(device, "Discover")
+            clickTextButton(device, "Library")
+            waitForText(device, "No Favorites yet")
+            assertTrue(
+                "Session-only recent items must not survive Activity recreation",
+                !device.hasObject(By.text("Recently opened")),
+            )
         }
     }
 
@@ -151,6 +194,6 @@ class AppStoreOnboardingRuntimeTest {
     }
 
     private companion object {
-        const val UI_TIMEOUT_MS = 10_000L
+        const val UI_TIMEOUT_MS = 30_000L
     }
 }

@@ -10,6 +10,16 @@
 - Glaze-oriented tangible cards/surfaces, capsule-shaped search/account controls, adaptive Compose layout, and accessible 48dp-class controls.
 - Discover, Apps, Services, Updates, and Library navigation.
 - Search constrained to the already-entitled client catalog.
+- Category filtering for entitled Discover, Apps, and Services entries.
+- Featured horizontal catalog shelf plus denser all-items browsing for a larger portfolio.
+- Expanded 34-entry non-production portfolio fixture replacing the original six-entry bootstrap catalog.
+- Complete official catalog artwork coverage for all 34 entries, sourced from `GoreeCloud/branding-assets`; empty, generic, initial, and monogram fallbacks are prohibited and repository validation fails closed on missing mappings/resources.
+- Device-review mobile layout refinement with compact account/status/hero/search surfaces, smaller Featured cards, denser catalog rows, section-specific search prompts, filtered result counts, suppressed redundant Development pills, and compact Updates/Library states.
+- Representative-device onboarding/status refinement with a top-anchored progress-led three-step first-use flow, bottom-anchored navigation, structured availability summaries, current Glaze naming, compact integration cards, and additional catalog-row density improvements.
+- Follow-up compact-phone polish: active-identity checkmark and concise account labels, redundant Discover status-strip removal, identity-scoped available-count wording, tighter category/Featured browsing, explicit clear-search action, centered compact disconnected Updates state, and a compact Library installed-history row.
+- One-tap empty-result recovery, tighter Featured/category geometry, compact top-bar spacing, actionable unavailable-state rows, and consolidated product-detail Favorite/Save actions with one local-state explanation.
+- Search IME completion behavior, explicit selected-category clear affordance, catalog-row Favorite/Saved state glyphs, an explicitly labeled development-identity account control, and shorter first-use guidance ending in **Start browsing**.
+- Session-local **Recently opened** Library recency with per-identity separation, bounded ordering, Library-wide search, compact collection counts/actions, and Discover **Continue browsing** while keeping persistent history disconnected.
 - Application and service item models.
 - Development JSON catalog loader.
 - Multi-user development session switcher.
@@ -19,8 +29,8 @@
 - Per-development-identity, device-local **Save for later** state for currently entitled catalog items, with exact opaque identity-subject namespacing and no raw subject embedded in preference-key metadata.
 - Explicit **Clear saved for later** behavior scoped to the active development identity without uninstalling software or changing entitlement/account history.
 - Fail-closed package-delivery policy, exact-package installed-state observation, and read-only delivery preflight that cannot manufacture accepted installation absence or invoke package mutation/install authority.
-- Glaze UI V1.6 presentation-policy mapping retained as Development source evidence; application-specific rendered/device/production acceptance remains separate.
-- Platform-integration checkpoint for Glaze UI, Identity, Wardveil, Privacy Shield, Everkeep, and Mesh.
+- Historical GLAZE UI V1.6 / 1.6.0 presentation-policy mapping retained as Development source evidence while current user-facing system naming uses Glaze; application-specific rendered/device/production acceptance remains separate.
+- Platform-integration checkpoint for Glaze, Identity, Wardveil, Privacy Shield, Everkeep, and Mesh.
 - Unit tests and Android CI.
 
 ## Next functional milestones
@@ -38,9 +48,10 @@
 - Everkeep protection contract and recovery evidence for library/history/catalog configuration.
 - GoreeCloud Mesh lifecycle/capability events.
 - Rich app pages: screenshots, changelog, source/license, permissions, compatibility, privacy, security, continuity, support.
-- Categories, collections, editorial surfaces, recommendations, richer saved-item organization/synchronization where separately accepted, and notification preferences where privacy policy permits.
+- Editorial collections, recommendations, richer saved-item organization/synchronization where separately accepted, and notification preferences where privacy policy permits.
 - Multiple release channels with per-user/channel entitlements.
 - Device compatibility and architecture filtering.
 - Download/install queue and resilient retry state.
 - Per-account update policy and optional automatic-update controls where Android policy permits.
 - Accessibility, tablet, foldable, keyboard/mouse, and large-window acceptance.
+

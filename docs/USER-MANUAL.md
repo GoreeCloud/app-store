@@ -18,7 +18,7 @@ Current development/debug builds use:
 
 - application ID `com.goreecloud.appstore.dev`;
 - Android label **GoreeCloud App Store Dev**;
-- development version line `0.1.2-dev` / version code `3` at this checkpoint;
+- development version line `0.1.12-dev` / version code `13` at this checkpoint;
 - the repository-managed, development-only signing certificate documented in `development/signing/README.md`.
 
 The development package is intentionally separate from the reserved future production application ID `com.goreecloud.appstore`. The development signing identity is non-production test material and must never sign the production package or a Stable artifact.
@@ -33,21 +33,25 @@ Remove that older bootstrap from the test device, or leave it installed only if 
 
 Future development artifacts are intended to retain the same development package and signing identity so they can update earlier `.dev` installations, subject to normal Android version-code rules.
 
+## First-use guidance
+
+The first launch presents a concise three-step guide with visible progress near the top of the usable screen. It explains the entitled catalog, distinguishes currently available browsing/status functions from install/update/production-service actions that remain disconnected, and lets you enable or disable contextual tips. Back/Continue/**Start browsing** navigation stays anchored to the bottom safe area while step content remains independently scrollable for constrained or accessibility-scaled layouts. Step 1 omits the inactive Back action. Progress is persisted so an interrupted setup resumes at the last durable step, and the guide can be replayed later from **Guidance & setup**.
+
 ## Development account switcher
 
-The persistent account control in the App Store header offers development-only identities such as **Standard demo**, **Administrator demo**, **Developer demo**, and **Signed out**.
+The persistent account control in the App Store header offers concise Development labels such as **Standard**, **Preview**, **Admin**, **Developer**, and **Signed out**. The active identity is marked in the account menu.
 
 These are not real GoreeCloud accounts, groups, or production roles. They are local fixtures used to demonstrate how different logins can receive different App Store catalogs while production GoreeCloud Identity integration is still pending.
 
 Changing the development identity immediately recalculates which catalog entries are visible and returns the current section to its top. An entry for which the active session is not entitled is concealed from visible lists and search results.
 
-On compact screens, a long active development identity name may be ellipsized in the persistent header so the account icon and menu affordance remain usable. The complete identity names remain available in the account menu.
+The active Development identity is shown in the compact header subtitle, while the account menu trigger is icon-sized so labels such as **Standard** do not truncate on narrow phones. The same concise labels remain in the menu and still map to local Development fixture subjects; they are not production roles.
 
 ## Store sections
 
 ### Discover
 
-Shows all development catalog entries currently available to the active development identity. A compact development-status notice is shown instead of embedding platform diagnostics throughout the catalog.
+Shows all development catalog entries currently available to the active development identity. The hero count is labeled **available** because it reflects the active identity’s entitlement-scoped view rather than the full Development catalog. Development status is available from the account menu instead of consuming Discover browsing space.
 
 The available-item count is presented below the section heading so compact-width and larger-text layouts do not force the count over the heading. Singular and plural labels are handled separately.
 
@@ -61,47 +65,47 @@ Shows only entitled GoreeCloud service entries. Opening services is currently di
 
 ### Updates
 
-Shows a dedicated development unavailable state. Update discovery and delivery have not yet been connected.
+Shows a centered compact disconnected-state card rather than repeating the same warning at the top of the screen. Update discovery and delivery have not yet been connected; authenticated release metadata and package delivery remain required before update actions appear.
 
 ### Library
 
-Shows a dedicated development unavailable state. Per-identity installed/library history and Everkeep-backed recovery have not yet been connected.
+Shows device-local **Favorites** and **Saved for later** collections for the active Development identity, plus a bounded **Recently opened** collection for the current App Store session and a compact **Installed history** status row. The Library includes compact collection counts and a single search field across local collections. Recently opened items remain in memory only, are separated by Development identity, are re-filtered through current entitlements, and are not restored as durable browsing history. Installed-library history and Everkeep-backed cross-device recovery have not yet been connected.
 
 ## Search
 
-Use **Search your available catalog** to filter the current entitled section by application/service name, summary, or category.
+Use the section-specific search field (**Search apps and services**, **Search apps**, or **Search services**) to filter the current entitled section by application/service name, summary, or category. The Android Search keyboard action dismisses the keyboard while keeping the current live-filtered results in place. When a query is active, use the trailing clear-search action to reset it immediately. A selected category shows a close glyph and can be tapped again to clear it. If search or category filtering produces no matches, use **Reset** in the empty-result card to clear both filters in one action.
 
-Search operates only on entries already available to the active development identity. It does not reveal entries that were filtered out by entitlement rules.
+Search operates only on entries already available to the active development identity. It does not reveal entries that were filtered out by entitlement rules. **Search your library** applies the same entitlement boundary while filtering Favorites, Saved for later, and Recently opened together.
 
 ## Application and service artwork
 
-Where approved assets exist, the Android client uses native VectorDrawable derivatives tied to canonical assets in `GoreeCloud/goreecloud-branding-assets`.
+Every current catalog application and service uses a native VectorDrawable derivative tied to a canonical official asset in `GoreeCloud/branding-assets`; empty, lettered, monogram, and generic placeholder artwork is prohibited.
 
 The branding repository remains authoritative. Copies in this App Store repository are implementation derivatives only. See `BRANDING.md` for the exact canonical asset and Git-blob mappings.
 
 ## Catalog cards and release channels
 
-Catalog cards show artwork, name, summary, type/category metadata, release channel, and a product-navigation affordance.
+Catalog cards show official artwork, name, a compact summary, type/category metadata, local Favorite/Saved-for-later state glyphs when applicable, and a product-navigation affordance. Development channel pills are suppressed on Development rows because the entire build already carries that context; non-Development channel pills remain available for future mixed-channel catalogs.
 
-The card layout gives the primary type/category metadata flexible width while keeping the release-channel capsule on one line. On compact widths, long metadata is ellipsized rather than squeezing labels such as **Development** into vertical single-character wrapping. Product titles may use up to two lines when needed.
+The card layout gives primary text flexible width and uses a single-line summary plus a compact metadata line. On compact widths, long metadata is ellipsized rather than forcing wrapping or pushing navigation controls off screen. Product titles may use up to two lines when needed.
 
 ## Product details
 
-Select an application or service card to open its store-style development detail sheet. The sheet can show approved artwork, type/category, development release channel, version information, access state, and the unavailable primary action.
+Select an application or service card to open its store-style development detail sheet. The sheet can show approved artwork, type/category, development release channel, version information, access state, compact Favorite/Save controls, and the unavailable primary action.
 
-Detail metadata uses vertically stacked label/value presentation so long values remain readable on compact widths instead of competing with their labels in one horizontal row.
+Detail metadata uses vertically stacked label/value presentation so long values remain readable on compact widths instead of competing with their labels in one horizontal row. Favorites and saved items share one concise device-local identity boundary instead of repeating separate explanatory blocks.
 
 The **Install** or **Open** action remains disabled because package/service delivery is not yet trusted or connected.
 
 ## Development status and integral GoreeCloud systems
 
-Open the account menu and choose **Development status**, or use the development-status affordance on Discover, to inspect current integration boundaries. These diagnostics are development state, not production trust badges.
+Open the account menu and choose **Development status**, or use a contextual Development-status action from disconnected Updates/Library surfaces, to inspect current integration boundaries. These diagnostics are development state, not production trust badges.
 
-Status names are given flexible width while state capsules remain single-line so compact layouts do not force status text into unreadable vertical wrapping.
+Status entries use compact integration cards. System names retain flexible width while state capsules remain single-line so compact layouts do not force status text into unreadable vertical wrapping.
 
 The status surface covers:
 
-- **Glaze UI** — current design-system target is 2.0.0; conformance is not yet claimed.
+- **Glaze** — current user-facing system identity; this App Store remains targeted at the historical **GLAZE UI V1.6 / 1.6.0 Official Anchor**, and rendered conformance is not yet claimed.
 - **GoreeCloud Identity** — production authentication/authorization integration is not connected.
 - **Wardveil Security** — package trust and verification integration is not connected.
 - **Privacy Shield** — production privacy-policy integration is not connected; development analytics are off.
@@ -120,7 +124,7 @@ Client-side catalog filtering is not the future sole authorization boundary. Pro
 
 The application currently has no production login, server-authoritative production catalog service, APK download/install flow, service-launch flow, production update delivery, installed-library reconciliation, production signing, Wardveil package-verification acceptance, Privacy Shield runtime acceptance, Everkeep runtime recovery acceptance, Mesh runtime event transport, or Stable Glaze UI conformance acceptance.
 
-The compact-width corrections described above are source-validated but still require continued real-device review across supported screen sizes and font-scale/accessibility settings before any form-factor or Glaze UI conformance claim is made.
+The compact-width and onboarding/status refinements described above remain Development work and still require continued real-device review across supported screen sizes and font-scale/accessibility settings before any form-factor or Glaze conformance claim is made.
 
 These limitations are deliberate fail-closed boundaries, not hidden features.
 
