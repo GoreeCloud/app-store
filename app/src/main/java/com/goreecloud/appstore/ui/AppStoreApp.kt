@@ -934,68 +934,59 @@ private fun EmptyCatalogState(authenticated: Boolean, hasQuery: Boolean) {
 
 @Composable
 private fun FavoriteLibraryEmptyState() {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = GlazeCardShape,
-        color = MaterialTheme.colorScheme.surfaceVariant,
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 28.dp, vertical = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Icon(
-                Icons.Rounded.FavoriteBorder,
-                contentDescription = null,
-                modifier = Modifier.size(32.dp),
-                tint = MaterialTheme.colorScheme.primary,
-            )
-            Text(
-                "No Favorites yet",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                "Open an entitled app or service and choose Add to Favorites. Favorites remain device-local and separated by development identity.",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
+    LibraryCollectionEmptyState(
+        icon = Icons.Rounded.FavoriteBorder,
+        title = "No Favorites yet",
+        body = "Open any available item and choose Add to Favorites.",
+    )
 }
 
 @Composable
 private fun SavedLibraryEmptyState() {
+    LibraryCollectionEmptyState(
+        icon = Icons.Rounded.BookmarkBorder,
+        title = "Nothing saved for later",
+        body = "Open any available item and choose Save for later.",
+    )
+}
+
+@Composable
+private fun LibraryCollectionEmptyState(
+    icon: ImageVector,
+    title: String,
+    body: String,
+) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = GlazeCardShape,
+        shape = GlazeSmallCardShape,
         color = MaterialTheme.colorScheme.surfaceVariant,
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 28.dp, vertical = 28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+        Row(
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                Icons.Rounded.BookmarkBorder,
+                icon,
                 contentDescription = null,
-                modifier = Modifier.size(34.dp),
+                modifier = Modifier.size(30.dp),
                 tint = MaterialTheme.colorScheme.primary,
             )
-            Text(
-                "Nothing saved for later",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                "Open an entitled app or service and choose Save for later. Saves stay only on this device and are separated by the active development identity.",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    body,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }
