@@ -30,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Favorite
@@ -574,7 +575,12 @@ private fun StoreTopBar(
                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                     sessions.forEach { candidate ->
                         DropdownMenuItem(
-                            text = { Text(candidate.displayName) },
+                            text = { Text(candidate.compactDisplayName()) },
+                            trailingIcon = {
+                                if (candidate.subjectId == session.subjectId) {
+                                    Icon(Icons.Rounded.Check, contentDescription = "Active identity")
+                                }
+                            },
                             onClick = {
                                 onSessionSelected(candidate)
                                 expanded = false
