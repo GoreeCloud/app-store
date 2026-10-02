@@ -375,8 +375,7 @@ private fun AppStoreGuidanceSettingsSheet(
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                "Control ordinary contextual tips or replay the startup guide. These settings do not " +
-                    "change identity, entitlement, package trust, or delivery authority.",
+                "Choose contextual tips or replay first-use guidance. These settings do not change access or delivery authority.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -416,7 +415,7 @@ private fun AppStoreGuidanceSettingsSheet(
                 Text("Show dismissed tips again")
             }
             TextButton(onClick = onReplaySetup) {
-                Text("Replay startup guide")
+                Text("Replay first-use guide")
             }
             Button(
                 modifier = Modifier.fillMaxWidth(),
