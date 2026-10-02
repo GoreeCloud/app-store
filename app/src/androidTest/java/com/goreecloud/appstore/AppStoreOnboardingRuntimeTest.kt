@@ -8,6 +8,10 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
+import com.goreecloud.appstore.data.CatalogJsonLoader
+import com.goreecloud.appstore.domain.EntitlementEngine
+import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
+import com.goreecloud.appstore.library.FavoriteCatalogStore
 import com.goreecloud.appstore.onboarding.SharedPreferencesAppStoreGuidanceStore
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
