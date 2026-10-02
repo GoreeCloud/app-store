@@ -35,7 +35,7 @@ Future development artifacts are intended to retain the same development package
 
 ## First-use guidance
 
-The first launch presents a concise three-step guide with visible progress. It explains the entitled catalog, distinguishes currently available browsing/status functions from install/update/production-service actions that remain disconnected, and lets you enable or disable contextual tips. Progress is persisted so an interrupted setup resumes at the last durable step, and the guide can be replayed later from **Guidance & setup**.
+The first launch presents a concise three-step guide with visible progress. It explains the entitled catalog, distinguishes currently available browsing/status functions from install/update/production-service actions that remain disconnected, and lets you enable or disable contextual tips. Back/Continue/Finish actions stay in the same scrollable content flow as the current step so they remain reachable on constrained and accessibility-scaled layouts. Progress is persisted so an interrupted setup resumes at the last durable step, and the guide can be replayed later from **Guidance & setup**.
 
 ## Development account switcher
 
