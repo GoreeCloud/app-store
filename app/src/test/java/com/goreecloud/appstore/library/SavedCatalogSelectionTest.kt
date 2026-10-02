@@ -96,6 +96,11 @@ class SavedCatalogSelectionTest {
         assertEquals(ids, RecentlyViewedCatalogSelection.decode(encoded))
         assertEquals(emptyList<String>(), RecentlyViewedCatalogSelection.decode("broken"))
         assertEquals(emptyList<String>(), RecentlyViewedCatalogSelection.decode("9999:x"))
+        val twentyValid = RecentlyViewedCatalogSelection.encode((1..20).map { "item.$it" })
+        assertEquals(
+            emptyList<String>(),
+            RecentlyViewedCatalogSelection.decode(twentyValid + "broken"),
+        )
     }
 
     @Test
