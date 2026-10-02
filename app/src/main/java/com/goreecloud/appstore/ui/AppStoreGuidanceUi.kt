@@ -270,33 +270,32 @@ private fun AppStoreOnboardingWizard(
                             }
                         }
                     }
-                }
-            }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                TextButton(
-                    onClick = onPrevious,
-                    enabled = step > 0,
-                ) {
-                    Text("Back")
-                }
-                Spacer(Modifier.weight(1f))
-                Button(
-                    onClick = if (step == AppStoreGuidanceState.LAST_SETUP_STEP) onComplete else onNext,
-                ) {
-                    Text(
-                        if (step == AppStoreGuidanceState.LAST_SETUP_STEP) {
-                            "Finish setup"
-                        } else {
-                            "Continue"
-                        },
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        TextButton(
+                            onClick = onPrevious,
+                            enabled = step > 0,
+                        ) {
+                            Text("Back")
+                        }
+                        Spacer(Modifier.weight(1f))
+                        Button(
+                            onClick = if (step == AppStoreGuidanceState.LAST_SETUP_STEP) onComplete else onNext,
+                        ) {
+                            Text(
+                                if (step == AppStoreGuidanceState.LAST_SETUP_STEP) {
+                                    "Finish setup"
+                                } else {
+                                    "Continue"
+                                },
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
                 }
             }
         }
