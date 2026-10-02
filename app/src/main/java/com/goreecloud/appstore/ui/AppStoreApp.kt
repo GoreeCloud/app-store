@@ -242,7 +242,7 @@ fun GoreeCloudAppStore(
                             item {
                                 StoreSectionHeading(
                                     title = "Featured",
-                                    subtitle = "A quick look at what is available to this identity",
+                                    subtitle = "Quick access to available items",
                                 )
                             }
                             item {
@@ -254,7 +254,7 @@ fun GoreeCloudAppStore(
                         }
                         item {
                             StoreSectionHeading(
-                                title = "All available",
+                                title = "Browse all",
                                 subtitle = catalogCountLabel(visible.size),
                             )
                         }
