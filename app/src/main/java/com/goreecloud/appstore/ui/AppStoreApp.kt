@@ -1028,17 +1028,16 @@ private fun UnavailableState(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = GlazeCardShape,
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp,
+        shape = GlazeSmallCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 18.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.Top,
         ) {
             Surface(
-                modifier = Modifier.size(52.dp),
+                modifier = Modifier.size(44.dp),
                 shape = GlazeSmallCardShape,
                 color = MaterialTheme.colorScheme.primaryContainer,
             ) {
@@ -1046,18 +1045,18 @@ private fun UnavailableState(
                     Icon(
                         icon,
                         contentDescription = null,
-                        modifier = Modifier.size(28.dp),
+                        modifier = Modifier.size(24.dp),
                         tint = MaterialTheme.colorScheme.primary,
                     )
                 }
             }
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(5.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(
                     title,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
@@ -1066,6 +1065,7 @@ private fun UnavailableState(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 TextButton(
+                    modifier = Modifier.heightIn(min = 40.dp),
                     onClick = onDetails,
                     contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
                 ) {
