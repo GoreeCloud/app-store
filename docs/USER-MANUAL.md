@@ -18,7 +18,7 @@ Current development/debug builds use:
 
 - application ID `com.goreecloud.appstore.dev`;
 - Android label **GoreeCloud App Store Dev**;
-- development version line `0.1.7-dev` / version code `8` at this checkpoint;
+- development version line `0.1.8-dev` / version code `9` at this checkpoint;
 - the repository-managed, development-only signing certificate documented in `development/signing/README.md`.
 
 The development package is intentionally separate from the reserved future production application ID `com.goreecloud.appstore`. The development signing identity is non-production test material and must never sign the production package or a Stable artifact.
@@ -35,23 +35,23 @@ Future development artifacts are intended to retain the same development package
 
 ## First-use guidance
 
-The first launch presents a concise three-step guide with visible progress. It explains the entitled catalog, distinguishes currently available browsing/status functions from install/update/production-service actions that remain disconnected, and lets you enable or disable contextual tips. Back/Continue/Finish actions stay in the same scrollable content flow as the current step so they remain reachable on constrained and accessibility-scaled layouts. Progress is persisted so an interrupted setup resumes at the last durable step, and the guide can be replayed later from **Guidance & setup**.
+The first launch presents a concise three-step guide with visible progress near the top of the usable screen. It explains the entitled catalog, distinguishes currently available browsing/status functions from install/update/production-service actions that remain disconnected, and lets you enable or disable contextual tips. Back/Continue/Finish navigation stays anchored to the bottom safe area while step content remains independently scrollable for constrained or accessibility-scaled layouts. Step 1 omits the inactive Back action. Progress is persisted so an interrupted setup resumes at the last durable step, and the guide can be replayed later from **Guidance & setup**.
 
 ## Development account switcher
 
-The persistent account control in the App Store header offers development-only identities such as **Standard demo**, **Administrator demo**, **Developer demo**, and **Signed out**.
+The persistent account control in the App Store header offers concise Development labels such as **Standard**, **Preview**, **Admin**, **Developer**, and **Signed out**. The active identity is marked in the account menu.
 
 These are not real GoreeCloud accounts, groups, or production roles. They are local fixtures used to demonstrate how different logins can receive different App Store catalogs while production GoreeCloud Identity integration is still pending.
 
 Changing the development identity immediately recalculates which catalog entries are visible and returns the current section to its top. An entry for which the active session is not entitled is concealed from visible lists and search results.
 
-On compact screens, a long active development identity name may be ellipsized in the persistent header so the account icon and menu affordance remain usable. The complete identity names remain available in the account menu.
+Compact labels are used in both the persistent header and account menu so the account icon and menu affordance remain readable on narrow phones. These labels still map to the same local Development fixture subjects; they are not production roles.
 
 ## Store sections
 
 ### Discover
 
-Shows all development catalog entries currently available to the active development identity. A compact development-status notice is shown instead of embedding platform diagnostics throughout the catalog.
+Shows all development catalog entries currently available to the active development identity. The hero count is labeled **available** because it reflects the active identity’s entitlement-scoped view rather than the full Development catalog. Development status is available from the account menu instead of consuming Discover browsing space.
 
 The available-item count is presented below the section heading so compact-width and larger-text layouts do not force the count over the heading. Singular and plural labels are handled separately.
 
@@ -65,11 +65,11 @@ Shows only entitled GoreeCloud service entries. Opening services is currently di
 
 ### Updates
 
-Shows a dedicated development unavailable state. Update discovery and delivery have not yet been connected.
+Shows a compact disconnected-state card. Update discovery and delivery have not yet been connected; authenticated release metadata and package delivery remain required before update actions appear.
 
 ### Library
 
-Shows a dedicated development unavailable state. Per-identity installed/library history and Everkeep-backed recovery have not yet been connected.
+Shows device-local **Favorites** and **Saved for later** collections for the active Development identity, plus a compact **Installed history** status row. Installed-library history and Everkeep-backed cross-device recovery have not yet been connected.
 
 ## Search
 
@@ -99,7 +99,7 @@ The **Install** or **Open** action remains disabled because package/service deli
 
 ## Development status and integral GoreeCloud systems
 
-Open the account menu and choose **Development status**, or use the development-status affordance on Discover, to inspect current integration boundaries. These diagnostics are development state, not production trust badges.
+Open the account menu and choose **Development status**, or use a contextual Development-status action from disconnected Updates/Library surfaces, to inspect current integration boundaries. These diagnostics are development state, not production trust badges.
 
 Status entries use compact integration cards. System names retain flexible width while state capsules remain single-line so compact layouts do not force status text into unreadable vertical wrapping.
 
