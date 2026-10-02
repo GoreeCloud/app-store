@@ -320,8 +320,8 @@ fun GoreeCloudAppStore(
                         item {
                             UnavailableState(
                                 icon = Icons.Rounded.Update,
-                                title = "Updates are unavailable in this development build",
-                                body = "The update feed remains disabled until authenticated release metadata and package-delivery integration are accepted.",
+                                title = "Updates not connected",
+                                body = "Authenticated release metadata and package delivery must be accepted before update actions become available.",
                                 onDetails = { showPlatformStatus = true },
                             )
                         }
