@@ -21,27 +21,22 @@ class AppStoreOnboardingRuntimeTest {
 
     @Test
     fun firstUseSetupResumesAcrossRecreationAndStaysCompleted() {
-        composeRule.onNodeWithText("Welcome to your GoreeCloud catalog")
-            .assertIsDisplayed()
+        waitForDisplayedText("Welcome to your GoreeCloud catalog")
 
         composeRule.onNodeWithText("Continue").performClick()
-        composeRule.onNodeWithText("Know what the Store can do today")
-            .assertIsDisplayed()
+        waitForDisplayedText("Know what the Store can do today")
 
         composeRule.activity.runOnUiThread {
             composeRule.activity.recreate()
         }
         composeRule.waitForIdle()
-        composeRule.onNodeWithText("Know what the Store can do today")
-            .assertIsDisplayed()
+        waitForDisplayedText("Know what the Store can do today")
 
         composeRule.onNodeWithText("Continue").performClick()
-        composeRule.onNodeWithText("Choose helpful guidance")
-            .assertIsDisplayed()
+        waitForDisplayedText("Choose helpful guidance")
         composeRule.onNodeWithText("Finish setup").performClick()
 
-        composeRule.onNodeWithText("Available to you")
-            .assertIsDisplayed()
+        waitForDisplayedText("Available to you")
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val persisted = SharedPreferencesAppStoreGuidanceStore(context).read()
@@ -51,8 +46,15 @@ class AppStoreOnboardingRuntimeTest {
             composeRule.activity.recreate()
         }
         composeRule.waitForIdle()
-        composeRule.onNodeWithText("Available to you")
-            .assertIsDisplayed()
+        waitForDisplayedText("Available to you")
+    }
+
+    private fun waitForDisplayedText(text: String) {
+        composeRule.waitUntil(timeoutMillis = 10_000) {
+            runCatching {
+                composeRule.onNodeWithText(text).assertIsDisplayed()
+            }.isSuccess
+        }
     }
 
     companion object {
