@@ -603,38 +603,35 @@ private fun DevelopmentStatusStrip(onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(min = 48.dp)
             .clickable(onClick = onClick),
-        shape = GlazeSmallCardShape,
+        shape = GlazeCapsuleShape,
         color = MaterialTheme.colorScheme.secondaryContainer,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(9.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 Icons.Rounded.Info,
                 contentDescription = null,
+                modifier = Modifier.size(20.dp),
                 tint = MaterialTheme.colorScheme.onSecondaryContainer,
             )
-            Column(
+            Text(
+                "Simulated account · Platform status",
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                Text(
-                    "Simulated accounts are active",
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
-                Text(
-                    "Tap for platform and integration status.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
-            }
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
             Icon(
                 Icons.Rounded.ChevronRight,
                 contentDescription = null,
+                modifier = Modifier.size(20.dp),
                 tint = MaterialTheme.colorScheme.onSecondaryContainer,
             )
         }
