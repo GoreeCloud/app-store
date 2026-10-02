@@ -1,5 +1,16 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-02 — Catalog interaction polish
+
+- Reduced Discover guidance from a tinted full-width capsule to a lightweight inline tip so catalog content appears sooner.
+- Tightened the persistent header, hero, category spacing, and Featured shelf geometry while preserving accessible interaction targets.
+- Added one-tap **Reset** recovery when search/category filters produce no catalog matches.
+- Made disconnected-state cards directly actionable with a trailing affordance instead of embedding a second text action inside the card.
+- Consolidated product-detail Favorite and Save controls into one compact action row and replaced duplicate local-library explanations with one concise boundary statement.
+- Narrowed Featured cards and artwork again so horizontal browsing exposes the next item more intentionally on compact phones.
+- Advanced the persistent Development package to `0.1.9-dev` / versionCode `10`.
+- Fresh exact-head Android validation and Android 16 runtime evidence are required before this candidate is treated as validated Development evidence.
+
 ## 2026-10-02 — Representative-device polish pass
 
 - Moved first-use progress/content to the top usable region and anchored Back/Continue/Finish navigation to the bottom safe area so onboarding no longer floats in the middle of tall phone screens.
