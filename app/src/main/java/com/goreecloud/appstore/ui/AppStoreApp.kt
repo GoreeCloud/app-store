@@ -785,7 +785,7 @@ private fun FeaturedItemCard(item: StoreItem, onClick: () -> Unit) {
         modifier = Modifier
             .width(180.dp)
             .clickable(onClick = onClick),
-        shape = GlazeCardShape,
+        shape = GlazeSmallCardShape,
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
@@ -841,7 +841,7 @@ private fun StoreItemCard(item: StoreItem, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = GlazeCardShape,
+        shape = GlazeSmallCardShape,
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
