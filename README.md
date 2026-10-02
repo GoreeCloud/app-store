@@ -18,8 +18,11 @@ The current development branch establishes:
 - development-only multi-user identity fixtures behind an explicit `IdentityGateway` boundary;
 - distinct application and service catalog entries;
 - Discover, Apps, Services, Updates, and Library surfaces;
-- search constrained to the already-entitled catalog;\n- category filtering and a horizontally browsable Featured shelf for the expanded development catalog;\n- an expanded 34-entry non-production portfolio fixture so ordinary browsing is no longer limited to the original six bootstrap items;
+- search constrained to the already-entitled catalog;
+- category filtering and a horizontally browsable Featured shelf for the expanded development catalog;
+- an expanded 34-entry non-production portfolio fixture so ordinary browsing is no longer limited to the original six bootstrap items;
 - official canonical artwork for every catalog application and service, with user-facing placeholder/monogram fallbacks prohibited and CI-enforced;
+- device-review mobile-density refinement that shortens account labels, reduces Discover chrome, removes redundant Development pills, compacts Featured/catalog cards, and uses denser Updates/Library states while preserving 48dp-class interaction targets;
 - per-development-identity device-local Save for later state for currently entitled items, with Library presentation that remains explicitly separate from installed/history/Everkeep authority and hashed local preference namespaces that do not embed the raw identity subject;
 - store-style application/service cards and product-detail bottom sheets;
 - approved first-party artwork derivatives tied to canonical assets in `GoreeCloud/branding-assets`;
@@ -31,13 +34,13 @@ The current development branch establishes:
 - unit tests that prevent implicit administrator bypass of catalog audience rules;
 - exact-source Android CI for tests, lint, APK assembly, package/application-label validation, signing-certificate verification, SHA-256 evidence, and development artifact publication.
 
-The interface now uses a rebuilt catalog-browsing hierarchy with a compact branded header, portfolio summary hero, search-first discovery, category chips, a Featured shelf, and denser catalog rows suited to a substantially larger catalog. The interface continues to be iterated with real-device screenshots from Android development builds. The first review removed oversized internal diagnostics from normal browsing, replaced placeholder artwork/navigation glyphs, fixed tab/account scroll behavior, and moved item details to store-style sheets. A second compact-phone review then exposed width-allocation defects: catalog counts could overlap section headings, long metadata could squeeze the Development channel into a vertical single-character stack, and account/status metadata could compete for insufficient horizontal space. The current source constrains those elements explicitly, gives primary text flexible width, keeps status/channel capsules single-line, and uses vertical metadata presentation where horizontal pairing is not resilient.
+The interface now uses a compact catalog-browsing hierarchy validated iteratively against representative-device screenshots. Discover prioritizes the catalog hero, section-specific search, category filters, a compact Development-status capsule, a smaller Featured shelf, and a denser all-items list. Apps and Services no longer repeat browse headings or Development copy, catalog rows suppress the redundant Development channel pill while retaining future mixed-channel pills, account labels remain readable on compact widths, and Updates/Library unavailable or empty states use compact utility surfaces. Fixed-height text containers are avoided where larger text may need additional space, and horizontally constrained stat/category surfaces remain scrollable rather than forcing unsafe compression.
 
 ## Development APK identity
 
 CI/debug builds install as `com.goreecloud.appstore.dev` with the Android label **GoreeCloud App Store Dev**. They are signed with one repository-managed development-only certificate so successive development builds can update each other instead of receiving a new ephemeral Android debug identity from every CI runner.
 
-The current development version line is `0.1.5-dev` with version code `6`.
+The current development version line is `0.1.6-dev` with version code `7`.
 
 The reserved future production application ID remains `com.goreecloud.appstore`. The development signing key MUST NOT sign that production package or any artifact represented as production-approved or Stable. See `development/signing/README.md` for the explicit boundary and certificate fingerprint.
 
@@ -69,9 +72,9 @@ No role receives an undocumented superuser bypass. Administrative access must be
 
 `GoreeCloud/branding-assets` is the canonical branding repository. Android VectorDrawable copies in this repository are consumer derivatives only and do not become new branding authorities.
 
-See `docs/BRANDING.md` for the exact canonical asset paths and Git-blob mappings currently consumed for Browser, Messenger, Location, Identity, and Manager artwork.
+See `docs/BRANDING.md` and `app/src/main/assets/catalog/branding-provenance.json` for the exact canonical asset paths, pinned Git blobs, and Android derivatives consumed by the current 34-entry catalog.
 
-No App Store-specific official icon/logo is established here. Any future official App Store artwork must originate in the canonical branding repository first.
+The official App Store identity originates in `GoreeCloud/branding-assets` at `products/app-store/app-icon.svg`. Every current catalog application and service is required to resolve to official canonical artwork; empty, generic, lettered, initial, and monogram placeholders are prohibited and fail repository validation.
 
 ## Build foundation
 
