@@ -62,7 +62,7 @@ jobs:
           "$AAPT" dump badging "$APK" | tee build-evidence/app-debug.badging.txt
           "$APKSIGNER" verify --print-certs "$APK" | tee build-evidence/app-debug.signing.txt
 
-          grep -Fq "package: name='com.goreecloud.appstore.dev' versionCode='13' versionName='0.1.12-dev'" build-evidence/app-debug.badging.txt
+          grep -Fq "package: name='com.goreecloud.appstore.dev' versionCode='14' versionName='0.1.13-dev'" build-evidence/app-debug.badging.txt
           grep -Fq "application-label:'GoreeCloud App Store Dev'" build-evidence/app-debug.badging.txt
           grep -Fiq "certificate SHA-256 digest: 38d543bbc137dbf4e7a299ff2d2dd06555a5c20d110a9ada4de5e9e0d9055145" build-evidence/app-debug.signing.txt
       - name: Upload development APK evidence
