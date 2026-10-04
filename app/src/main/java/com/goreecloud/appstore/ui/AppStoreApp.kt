@@ -1209,9 +1209,7 @@ private fun StoreItemCard(
                         showReleaseMetadata &&
                         item.releaseChannel != ReleaseChannel.DEVELOPMENT
                     ) {
-                        if (showReleaseMetadata) {
                         ReleaseChannelPill(item.releaseChannel)
-                    }
                     }
                 }
             }
@@ -1642,7 +1640,9 @@ private fun StoreItemSheet(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    ReleaseChannelPill(item.releaseChannel)
+                    if (showReleaseMetadata) {
+                        ReleaseChannelPill(item.releaseChannel)
+                    }
                 }
             }
 
@@ -1734,7 +1734,10 @@ private fun ProductAvailabilityCard(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(
+                onClickLabel = "View Development status",
+                onClick = onClick,
+            ),
         shape = GlazeSmallCardShape,
         color = MaterialTheme.colorScheme.surfaceVariant,
     ) {
