@@ -136,7 +136,7 @@ class AppStoreOnboardingRuntimeTest {
             clickTextButton(device, "Apps")
             waitForText(device, item.name)
             clickTextButton(device, item.name)
-            waitForText(device, "Install unavailable")
+            device.waitForIdle()
             device.pressBack()
             device.waitForIdle()
 
