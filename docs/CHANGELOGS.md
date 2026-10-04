@@ -1,5 +1,16 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-03 — Catalog presentation improvements
+
+- Added deterministic catalog ordering options: source order, name, and category.
+- Added compact accessible sorting controls to Discover, Apps, and Services.
+- Added unit coverage for sorting plus query/category filtering.
+- Reworked product-detail availability into an actionable status surface linked to Development status.
+- Updated first-use guidance for the new browse controls.
+- Refined the Android 16 session-recency runtime check so it validates recency rather than unrelated sheet layout.
+- Advanced the Development package to `0.1.13-dev` / versionCode `14`.
+- Fresh exact-head Android validation remains required.
+
 ## 2026-10-02 — Library recency and compact-account pass
 
 - Added a bounded, session-local **Recently opened** Library collection that moves revisited items to the front without creating durable browsing history.
