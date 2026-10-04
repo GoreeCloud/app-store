@@ -32,6 +32,17 @@ The native development catalog renders first-party artwork from traceable Androi
 
 Identity Center must not reuse the complete `products/identity/app-icon.svg` application identity. Mesh Center must not fall back to a generic cloud/network glyph. The Mesh Center derivative follows the approved GoreeCloud Mesh **Interlace** Identity DNA while remaining a reduced service-specific mark. Both service identities remain reduced derivatives of their registered parent Identity DNA, and runtime state is communicated separately from the stable mark.
 
+## Expanded development-catalog artwork review
+
+**Official artwork is mandatory** for every application and service exposed by the App Store. User-facing empty tiles, initials, monograms, lettered stand-ins, generic application/service glyphs, and other placeholders are prohibited.
+
+The complete 34-entry Development catalog is now bound to canonical artwork from `GoreeCloud/branding-assets` at exact branding source revision `ccfa74b3ffed12db285d32bcb5289821a1daf86e`. Branding PR #31 added the previously missing canonical product identities for GoreeCloud Dialer, GoreeCloud Camera, GoreeCloud PDF Manager, and GoreeCloud GitHub Dashboard. The remaining catalog identities already existed in the canonical branding repository.
+
+The machine-readable consumer provenance is `app/src/main/assets/catalog/branding-provenance.json`. For every current catalog ID it records the canonical branding path, pinned Git blob, and Android drawable derivative. The App Store UI uses a total, non-null artwork mapping. A missing mapping fails closed in source and in repository validation rather than rendering substitute artwork.
+
+Approved service-specific identities remain authoritative where they exist: Identity Center uses `services/identity-center/service-icon.svg`, and Mesh Center uses `services/mesh-center/service-icon.svg`. Sync, Notify, and Network currently use their canonical GoreeCloud product identities from `products/sync/`, `products/notify/`, and `products/network/`.
+
+Branding completeness does not establish package trust, installation authority, runtime availability, production Identity acceptance, release acceptance, or Stable status.
 ## Consumer-derivative rules
 
 - Local Android resources are packaging derivatives only; canonical SVGs and their pinned Git blobs remain authoritative.

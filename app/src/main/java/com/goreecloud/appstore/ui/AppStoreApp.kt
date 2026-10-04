@@ -18,17 +18,24 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.LibraryBooks
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Apps
-import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Cloud
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
@@ -36,8 +43,8 @@ import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkBorder
-import androidx.compose.material.icons.rounded.LibraryBooks
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Sort
 import androidx.compose.material.icons.rounded.Update
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -45,8 +52,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
@@ -67,33 +76,38 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.goreecloud.appstore.R
 import com.goreecloud.appstore.data.CatalogJsonLoader
+import com.goreecloud.appstore.domain.CatalogPresentation
+import com.goreecloud.appstore.domain.CatalogSort
 import com.goreecloud.appstore.domain.EntitlementEngine
 import com.goreecloud.appstore.domain.IdentitySession
 import com.goreecloud.appstore.domain.ReleaseChannel
+import com.goreecloud.appstore.domain.ReleaseChannelAccess
 import com.goreecloud.appstore.domain.StoreItem
 import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
 import com.goreecloud.appstore.library.FavoriteCatalogStore
+import com.goreecloud.appstore.library.RecentlyViewedCatalogSelection
 import com.goreecloud.appstore.library.SavedCatalogStore
 import com.goreecloud.appstore.onboarding.AppStoreGuidanceState
 import com.goreecloud.appstore.platform.IntegrationState
 import com.goreecloud.appstore.platform.PlatformIntegrationRegistry
-import com.goreecloud.appstore.platform.UnavailablePackageDeliveryGateway
 
 enum class StoreTab(val title: String, val icon: ImageVector) {
     DISCOVER("Discover", Icons.Rounded.Home),
     APPS("Apps", Icons.Rounded.Apps),
     SERVICES("Services", Icons.Rounded.Cloud),
     UPDATES("Updates", Icons.Rounded.Update),
-    LIBRARY("Library", Icons.Rounded.LibraryBooks),
+    LIBRARY("Library", Icons.AutoMirrored.Rounded.LibraryBooks),
 }
 
 @Composable
@@ -126,6 +140,21 @@ fun GoreeCloudAppStore(
     }
     var confirmClearFavorites by remember(session.subjectId) { mutableStateOf(false) }
     var confirmClearSaved by remember(session.subjectId) { mutableStateOf(false) }
+    var confirmClearRecentlyViewed by remember(session.subjectId) { mutableStateOf(false) }
+    var recentlyViewedByIdentity by remember {
+        mutableStateOf<Map<String, List<String>>>(emptyMap())
+    }
+    var libraryQuery by remember(session.subjectId) { mutableStateOf("") }
+    var catalogSortByTab by remember(session.subjectId) {
+        mutableStateOf<Map<StoreTab, CatalogSort>>(emptyMap())
+    }
+    val catalogSort = catalogSortByTab[selectedTab] ?: CatalogSort.CATALOG_ORDER
+    val setCatalogSort: (CatalogSort) -> Unit = { sort ->
+        catalogSortByTab = catalogSortByTab + (selectedTab to sort)
+    }
+    var selectedCategory by remember(session.subjectId, selectedTab) {
+        mutableStateOf<String?>(null)
+    }
 
     val entitled = remember(session, allItems) {
         EntitlementEngine.visibleItems(session, allItems)
@@ -136,26 +165,66 @@ fun GoreeCloudAppStore(
     val favoriteVisible = remember(entitled, favoriteItemIds) {
         entitled.filter { it.id in favoriteItemIds }
     }
-    val visible = remember(entitled, selectedTab, query) {
-        val tabItems = when (selectedTab) {
+    val entitledById = remember(entitled) { entitled.associateBy { it.id } }
+    val recentlyViewedIds = recentlyViewedByIdentity[session.subjectId].orEmpty()
+    val recentlyViewedVisible = remember(entitledById, recentlyViewedIds) {
+        recentlyViewedIds.mapNotNull { entitledById[it] }
+    }
+    val favoriteLibraryVisible = remember(favoriteVisible, libraryQuery) {
+        favoriteVisible.filter { it.matchesLibraryQuery(libraryQuery) }
+    }
+    val savedLibraryVisible = remember(savedVisible, libraryQuery) {
+        savedVisible.filter { it.matchesLibraryQuery(libraryQuery) }
+    }
+    val recentLibraryVisible = remember(recentlyViewedVisible, libraryQuery) {
+        recentlyViewedVisible.filter { it.matchesLibraryQuery(libraryQuery) }
+    }
+    val tabItems = remember(entitled, selectedTab) {
+        when (selectedTab) {
             StoreTab.DISCOVER -> entitled
             StoreTab.APPS -> entitled.filter { it.type == StoreItemType.APPLICATION }
             StoreTab.SERVICES -> entitled.filter { it.type == StoreItemType.SERVICE }
             StoreTab.UPDATES, StoreTab.LIBRARY -> emptyList()
         }
-        if (query.isBlank()) {
-            tabItems
-        } else {
-            tabItems.filter {
-                it.name.contains(query, ignoreCase = true) ||
-                    it.summary.contains(query, ignoreCase = true) ||
-                    it.category.contains(query, ignoreCase = true)
-            }
-        }
+    }
+    val categories = remember(tabItems) {
+        tabItems.map { it.category }.distinct().sorted()
+    }
+    val filtered = remember(tabItems, query, selectedCategory) {
+        CatalogPresentation.filterAndSort(
+            items = tabItems,
+            query = query,
+            category = selectedCategory,
+            sort = CatalogSort.CATALOG_ORDER,
+        )
+    }
+    val visible = remember(tabItems, query, selectedCategory, catalogSort) {
+        CatalogPresentation.filterAndSort(
+            items = tabItems,
+            query = query,
+            category = selectedCategory,
+            sort = catalogSort,
+        )
+    }
+    val appCount = remember(entitled) {
+        entitled.count { it.type == StoreItemType.APPLICATION }
+    }
+    val serviceCount = remember(entitled) {
+        entitled.count { it.type == StoreItemType.SERVICE }
+    }
+    val openItem: (StoreItem) -> Unit = { item ->
+        val subjectId = session.subjectId
+        val next = RecentlyViewedCatalogSelection.record(
+            current = recentlyViewedByIdentity[subjectId].orEmpty(),
+            itemId = item.id,
+        )
+        recentlyViewedByIdentity = recentlyViewedByIdentity + (subjectId to next)
+        selectedItem = item
     }
 
     LaunchedEffect(selectedTab, session.subjectId) {
         query = ""
+        selectedCategory = null
         listState.scrollToItem(0)
     }
 
@@ -183,13 +252,34 @@ fun GoreeCloudAppStore(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(scaffoldPadding),
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 18.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
+                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 when (selectedTab) {
                     StoreTab.DISCOVER -> {
-                        item { DevelopmentStatusStrip(onClick = { showPlatformStatus = true }) }
-                        item { StoreHero(visibleCount = entitled.size) }
+                        item {
+                            StoreHero(
+                                visibleCount = entitled.size,
+                                appCount = appCount,
+                                serviceCount = serviceCount,
+                            )
+                        }
+                        item {
+                            StoreSearch(
+                                query = query,
+                                placeholder = "Search apps and services",
+                                onQueryChanged = { query = it },
+                            )
+                        }
+                        if (categories.isNotEmpty()) {
+                            item {
+                                CategoryStrip(
+                                    categories = categories,
+                                    selected = selectedCategory,
+                                    onSelected = { selectedCategory = it },
+                                )
+                            }
+                        }
                         if (guidanceState.isHintVisible(APP_STORE_CATALOG_HINT_ID)) {
                             item {
                                 AppStoreCatalogGuidanceHint(
@@ -199,11 +289,44 @@ fun GoreeCloudAppStore(
                                 )
                             }
                         }
-                        item { StoreSearch(query = query, onQueryChanged = { query = it }) }
+                        if (
+                            query.isBlank() &&
+                            selectedCategory == null &&
+                            recentlyViewedVisible.isNotEmpty()
+                        ) {
+                            item {
+                                StoreSectionHeading(
+                                    title = "Continue browsing",
+                                    subtitle = "Recently opened this session",
+                                )
+                            }
+                            item {
+                                FeaturedShelf(
+                                    items = recentlyViewedVisible.take(6),
+                                    onItemClick = openItem,
+                                )
+                            }
+                        }
+                        if (visible.isNotEmpty()) {
+                            item {
+                                StoreSectionHeading(
+                                    title = "Featured",
+                                    subtitle = "Quick access to available items",
+                                )
+                            }
+                            item {
+                                FeaturedShelf(
+                                    items = filtered.take(6),
+                                    onItemClick = openItem,
+                                )
+                            }
+                        }
                         item {
                             StoreSectionHeading(
-                                title = "Available to you",
+                                title = "Browse all",
                                 subtitle = catalogCountLabel(visible.size),
+                                sort = catalogSort,
+                                onSortChanged = setCatalogSort,
                             )
                         }
                     }
@@ -212,36 +335,78 @@ fun GoreeCloudAppStore(
                         item {
                             TabIntro(
                                 title = "Apps",
-                                body = "GoreeCloud applications available to the active development identity.",
+                                body = catalogCountLabel(visible.size),
+                                sort = catalogSort,
+                                onSortChanged = setCatalogSort,
                             )
                         }
-                        item { StoreSearch(query = query, onQueryChanged = { query = it }) }
+                        item {
+                            StoreSearch(
+                                query = query,
+                                placeholder = "Search apps",
+                                onQueryChanged = { query = it },
+                            )
+                        }
+                        if (categories.isNotEmpty()) {
+                            item {
+                                CategoryStrip(
+                                    categories = categories,
+                                    selected = selectedCategory,
+                                    onSelected = { selectedCategory = it },
+                                )
+                            }
+                        }
                     }
 
                     StoreTab.SERVICES -> {
                         item {
                             TabIntro(
                                 title = "Services",
-                                body = "GoreeCloud services available to the active development identity.",
+                                body = catalogCountLabel(visible.size),
+                                sort = catalogSort,
+                                onSortChanged = setCatalogSort,
                             )
                         }
-                        item { StoreSearch(query = query, onQueryChanged = { query = it }) }
+                        item {
+                            StoreSearch(
+                                query = query,
+                                placeholder = "Search services",
+                                onQueryChanged = { query = it },
+                            )
+                        }
+                        if (categories.isNotEmpty()) {
+                            item {
+                                CategoryStrip(
+                                    categories = categories,
+                                    selected = selectedCategory,
+                                    onSelected = { selectedCategory = it },
+                                )
+                            }
+                        }
                     }
 
                     StoreTab.UPDATES -> {
                         item {
-                            TabIntro(
-                                title = "Updates",
-                                body = "Application updates will appear here when production release delivery is connected.",
+                            Text(
+                                "Updates",
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold,
                             )
                         }
                         item {
-                            UnavailableState(
-                                icon = Icons.Rounded.Update,
-                                title = "Updates are unavailable in this development build",
-                                body = "The update feed remains disabled until authenticated release metadata and package-delivery integration are accepted.",
-                                onDetails = { showPlatformStatus = true },
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillParentMaxHeight(0.55f)
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                UnavailableState(
+                                    icon = Icons.Rounded.Update,
+                                    title = "Release delivery not connected",
+                                    body = "Available app updates will appear here after authenticated release metadata and package delivery are connected.",
+                                    onDetails = { showPlatformStatus = true },
+                                )
+                            }
                         }
                     }
 
@@ -249,68 +414,154 @@ fun GoreeCloudAppStore(
                         item {
                             TabIntro(
                                 title = "Library",
-                                body = "Keep device-local Favorites and Save for later collections for entitled GoreeCloud items. Installed and historical library state remains separate and unavailable.",
+                                body = "Manage device-local collections and this session’s recently opened items for the active identity.",
                             )
                         }
-                        item {
-                            StoreSectionHeading(
-                                title = "Favorites",
-                                subtitle = if (favoriteVisible.size == 1) {
-                                    "1 favorite for this development identity"
-                                } else {
-                                    "${favoriteVisible.size} favorites for this development identity"
-                                },
-                            )
-                        }
-                        if (favoriteVisible.isEmpty()) {
-                            item { FavoriteLibraryEmptyState() }
-                        } else {
+
+                        val hasLibraryItems =
+                            favoriteVisible.isNotEmpty() ||
+                                savedVisible.isNotEmpty() ||
+                                recentlyViewedVisible.isNotEmpty()
+
+                        if (hasLibraryItems) {
                             item {
-                                TextButton(
-                                    modifier = Modifier.heightIn(min = 48.dp),
-                                    onClick = { confirmClearFavorites = true },
-                                ) {
-                                    Text("Clear Favorites")
-                                }
+                                LibraryCollectionSummary(
+                                    favorites = favoriteVisible.size,
+                                    saved = savedVisible.size,
+                                    recent = recentlyViewedVisible.size,
+                                )
                             }
-                            items(favoriteVisible, key = { "favorite:${it.id}" }) { item ->
-                                StoreItemCard(item = item, onClick = { selectedItem = item })
+                            item {
+                                StoreSearch(
+                                    query = libraryQuery,
+                                    placeholder = "Search your library",
+                                    onQueryChanged = { libraryQuery = it },
+                                )
                             }
                         }
-                        item { Spacer(Modifier.height(6.dp)) }
-                        item {
-                            StoreSectionHeading(
-                                title = "Saved for later",
-                                subtitle = if (savedVisible.size == 1) {
-                                    "1 item saved for this development identity"
-                                } else {
-                                    "${savedVisible.size} items saved for this development identity"
-                                },
-                            )
-                        }
-                        if (savedVisible.isEmpty()) {
+
+                        val searchingLibrary = libraryQuery.isNotBlank()
+                        val hasLibraryMatches =
+                            favoriteLibraryVisible.isNotEmpty() ||
+                                savedLibraryVisible.isNotEmpty() ||
+                                recentLibraryVisible.isNotEmpty()
+
+                        if (searchingLibrary && !hasLibraryMatches) {
                             item {
-                                SavedLibraryEmptyState()
+                                EmptyLibrarySearchState(
+                                    onReset = { libraryQuery = "" },
+                                )
                             }
                         } else {
-                            item {
-                                TextButton(
-                                    modifier = Modifier.heightIn(min = 48.dp),
-                                    onClick = { confirmClearSaved = true },
-                                ) {
-                                    Text("Clear saved for later")
+                            if (recentLibraryVisible.isNotEmpty()) {
+                                item {
+                                    LibrarySectionHeading(
+                                        title = "Recently opened",
+                                        subtitle = libraryCollectionCountLabel(
+                                            recentLibraryVisible.size,
+                                            singular = "item this session",
+                                            plural = "items this session",
+                                        ),
+                                        actionLabel = if (!searchingLibrary) "Clear" else null,
+                                        onAction = { confirmClearRecentlyViewed = true },
+                                    )
+                                }
+                                item {
+                                    FeaturedShelf(
+                                        items = recentLibraryVisible,
+                                        onItemClick = openItem,
+                                    )
+                                }
+                                item { Spacer(Modifier.height(4.dp)) }
+                            }
+
+                            if (!searchingLibrary || favoriteLibraryVisible.isNotEmpty()) {
+                                item {
+                                    LibrarySectionHeading(
+                                        title = "Favorites",
+                                        subtitle = libraryCollectionCountLabel(
+                                            favoriteLibraryVisible.size,
+                                            singular = "favorite",
+                                            plural = "favorites",
+                                        ),
+                                        actionLabel = if (
+                                            !searchingLibrary && favoriteVisible.isNotEmpty()
+                                        ) {
+                                            "Clear"
+                                        } else {
+                                            null
+                                        },
+                                        onAction = { confirmClearFavorites = true },
+                                    )
+                                }
+                                if (favoriteLibraryVisible.isEmpty()) {
+                                    item { FavoriteLibraryEmptyState() }
+                                } else {
+                                    items(
+                                        favoriteLibraryVisible,
+                                        key = { "favorite:${it.id}" },
+                                    ) { item ->
+                                        StoreItemCard(
+                                            item = item,
+                                            isFavorite = true,
+                                            isSaved = item.id in savedItemIds,
+                                            showReleaseMetadata =
+                                                ReleaseChannelAccess.canAccess(
+                                                    session,
+                                                    item.releaseChannel,
+                                                ),
+                                            onClick = { openItem(item) },
+                                        )
+                                    }
+                                }
+                                item { Spacer(Modifier.height(4.dp)) }
+                            }
+
+                            if (!searchingLibrary || savedLibraryVisible.isNotEmpty()) {
+                                item {
+                                    LibrarySectionHeading(
+                                        title = "Saved for later",
+                                        subtitle = libraryCollectionCountLabel(
+                                            savedLibraryVisible.size,
+                                            singular = "saved item",
+                                            plural = "saved items",
+                                        ),
+                                        actionLabel = if (
+                                            !searchingLibrary && savedVisible.isNotEmpty()
+                                        ) {
+                                            "Clear"
+                                        } else {
+                                            null
+                                        },
+                                        onAction = { confirmClearSaved = true },
+                                    )
+                                }
+                                if (savedLibraryVisible.isEmpty()) {
+                                    item { SavedLibraryEmptyState() }
+                                } else {
+                                    items(
+                                        savedLibraryVisible,
+                                        key = { "saved:${it.id}" },
+                                    ) { item ->
+                                        StoreItemCard(
+                                            item = item,
+                                            isFavorite = item.id in favoriteItemIds,
+                                            isSaved = true,
+                                            showReleaseMetadata =
+                                                ReleaseChannelAccess.canAccess(
+                                                    session,
+                                                    item.releaseChannel,
+                                                ),
+                                            onClick = { openItem(item) },
+                                        )
+                                    }
                                 }
                             }
-                            items(savedVisible, key = { "saved:${it.id}" }) { item ->
-                                StoreItemCard(item = item, onClick = { selectedItem = item })
-                            }
                         }
+
                         item {
-                            UnavailableState(
-                                icon = Icons.Rounded.LibraryBooks,
-                                title = "Installed library history is unavailable",
-                                body = "Install history, cross-device library recovery, and previously owned state remain disabled until the authoritative delivery and Everkeep-backed library contracts are connected.",
-                                onDetails = { showPlatformStatus = true },
+                            LibraryHistoryStatusRow(
+                                onClick = { showPlatformStatus = true },
                             )
                         }
                     }
@@ -326,11 +577,23 @@ fun GoreeCloudAppStore(
                             EmptyCatalogState(
                                 authenticated = session.isAuthenticated,
                                 hasQuery = query.isNotBlank(),
+                                hasFilter = selectedCategory != null,
+                                onReset = {
+                                    query = ""
+                                    selectedCategory = null
+                                },
                             )
                         }
                     } else {
                         items(visible, key = { it.id }) { item ->
-                            StoreItemCard(item = item, onClick = { selectedItem = item })
+                            StoreItemCard(
+                                item = item,
+                                isFavorite = item.id in favoriteItemIds,
+                                isSaved = item.id in savedItemIds,
+                                showReleaseMetadata =
+                                    ReleaseChannelAccess.canAccess(session, item.releaseChannel),
+                                onClick = { openItem(item) },
+                            )
                         }
                     }
                 }
@@ -395,6 +658,35 @@ fun GoreeCloudAppStore(
             )
         }
 
+        if (confirmClearRecentlyViewed) {
+            AlertDialog(
+                onDismissRequest = { confirmClearRecentlyViewed = false },
+                title = { Text("Clear recently opened?") },
+                text = {
+                    Text(
+                        "This clears only this session’s recently opened items for the active development identity. " +
+                            "Favorites and saved items are not changed.",
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            recentlyViewedByIdentity =
+                                recentlyViewedByIdentity - session.subjectId
+                            confirmClearRecentlyViewed = false
+                        },
+                    ) {
+                        Text("Clear recent")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmClearRecentlyViewed = false }) {
+                        Text("Cancel")
+                    }
+                },
+            )
+        }
+
         selectedItem?.let { item ->
             StoreItemSheet(
                 item = item,
@@ -407,12 +699,18 @@ fun GoreeCloudAppStore(
                     )
                 },
                 isSaved = item.id in savedItemIds,
+                showReleaseMetadata =
+                    ReleaseChannelAccess.canAccess(session, item.releaseChannel),
                 onSavedChanged = { saved ->
                     savedItemIds = savedCatalogStore.setSaved(
                         subjectId = session.subjectId,
                         itemId = item.id,
                         saved = saved,
                     )
+                },
+                onShowPlatformStatus = {
+                    selectedItem = null
+                    showPlatformStatus = true
                 },
                 onDismiss = { selectedItem = null },
             )
@@ -434,79 +732,75 @@ private fun StoreTopBar(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Surface(tonalElevation = 2.dp, color = MaterialTheme.colorScheme.surface) {
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        tonalElevation = 0.dp,
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(horizontal = 20.dp, vertical = 12.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            Image(
+                painter = painterResource(R.drawable.goreecloud_app_store_icon),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(GlazeArtworkShape),
+            )
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+                verticalArrangement = Arrangement.spacedBy(1.dp),
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Text(
-                        "GoreeCloud",
-                        style = MaterialTheme.typography.labelLarge,
-                        maxLines = 1,
-                    )
-                    Surface(
-                        shape = GlazeCapsuleShape,
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                    ) {
-                        Text(
-                            "Development",
-                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            maxLines = 1,
-                        )
-                    }
-                }
                 Text(
                     "App Store",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                 )
+                Text(
+                    "Development · ${session.compactDisplayName()}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
 
-            Box(
-                modifier = Modifier.widthIn(min = 138.dp, max = 172.dp),
-            ) {
+            Box(modifier = Modifier.width(64.dp)) {
                 TextButton(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 48.dp),
-                    contentPadding = PaddingValues(horizontal = 8.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp),
                     onClick = { expanded = true },
                 ) {
-                    Icon(Icons.Rounded.AccountCircle, contentDescription = null)
-                    Spacer(Modifier.size(5.dp))
-                    Text(
-                        session.displayName,
-                        modifier = Modifier.weight(1f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                    Icon(
+                        Icons.Rounded.AccountCircle,
+                        contentDescription =
+                            "Current development identity: ${session.compactDisplayName()}. Open account menu.",
                     )
                     Icon(Icons.Rounded.ExpandMore, contentDescription = null)
                 }
                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                     sessions.forEach { candidate ->
                         DropdownMenuItem(
-                            text = { Text(candidate.displayName) },
+                            text = { Text(candidate.compactDisplayName()) },
+                            trailingIcon = {
+                                if (candidate.subjectId == session.subjectId) {
+                                    Icon(Icons.Rounded.Check, contentDescription = "Active identity")
+                                }
+                            },
                             onClick = {
                                 onSessionSelected(candidate)
                                 expanded = false
                             },
                         )
                     }
+                    HorizontalDivider()
                     DropdownMenuItem(
                         text = { Text("Guidance & setup") },
                         leadingIcon = { Icon(Icons.Rounded.Info, contentDescription = null) },
@@ -515,7 +809,6 @@ private fun StoreTopBar(
                             onShowGuidanceSettings()
                         },
                     )
-                    HorizontalDivider()
                     DropdownMenuItem(
                         text = { Text("Development status") },
                         leadingIcon = { Icon(Icons.Rounded.Info, contentDescription = null) },
@@ -531,127 +824,125 @@ private fun StoreTopBar(
 }
 
 @Composable
-private fun DevelopmentStatusStrip(onClick: () -> Unit) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = GlazeSmallCardShape,
-        color = MaterialTheme.colorScheme.secondaryContainer,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                Icons.Rounded.Info,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSecondaryContainer,
-            )
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                Text(
-                    "Simulated accounts are active",
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
-                Text(
-                    "Tap for platform and integration status.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
-            }
-            Icon(
-                Icons.Rounded.ChevronRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSecondaryContainer,
-            )
-        }
-    }
-}
-
-@Composable
-private fun StoreHero(visibleCount: Int) {
+private fun StoreHero(
+    visibleCount: Int,
+    appCount: Int,
+    serviceCount: Int,
+) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = GlazeCardShape,
         color = MaterialTheme.colorScheme.primaryContainer,
-        tonalElevation = 2.dp,
+        tonalElevation = 1.dp,
     ) {
         Column(
-            modifier = Modifier.padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Surface(
-                modifier = Modifier.size(52.dp),
-                shape = GlazeSmallCardShape,
-                color = MaterialTheme.colorScheme.surface,
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Image(
-                        painter = painterResource(R.drawable.goreecloud_app_store_icon),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(GlazeArtworkShape),
-                    )
-                }
-            }
-            Text(
-                "Your GoreeCloud, in one place.",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-            Text(
-                "Discover applications and services that this development identity is authorized to see.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-            Surface(shape = GlazeCapsuleShape, color = MaterialTheme.colorScheme.surface) {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(
-                    "$visibleCount available",
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    maxLines = 1,
+                    "Explore GoreeCloud",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
+                Text(
+                    "Apps and services available to this identity.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            }
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                item { CatalogStatChip("$visibleCount available") }
+                item { CatalogStatChip("$appCount apps") }
+                item { CatalogStatChip("$serviceCount services") }
             }
         }
     }
 }
 
 @Composable
-private fun TabIntro(title: String, body: String) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+private fun CatalogStatChip(label: String) {
+    Surface(shape = GlazeCapsuleShape, color = MaterialTheme.colorScheme.surface) {
         Text(
-            title,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            body,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            label,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            maxLines = 1,
         )
     }
 }
 
 @Composable
-private fun StoreSearch(query: String, onQueryChanged: (String) -> Unit) {
+private fun TabIntro(
+    title: String,
+    body: String,
+    sort: CatalogSort? = null,
+    onSortChanged: (CatalogSort) -> Unit = {},
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(
+                title,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                body,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        if (sort != null) {
+            CatalogSortMenu(
+                sort = sort,
+                onSortChanged = onSortChanged,
+            )
+        }
+    }
+}
+
+@Composable
+private fun StoreSearch(
+    query: String,
+    placeholder: String,
+    onQueryChanged: (String) -> Unit,
+) {
+    val focusManager = LocalFocusManager.current
+
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChanged,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 52.dp),
         singleLine = true,
         shape = GlazeCapsuleShape,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(
+            onSearch = { focusManager.clearFocus() },
+        ),
         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
+        trailingIcon = if (query.isNotEmpty()) {
+            {
+                IconButton(onClick = { onQueryChanged("") }) {
+                    Icon(Icons.Rounded.Close, contentDescription = "Clear search")
+                }
+            }
+        } else {
+            null
+        },
         placeholder = {
             Text(
-                "Search your available catalog",
+                placeholder,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -659,46 +950,217 @@ private fun StoreSearch(query: String, onQueryChanged: (String) -> Unit) {
     )
 }
 
+
 @Composable
-private fun StoreSectionHeading(title: String, subtitle: String) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
+private fun CategoryStrip(
+    categories: List<String>,
+    selected: String?,
+    onSelected: (String?) -> Unit,
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        contentPadding = PaddingValues(end = 12.dp),
     ) {
-        Text(
-            title,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            subtitle,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        item {
+            FilterChip(
+                modifier = Modifier.heightIn(min = 40.dp),
+                selected = selected == null,
+                onClick = { onSelected(null) },
+                label = { Text("All", style = MaterialTheme.typography.labelMedium) },
+            )
+        }
+        items(categories, key = { "category:$it" }) { category ->
+            FilterChip(
+                modifier = Modifier.heightIn(min = 40.dp),
+                selected = selected == category,
+                onClick = { onSelected(if (selected == category) null else category) },
+                label = { Text(category, style = MaterialTheme.typography.labelMedium, maxLines = 1) },
+                trailingIcon = if (selected == category) {
+                    {
+                        Icon(
+                            Icons.Rounded.Close,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                } else {
+                    null
+                },
+            )
+        }
     }
 }
 
 @Composable
-private fun StoreItemCard(item: StoreItem, onClick: () -> Unit) {
+private fun FeaturedShelf(
+    items: List<StoreItem>,
+    onItemClick: (StoreItem) -> Unit,
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(end = 12.dp),
+    ) {
+        items(items, key = { "featured:${it.id}" }) { item ->
+            FeaturedItemCard(item = item, onClick = { onItemClick(item) })
+        }
+    }
+}
+
+@Composable
+private fun FeaturedItemCard(item: StoreItem, onClick: () -> Unit) {
+    ElevatedCard(
+        modifier = Modifier
+            .width(156.dp)
+            .clickable(
+                onClickLabel = "View ${item.name}",
+                onClick = onClick,
+            ),
+        shape = GlazeSmallCardShape,
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            StoreArtwork(item = item, size = 48.dp)
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    item.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    item.category,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StoreSectionHeading(
+    title: String,
+    subtitle: String,
+    sort: CatalogSort? = null,
+    onSortChanged: (CatalogSort) -> Unit = {},
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(
+                title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        if (sort != null) {
+            CatalogSortMenu(
+                sort = sort,
+                onSortChanged = onSortChanged,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CatalogSortMenu(
+    sort: CatalogSort,
+    onSortChanged: (CatalogSort) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        IconButton(
+            onClick = { expanded = true },
+        ) {
+            Icon(
+                Icons.Rounded.Sort,
+                contentDescription = "Sort catalog. Current: ${sort.label()}",
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            CatalogSort.entries.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option.label()) },
+                    leadingIcon = if (option == sort) {
+                        {
+                            Icon(
+                                Icons.Rounded.Check,
+                                contentDescription = null,
+                            )
+                        }
+                    } else {
+                        null
+                    },
+                    onClick = {
+                        onSortChanged(option)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+private fun CatalogSort.label(): String = when (this) {
+    CatalogSort.CATALOG_ORDER -> "Catalog order"
+    CatalogSort.NAME -> "Name"
+    CatalogSort.CATEGORY -> "Category"
+}
+
+@Composable
+private fun StoreItemCard(
+    item: StoreItem,
+    isFavorite: Boolean,
+    isSaved: Boolean,
+    showReleaseMetadata: Boolean,
+    onClick: () -> Unit,
+) {
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = GlazeCardShape,
+            .clickable(
+                onClickLabel = "View ${item.name}",
+                onClick = onClick,
+            ),
+        shape = GlazeSmallCardShape,
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            StoreArtwork(item = item, size = 64.dp)
+            StoreArtwork(item = item, size = 52.dp)
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(5.dp),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
             ) {
                 Text(
                     item.name,
@@ -709,7 +1171,7 @@ private fun StoreItemCard(item: StoreItem, onClick: () -> Unit) {
                 )
                 Text(
                     item.summary,
-                    maxLines = 2,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -727,12 +1189,34 @@ private fun StoreItemCard(item: StoreItem, onClick: () -> Unit) {
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    ReleaseChannelPill(item.releaseChannel)
+                    if (isFavorite) {
+                        Icon(
+                            Icons.Rounded.Favorite,
+                            contentDescription = "Favorited",
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                    if (isSaved) {
+                        Icon(
+                            Icons.Rounded.Bookmark,
+                            contentDescription = "Saved for later",
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                    if (
+                        showReleaseMetadata &&
+                        item.releaseChannel != ReleaseChannel.DEVELOPMENT
+                    ) {
+                        ReleaseChannelPill(item.releaseChannel)
+                    }
                 }
             }
             Icon(
                 Icons.Rounded.ChevronRight,
                 contentDescription = "View ${item.name}",
+                modifier = Modifier.size(22.dp),
             )
         }
     }
@@ -756,107 +1240,284 @@ private fun ReleaseChannelPill(channel: ReleaseChannel) {
 }
 
 @Composable
-private fun EmptyCatalogState(authenticated: Boolean, hasQuery: Boolean) {
+private fun EmptyCatalogState(
+    authenticated: Boolean,
+    hasQuery: Boolean,
+    hasFilter: Boolean,
+    onReset: () -> Unit,
+) {
     val title = when {
-        hasQuery -> "No matching results"
+        hasQuery || hasFilter -> "No matching results"
         authenticated -> "Nothing is available here"
         else -> "Sign in to see your catalog"
     }
     val body = when {
-        hasQuery -> "Try a different search term within the catalog available to this identity."
-        authenticated -> "This development identity has no matching entries in the current section."
+        hasQuery || hasFilter -> "Try a different search term or category."
+        authenticated -> "This identity has no matching entries in this section."
         else -> "Production sign-in will be provided by GoreeCloud Identity."
     }
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = GlazeCardShape,
+        shape = GlazeSmallCardShape,
         color = MaterialTheme.colorScheme.surfaceVariant,
     ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    body,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (hasQuery || hasFilter) {
+                TextButton(
+                    modifier = Modifier.heightIn(min = 40.dp),
+                    onClick = onReset,
+                ) {
+                    Text("Reset")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LibraryCollectionSummary(
+    favorites: Int,
+    saved: Int,
+    recent: Int,
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        contentPadding = PaddingValues(end = 8.dp),
+    ) {
+        item { LibraryCountChip("$favorites Favorites") }
+        item { LibraryCountChip("$saved Saved") }
+        item { LibraryCountChip("$recent Recent") }
+    }
+}
+
+@Composable
+private fun LibraryCountChip(label: String) {
+    Surface(
+        shape = GlazeCapsuleShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Text(
+            label,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+        )
+    }
+}
+
+private fun StoreItem.matchesLibraryQuery(query: String): Boolean {
+    if (query.isBlank()) return true
+    return name.contains(query, ignoreCase = true) ||
+        summary.contains(query, ignoreCase = true) ||
+        category.contains(query, ignoreCase = true) ||
+        type.label().contains(query, ignoreCase = true)
+}
+
+private fun libraryCollectionCountLabel(
+    count: Int,
+    singular: String,
+    plural: String,
+): String = if (count == 1) "1 $singular" else "$count $plural"
+
+@Composable
+private fun LibrarySectionHeading(
+    title: String,
+    subtitle: String,
+    actionLabel: String?,
+    onAction: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.Bottom,
+    ) {
         Column(
-            modifier = Modifier.padding(28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             Text(
                 title,
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold,
             )
             Text(
-                body,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
+                subtitle,
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+        if (actionLabel != null) {
+            TextButton(
+                modifier = Modifier.heightIn(min = 40.dp),
+                onClick = onAction,
+            ) {
+                Text(actionLabel)
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyLibrarySearchState(onReset: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = GlazeSmallCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                Text(
+                    "No library matches",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    "Try another search or clear the library search.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            TextButton(
+                modifier = Modifier.heightIn(min = 40.dp),
+                onClick = onReset,
+            ) {
+                Text("Reset")
+            }
         }
     }
 }
 
 @Composable
 private fun FavoriteLibraryEmptyState() {
+    LibraryCollectionEmptyState(
+        icon = Icons.Rounded.FavoriteBorder,
+        title = "No Favorites yet",
+        body = "Open any available item and choose Add to Favorites.",
+    )
+}
+
+@Composable
+private fun SavedLibraryEmptyState() {
+    LibraryCollectionEmptyState(
+        icon = Icons.Rounded.BookmarkBorder,
+        title = "Nothing saved for later",
+        body = "Open any available item and choose Save for later.",
+    )
+}
+
+@Composable
+private fun LibraryCollectionEmptyState(
+    icon: ImageVector,
+    title: String,
+    body: String,
+) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = GlazeCardShape,
+        shape = GlazeSmallCardShape,
         color = MaterialTheme.colorScheme.surfaceVariant,
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 28.dp, vertical = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+        Row(
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                Icons.Rounded.FavoriteBorder,
+                icon,
                 contentDescription = null,
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(30.dp),
                 tint = MaterialTheme.colorScheme.primary,
             )
-            Text(
-                "No Favorites yet",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                "Open an entitled app or service and choose Add to Favorites. Favorites remain device-local and separated by development identity.",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    body,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun SavedLibraryEmptyState() {
+private fun LibraryHistoryStatusRow(
+    onClick: () -> Unit,
+) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = GlazeCardShape,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                onClickLabel = "View Development status",
+                onClick = onClick,
+            ),
+        shape = GlazeSmallCardShape,
         color = MaterialTheme.colorScheme.surfaceVariant,
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 28.dp, vertical = 28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                Icons.Rounded.BookmarkBorder,
+                Icons.AutoMirrored.Rounded.LibraryBooks,
                 contentDescription = null,
-                modifier = Modifier.size(34.dp),
+                modifier = Modifier.size(28.dp),
                 tint = MaterialTheme.colorScheme.primary,
             )
-            Text(
-                "Nothing saved for later",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                "Open an entitled app or service and choose Save for later. Saves stay only on this device and are separated by the active development identity.",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Text(
+                    "Installed history",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    "Not connected yet",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Icon(
+                Icons.Rounded.ChevronRight,
+                contentDescription = "View Development status",
+                modifier = Modifier.size(22.dp),
             )
         }
     }
@@ -870,18 +1531,19 @@ private fun UnavailableState(
     onDetails: () -> Unit,
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = GlazeCardShape,
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 1.dp,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onDetails),
+        shape = GlazeSmallCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 28.dp, vertical = 32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Surface(
-                modifier = Modifier.size(68.dp),
+                modifier = Modifier.size(44.dp),
                 shape = GlazeSmallCardShape,
                 color = MaterialTheme.colorScheme.primaryContainer,
             ) {
@@ -889,26 +1551,31 @@ private fun UnavailableState(
                     Icon(
                         icon,
                         contentDescription = null,
-                        modifier = Modifier.size(34.dp),
+                        modifier = Modifier.size(24.dp),
                         tint = MaterialTheme.colorScheme.primary,
                     )
                 }
             }
-            Text(
-                title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                body,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            TextButton(onClick = onDetails) {
-                Text("Development status")
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    body,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
+            Icon(
+                Icons.Rounded.ChevronRight,
+                contentDescription = "View Development status",
+                modifier = Modifier.size(22.dp),
+            )
         }
     }
 }
@@ -937,7 +1604,9 @@ private fun StoreItemSheet(
     isFavorite: Boolean,
     onFavoriteChanged: (Boolean) -> Unit,
     isSaved: Boolean,
+    showReleaseMetadata: Boolean,
     onSavedChanged: (Boolean) -> Unit,
+    onShowPlatformStatus: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(
@@ -948,18 +1617,18 @@ private fun StoreItemSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 20.dp)
                 .navigationBarsPadding(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                StoreArtwork(item = item, size = 80.dp)
+                StoreArtwork(item = item, size = 72.dp)
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text(
                         item.name,
@@ -971,22 +1640,26 @@ private fun StoreItemSheet(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    ReleaseChannelPill(item.releaseChannel)
+                    if (showReleaseMetadata) {
+                        ReleaseChannelPill(item.releaseChannel)
+                    }
                 }
             }
 
-            Text(item.summary, style = MaterialTheme.typography.bodyLarge)
+            Text(item.summary, style = MaterialTheme.typography.bodyMedium)
 
             Surface(
                 shape = GlazeSmallCardShape,
                 color = MaterialTheme.colorScheme.surfaceVariant,
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    item.version?.let { MetadataLine(label = "Version", value = it) }
-                    MetadataLine(label = "Channel", value = item.releaseChannel.label())
+                    if (showReleaseMetadata) {
+                        item.version?.let { MetadataLine(label = "Version", value = it) }
+                        MetadataLine(label = "Channel", value = item.releaseChannel.label())
+                    }
                     MetadataLine(
                         label = "Access",
                         value = "Available to this development identity",
@@ -994,78 +1667,109 @@ private fun StoreItemSheet(
                 }
             }
 
-            TextButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 48.dp),
-                onClick = { onFavoriteChanged(!isFavorite) },
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Icon(
-                    if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                    contentDescription = null,
-                )
-                Spacer(Modifier.size(8.dp))
-                Text(if (isFavorite) "Remove from Favorites" else "Add to Favorites")
+                TextButton(
+                    modifier = Modifier
+                        .weight(1f)
+                        .heightIn(min = 48.dp),
+                    onClick = { onFavoriteChanged(!isFavorite) },
+                ) {
+                    Icon(
+                        if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                        contentDescription = null,
+                    )
+                    Spacer(Modifier.size(6.dp))
+                    Text(if (isFavorite) "Favorited" else "Favorite")
+                }
+                TextButton(
+                    modifier = Modifier
+                        .weight(1f)
+                        .heightIn(min = 48.dp),
+                    onClick = { onSavedChanged(!isSaved) },
+                ) {
+                    Icon(
+                        if (isSaved) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder,
+                        contentDescription = null,
+                    )
+                    Spacer(Modifier.size(6.dp))
+                    Text(if (isSaved) "Saved" else "Save")
+                }
             }
 
             Text(
-                "Favorites stay on this device for the active development identity and do not represent install ownership, account history, or Everkeep recovery.",
+                "Favorites and saved items stay on this device for the active development identity. They do not represent install ownership or account history.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            TextButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 48.dp),
-                onClick = { onSavedChanged(!isSaved) },
-            ) {
-                Icon(
-                    if (isSaved) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder,
-                    contentDescription = null,
-                )
-                Spacer(Modifier.size(8.dp))
-                Text(if (isSaved) "Remove from saved" else "Save for later")
-            }
-
-            Text(
-                if (isSaved) {
-                    "Saved for this development identity on this device only."
-                } else {
-                    "Save-for-later state is device-local and does not represent install ownership, account library history, or Everkeep recovery."
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            ProductAvailabilityCard(
+                item = item,
+                onClick = onShowPlatformStatus,
             )
+            Spacer(Modifier.height(8.dp))
+        }
+    }
+}
 
-            val actionAvailable =
-                item.type == StoreItemType.APPLICATION && UnavailablePackageDeliveryGateway.isAvailable
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                enabled = actionAvailable,
-                onClick = {},
+@Composable
+private fun ProductAvailabilityCard(
+    item: StoreItem,
+    onClick: () -> Unit,
+) {
+    val isApplication = item.type == StoreItemType.APPLICATION
+    val title = if (isApplication) {
+        "Installation unavailable"
+    } else {
+        "Service launch unavailable"
+    }
+    val body = if (isApplication) {
+        "Release metadata, provenance, Wardveil verification, and package delivery are not connected yet."
+    } else {
+        "Production Identity authorization and approved service endpoint policy are not connected yet."
+    }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                onClickLabel = "View Development status",
+                onClick = onClick,
+            ),
+        shape = GlazeSmallCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.Rounded.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
             ) {
                 Text(
-                    if (item.type == StoreItemType.APPLICATION) {
-                        if (actionAvailable) "Install" else "Install unavailable"
-                    } else {
-                        "Open unavailable"
-                    },
+                    title,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    body,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-
-            Text(
-                if (item.type == StoreItemType.APPLICATION) {
-                    "Installation remains disabled until approved release metadata, artifact provenance, Wardveil verification, and package delivery are connected."
-                } else {
-                    "Service launch remains disabled until production GoreeCloud Identity authorization and approved endpoint policy are connected."
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            Icon(
+                Icons.Rounded.ChevronRight,
+                contentDescription = "View Development status",
             )
-            Spacer(Modifier.height(12.dp))
         }
     }
 }
@@ -1099,9 +1803,9 @@ private fun PlatformStatusSheet(onDismiss: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 20.dp)
                 .navigationBarsPadding(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
                 "Development status",
@@ -1109,109 +1813,142 @@ private fun PlatformStatusSheet(onDismiss: () -> Unit) {
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                "These diagnostics describe current implementation boundaries. They are not production trust or acceptance badges.",
-                style = MaterialTheme.typography.bodyMedium,
+                "Current integration boundaries for this build.",
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            PlatformIntegrationRegistry.current.forEachIndexed { index, integration ->
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+            PlatformIntegrationRegistry.current.forEach { integration ->
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = GlazeSmallCardShape,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(5.dp),
                     ) {
-                        Text(
-                            integration.system,
-                            modifier = Modifier.weight(1f),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                        Surface(
-                            shape = GlazeCapsuleShape,
-                            color = MaterialTheme.colorScheme.surfaceVariant,
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                integration.state.label(),
-                                modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
-                                style = MaterialTheme.typography.labelSmall,
-                                maxLines = 1,
+                                integration.system,
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
                             )
+                            Surface(
+                                shape = GlazeCapsuleShape,
+                                color = MaterialTheme.colorScheme.surface,
+                            ) {
+                                Text(
+                                    integration.state.label(),
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    maxLines = 1,
+                                )
+                            }
                         }
+                        Text(
+                            integration.detail,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
-                    Text(
-                        integration.detail,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                if (index != PlatformIntegrationRegistry.current.lastIndex) {
-                    HorizontalDivider()
                 }
             }
 
             Surface(
+                modifier = Modifier.fillMaxWidth(),
                 shape = GlazeSmallCardShape,
                 color = MaterialTheme.colorScheme.secondaryContainer,
             ) {
-                Text(
-                    "Production acceptance remains false for this App Store build.",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                )
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        "Production acceptance",
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                    Text(
+                        "Not accepted",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                }
             }
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(8.dp))
         }
     }
 }
 
 @Composable
 private fun StoreArtwork(item: StoreItem, size: Dp) {
-    val resource = item.artworkResource()
-    if (resource != null) {
-        Image(
-            painter = painterResource(resource),
-            contentDescription = item.name,
-            modifier = Modifier
-                .size(size)
-                .clip(GlazeArtworkShape),
-        )
-    } else {
-        Surface(
-            modifier = Modifier.size(size),
-            shape = GlazeArtworkShape,
-            color = MaterialTheme.colorScheme.primaryContainer,
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    if (item.type == StoreItemType.APPLICATION) {
-                        Icons.Rounded.Apps
-                    } else {
-                        Icons.Rounded.Cloud
-                    },
-                    contentDescription = item.name,
-                    modifier = Modifier.size(size * 0.46f),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
-        }
-    }
+    Image(
+        painter = painterResource(item.artworkResource()),
+        contentDescription = item.name,
+        modifier = Modifier
+            .size(size)
+            .clip(GlazeArtworkShape),
+    )
 }
 
 private fun catalogCountLabel(count: Int): String = when (count) {
-    1 -> "1 item in this development catalog"
-    else -> "$count items in this development catalog"
+    1 -> "1 item available"
+    else -> "$count items available"
 }
 
-private fun StoreItem.artworkResource(): Int? = when (id) {
-    "goreecloud.browser" -> R.drawable.goreecloud_browser_icon
+private fun StoreItem.artworkResource(): Int = when (id) {
+    "goreecloud.app-store" -> R.drawable.goreecloud_app_store_icon
+    "goreecloud.launcher" -> R.drawable.goreecloud_launcher_icon
+    "goreecloud.file-manager" -> R.drawable.goreecloud_file_manager_icon
+    "goreecloud.dialer" -> R.drawable.goreecloud_dialer_icon
+    "goreecloud.camera" -> R.drawable.goreecloud_camera_icon
     "goreecloud.messenger" -> R.drawable.goreecloud_messenger_icon
+    "goreecloud.mail" -> R.drawable.goreecloud_mail_icon
+    "goreecloud.browser" -> R.drawable.goreecloud_browser_icon
+    "goreecloud.keyboard" -> R.drawable.goreecloud_keyboard_icon
+    "goreecloud.memos" -> R.drawable.goreecloud_memos_icon
+    "goreecloud.notes" -> R.drawable.goreecloud_notes_icon
+    "goreecloud.tasks" -> R.drawable.goreecloud_tasks_icon
+    "goreecloud.calendar" -> R.drawable.goreecloud_calendar_icon
+    "goreecloud.contacts" -> R.drawable.goreecloud_contacts_icon
+    "goreecloud.gallery" -> R.drawable.goreecloud_gallery_icon
+    "goreecloud.since" -> R.drawable.goreecloud_since_icon
+    "goreecloud.music" -> R.drawable.goreecloud_music_icon
+    "goreecloud.bookmarks" -> R.drawable.goreecloud_bookmarks_icon
+    "goreecloud.search" -> R.drawable.goreecloud_search_icon
+    "goreecloud.photos" -> R.drawable.goreecloud_photos_icon
     "goreecloud.location" -> R.drawable.goreecloud_location_icon
+    "goreecloud.feed" -> R.drawable.goreecloud_feed_icon
+    "goreecloud.video" -> R.drawable.goreecloud_video_icon
+    "goreecloud.changelogs" -> R.drawable.goreecloud_changelogs_icon
+    "goreecloud.pdf-manager" -> R.drawable.goreecloud_pdf_manager_icon
     "goreecloud.manager" -> R.drawable.goreecloud_manager_icon
+    "goreecloud.monitor" -> R.drawable.goreecloud_monitor_icon
+    "goreecloud.terminal" -> R.drawable.goreecloud_terminal_icon
+    "goreecloud.github-dashboard" -> R.drawable.goreecloud_github_dashboard_icon
     "goreecloud.identity-center" -> R.drawable.goreecloud_identity_center_icon
     "goreecloud.mesh-center" -> R.drawable.goreecloud_mesh_center_icon
-    else -> null
+    "goreecloud.sync" -> R.drawable.goreecloud_sync_icon
+    "goreecloud.notify" -> R.drawable.goreecloud_notify_icon
+    "goreecloud.network" -> R.drawable.goreecloud_network_icon
+    else -> error("Missing official catalog artwork mapping for $id")
+}
+
+private fun IdentitySession.compactDisplayName(): String = when (displayName) {
+    "Standard demo" -> "Standard"
+    "Preview tester demo" -> "Preview"
+    "Administrator demo" -> "Admin"
+    "Developer demo" -> "Developer"
+    else -> displayName.removeSuffix(" demo")
 }
 
 private fun StoreItemType.label(): String = when (this) {
