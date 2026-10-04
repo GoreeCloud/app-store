@@ -336,7 +336,7 @@ fun GoreeCloudAppStore(
                                 title = "Apps",
                                 body = catalogCountLabel(visible.size),
                                 sort = catalogSort,
-                                onSortChanged = { catalogSort = it },
+                                onSortChanged = setCatalogSort,
                             )
                         }
                         item {
@@ -363,7 +363,7 @@ fun GoreeCloudAppStore(
                                 title = "Services",
                                 body = catalogCountLabel(visible.size),
                                 sort = catalogSort,
-                                onSortChanged = { catalogSort = it },
+                                onSortChanged = setCatalogSort,
                             )
                         }
                         item {
