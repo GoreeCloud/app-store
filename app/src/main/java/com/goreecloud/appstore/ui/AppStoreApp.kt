@@ -505,6 +505,11 @@ fun GoreeCloudAppStore(
                                             item = item,
                                             isFavorite = true,
                                             isSaved = item.id in savedItemIds,
+                                            showReleaseMetadata =
+                                                ReleaseChannelAccess.canAccess(
+                                                    session,
+                                                    item.releaseChannel,
+                                                ),
                                             onClick = { openItem(item) },
                                         )
                                     }
@@ -542,6 +547,11 @@ fun GoreeCloudAppStore(
                                             item = item,
                                             isFavorite = item.id in favoriteItemIds,
                                             isSaved = true,
+                                            showReleaseMetadata =
+                                                ReleaseChannelAccess.canAccess(
+                                                    session,
+                                                    item.releaseChannel,
+                                                ),
                                             onClick = { openItem(item) },
                                         )
                                     }
