@@ -25,6 +25,7 @@ class ReleaseChannelAccessTest {
         assertTrue(ReleaseChannelAccess.canAccess(session, ReleaseChannel.STABLE))
         assertFalse(ReleaseChannelAccess.canAccess(session, ReleaseChannel.BETA))
         assertFalse(ReleaseChannelAccess.canAccess(session, ReleaseChannel.RC))
+        assertFalse(ReleaseChannelAccess.canAccess(session, ReleaseChannel.DEVELOPMENT))
         assertFalse(ReleaseChannelAccess.canAccess(session, ReleaseChannel.DEBUG))
     }
 
