@@ -100,7 +100,6 @@ import com.goreecloud.appstore.library.SavedCatalogStore
 import com.goreecloud.appstore.onboarding.AppStoreGuidanceState
 import com.goreecloud.appstore.platform.IntegrationState
 import com.goreecloud.appstore.platform.PlatformIntegrationRegistry
-import com.goreecloud.appstore.platform.UnavailablePackageDeliveryGateway
 
 enum class StoreTab(val title: String, val icon: ImageVector) {
     DISCOVER("Discover", Icons.Rounded.Home),
