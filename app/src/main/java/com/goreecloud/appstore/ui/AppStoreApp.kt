@@ -91,6 +91,7 @@ import com.goreecloud.appstore.domain.CatalogSort
 import com.goreecloud.appstore.domain.EntitlementEngine
 import com.goreecloud.appstore.domain.IdentitySession
 import com.goreecloud.appstore.domain.ReleaseChannel
+import com.goreecloud.appstore.domain.ReleaseChannelAccess
 import com.goreecloud.appstore.domain.StoreItem
 import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
@@ -579,6 +580,8 @@ fun GoreeCloudAppStore(
                                 item = item,
                                 isFavorite = item.id in favoriteItemIds,
                                 isSaved = item.id in savedItemIds,
+                                showReleaseMetadata =
+                                    ReleaseChannelAccess.canAccess(session, item.releaseChannel),
                                 onClick = { openItem(item) },
                             )
                         }
@@ -686,6 +689,8 @@ fun GoreeCloudAppStore(
                     )
                 },
                 isSaved = item.id in savedItemIds,
+                showReleaseMetadata =
+                    ReleaseChannelAccess.canAccess(session, item.releaseChannel),
                 onSavedChanged = { saved ->
                     savedItemIds = savedCatalogStore.setSaved(
                         subjectId = session.subjectId,
@@ -1121,6 +1126,7 @@ private fun StoreItemCard(
     item: StoreItem,
     isFavorite: Boolean,
     isSaved: Boolean,
+    showReleaseMetadata: Boolean,
     onClick: () -> Unit,
 ) {
     ElevatedCard(
@@ -1189,8 +1195,13 @@ private fun StoreItemCard(
                             tint = MaterialTheme.colorScheme.primary,
                         )
                     }
-                    if (item.releaseChannel != ReleaseChannel.DEVELOPMENT) {
+                    if (
+                        showReleaseMetadata &&
+                        item.releaseChannel != ReleaseChannel.DEVELOPMENT
+                    ) {
+                        if (showReleaseMetadata) {
                         ReleaseChannelPill(item.releaseChannel)
+                    }
                     }
                 }
             }
@@ -1585,6 +1596,7 @@ private fun StoreItemSheet(
     isFavorite: Boolean,
     onFavoriteChanged: (Boolean) -> Unit,
     isSaved: Boolean,
+    showReleaseMetadata: Boolean,
     onSavedChanged: (Boolean) -> Unit,
     onShowPlatformStatus: () -> Unit,
     onDismiss: () -> Unit,
@@ -1634,8 +1646,10 @@ private fun StoreItemSheet(
                     modifier = Modifier.padding(14.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    item.version?.let { MetadataLine(label = "Version", value = it) }
-                    MetadataLine(label = "Channel", value = item.releaseChannel.label())
+                    if (showReleaseMetadata) {
+                        item.version?.let { MetadataLine(label = "Version", value = it) }
+                        MetadataLine(label = "Channel", value = item.releaseChannel.label())
+                    }
                     MetadataLine(
                         label = "Access",
                         value = "Available to this development identity",
