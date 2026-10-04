@@ -44,6 +44,7 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkBorder
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.Sort
 import androidx.compose.material.icons.rounded.Update
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -85,6 +86,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.goreecloud.appstore.R
 import com.goreecloud.appstore.data.CatalogJsonLoader
+import com.goreecloud.appstore.domain.CatalogPresentation
+import com.goreecloud.appstore.domain.CatalogSort
 import com.goreecloud.appstore.domain.EntitlementEngine
 import com.goreecloud.appstore.domain.IdentitySession
 import com.goreecloud.appstore.domain.ReleaseChannel
@@ -142,6 +145,9 @@ fun GoreeCloudAppStore(
         mutableStateOf<Map<String, List<String>>>(emptyMap())
     }
     var libraryQuery by remember(session.subjectId) { mutableStateOf("") }
+    var catalogSort by remember(session.subjectId, selectedTab) {
+        mutableStateOf(CatalogSort.CATALOG_ORDER)
+    }
     var selectedCategory by remember(session.subjectId, selectedTab) {
         mutableStateOf<String?>(null)
     }
@@ -180,15 +186,21 @@ fun GoreeCloudAppStore(
     val categories = remember(tabItems) {
         tabItems.map { it.category }.distinct().sorted()
     }
-    val visible = remember(tabItems, query, selectedCategory) {
-        tabItems.filter { item ->
-            val matchesCategory = selectedCategory == null || item.category == selectedCategory
-            val matchesQuery = query.isBlank() ||
-                item.name.contains(query, ignoreCase = true) ||
-                item.summary.contains(query, ignoreCase = true) ||
-                item.category.contains(query, ignoreCase = true)
-            matchesCategory && matchesQuery
-        }
+    val filtered = remember(tabItems, query, selectedCategory) {
+        CatalogPresentation.filterAndSort(
+            items = tabItems,
+            query = query,
+            category = selectedCategory,
+            sort = CatalogSort.CATALOG_ORDER,
+        )
+    }
+    val visible = remember(tabItems, query, selectedCategory, catalogSort) {
+        CatalogPresentation.filterAndSort(
+            items = tabItems,
+            query = query,
+            category = selectedCategory,
+            sort = catalogSort,
+        )
     }
     val appCount = remember(entitled) {
         entitled.count { it.type == StoreItemType.APPLICATION }
@@ -300,7 +312,7 @@ fun GoreeCloudAppStore(
                             }
                             item {
                                 FeaturedShelf(
-                                    items = visible.take(6),
+                                    items = filtered.take(6),
                                     onItemClick = openItem,
                                 )
                             }
@@ -309,6 +321,8 @@ fun GoreeCloudAppStore(
                             StoreSectionHeading(
                                 title = "Browse all",
                                 subtitle = catalogCountLabel(visible.size),
+                                sort = catalogSort,
+                                onSortChanged = { catalogSort = it },
                             )
                         }
                     }
@@ -318,6 +332,8 @@ fun GoreeCloudAppStore(
                             TabIntro(
                                 title = "Apps",
                                 body = catalogCountLabel(visible.size),
+                                sort = catalogSort,
+                                onSortChanged = { catalogSort = it },
                             )
                         }
                         item {
@@ -343,6 +359,8 @@ fun GoreeCloudAppStore(
                             TabIntro(
                                 title = "Services",
                                 body = catalogCountLabel(visible.size),
+                                sort = catalogSort,
+                                onSortChanged = { catalogSort = it },
                             )
                         }
                         item {
@@ -672,6 +690,10 @@ fun GoreeCloudAppStore(
                         saved = saved,
                     )
                 },
+                onShowPlatformStatus = {
+                    selectedItem = null
+                    showPlatformStatus = true
+                },
                 onDismiss = { selectedItem = null },
             )
         }
@@ -835,18 +857,38 @@ private fun CatalogStatChip(label: String) {
 }
 
 @Composable
-private fun TabIntro(title: String, body: String) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            title,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            body,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+private fun TabIntro(
+    title: String,
+    body: String,
+    sort: CatalogSort? = null,
+    onSortChanged: (CatalogSort) -> Unit = {},
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(
+                title,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                body,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        if (sort != null) {
+            CatalogSortMenu(
+                sort = sort,
+                onSortChanged = onSortChanged,
+            )
+        }
     }
 }
 
@@ -984,22 +1026,88 @@ private fun FeaturedItemCard(item: StoreItem, onClick: () -> Unit) {
 }
 
 @Composable
-private fun StoreSectionHeading(title: String, subtitle: String) {
-    Column(
+private fun StoreSectionHeading(
+    title: String,
+    subtitle: String,
+    sort: CatalogSort? = null,
+    onSortChanged: (CatalogSort) -> Unit = {},
+) {
+    Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            title,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            subtitle,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(
+                title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        if (sort != null) {
+            CatalogSortMenu(
+                sort = sort,
+                onSortChanged = onSortChanged,
+            )
+        }
     }
+}
+
+@Composable
+private fun CatalogSortMenu(
+    sort: CatalogSort,
+    onSortChanged: (CatalogSort) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        IconButton(
+            onClick = { expanded = true },
+        ) {
+            Icon(
+                Icons.Rounded.Sort,
+                contentDescription = "Sort catalog. Current: ${sort.label()}",
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            CatalogSort.entries.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option.label()) },
+                    leadingIcon = if (option == sort) {
+                        {
+                            Icon(
+                                Icons.Rounded.Check,
+                                contentDescription = null,
+                            )
+                        }
+                    } else {
+                        null
+                    },
+                    onClick = {
+                        onSortChanged(option)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+private fun CatalogSort.label(): String = when (this) {
+    CatalogSort.CATALOG_ORDER -> "Catalog order"
+    CatalogSort.NAME -> "Name"
+    CatalogSort.CATEGORY -> "Category"
 }
 
 @Composable
@@ -1466,6 +1574,7 @@ private fun StoreItemSheet(
     onFavoriteChanged: (Boolean) -> Unit,
     isSaved: Boolean,
     onSavedChanged: (Boolean) -> Unit,
+    onShowPlatformStatus: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(
@@ -1560,34 +1669,68 @@ private fun StoreItemSheet(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            val actionAvailable =
-                item.type == StoreItemType.APPLICATION && UnavailablePackageDeliveryGateway.isAvailable
-            Button(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                enabled = actionAvailable,
-                onClick = {},
-            ) {
-                Text(
-                    if (item.type == StoreItemType.APPLICATION) {
-                        if (actionAvailable) "Install" else "Install unavailable"
-                    } else {
-                        "Open unavailable"
-                    },
-                )
-            }
-
-            Text(
-                if (item.type == StoreItemType.APPLICATION) {
-                    "Installation remains disabled until approved release metadata, artifact provenance, Wardveil verification, and package delivery are connected."
-                } else {
-                    "Service launch remains disabled until production GoreeCloud Identity authorization and approved endpoint policy are connected."
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            ProductAvailabilityCard(
+                item = item,
+                onClick = onShowPlatformStatus,
             )
             Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+private fun ProductAvailabilityCard(
+    item: StoreItem,
+    onClick: () -> Unit,
+) {
+    val isApplication = item.type == StoreItemType.APPLICATION
+    val title = if (isApplication) {
+        "Installation unavailable"
+    } else {
+        "Service launch unavailable"
+    }
+    val body = if (isApplication) {
+        "Release metadata, provenance, Wardveil verification, and package delivery are not connected yet."
+    } else {
+        "Production Identity authorization and approved service endpoint policy are not connected yet."
+    }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = GlazeSmallCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.Rounded.Info,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    body,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Icon(
+                Icons.Rounded.ChevronRight,
+                contentDescription = "View Development status",
+            )
         }
     }
 }
