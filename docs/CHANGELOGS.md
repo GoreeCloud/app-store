@@ -6,6 +6,7 @@
 - Added compact accessible sorting controls to Discover, Apps, and Services.
 - Added unit coverage for sorting plus query/category filtering.
 - Reworked product-detail availability into an actionable status surface linked to Development status.
+- Concealed channel/version metadata from identities that lack the item's explicit release-channel grant; broad catalog entitlement and administrator fixtures do not create a channel bypass.
 - Updated first-use guidance for the new browse controls.
 - Refined the Android 16 session-recency runtime check so it validates recency rather than unrelated sheet layout.
 - Advanced the Development package to `0.1.13-dev` / versionCode `14`.
