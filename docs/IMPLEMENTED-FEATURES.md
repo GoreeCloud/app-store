@@ -20,11 +20,13 @@
 - One-tap empty-result recovery, tighter Featured/category geometry, compact top-bar spacing, actionable unavailable-state rows, and consolidated product-detail Favorite/Save actions with one local-state explanation.
 - Search IME completion behavior, explicit selected-category clear affordance, catalog-row Favorite/Saved state glyphs, an explicitly labeled development-identity account control, and shorter first-use guidance ending in **Start browsing**.
 - Session-local **Recently opened** Library recency with per-identity separation, bounded ordering, Library-wide search, compact collection counts/actions, and Discover **Continue browsing** while keeping persistent history disconnected.
+- Deterministic catalog sorting for entitled Discover browse-all, Apps, and Services results: authoritative catalog order, name, or category-then-name, exposed through compact accessible sort controls.
+- Actionable product availability status cards that replace inactive delivery controls and route to Development status while preserving fail-closed delivery authority.
 - Application and service item models.
 - Development JSON catalog loader.
 - Multi-user development session switcher.
 - Explicit entitlement filtering with no implicit administrator bypass.
-- Product-detail dialog with deliberately unavailable install/open action until delivery is trusted.
+- Product-detail sheet with explicit unavailable installation/service-launch status until delivery is trusted, plus a direct Development-status explanation path.
 - Mandatory three-step first-use guidance with durable interruption/resume state, replay, globally disableable contextual hints, and bounded dismissal/reset controls.
 - Per-development-identity, device-local **Save for later** state for currently entitled catalog items, with exact opaque identity-subject namespacing and no raw subject embedded in preference-key metadata.
 - Explicit **Clear saved for later** behavior scoped to the active development identity without uninstalling software or changing entitlement/account history.
