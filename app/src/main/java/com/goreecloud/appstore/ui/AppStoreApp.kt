@@ -144,8 +144,12 @@ fun GoreeCloudAppStore(
         mutableStateOf<Map<String, List<String>>>(emptyMap())
     }
     var libraryQuery by remember(session.subjectId) { mutableStateOf("") }
-    var catalogSort by remember(session.subjectId, selectedTab) {
-        mutableStateOf(CatalogSort.CATALOG_ORDER)
+    var catalogSortByTab by remember(session.subjectId) {
+        mutableStateOf<Map<StoreTab, CatalogSort>>(emptyMap())
+    }
+    val catalogSort = catalogSortByTab[selectedTab] ?: CatalogSort.CATALOG_ORDER
+    val setCatalogSort: (CatalogSort) -> Unit = { sort ->
+        catalogSortByTab = catalogSortByTab + (selectedTab to sort)
     }
     var selectedCategory by remember(session.subjectId, selectedTab) {
         mutableStateOf<String?>(null)
@@ -321,7 +325,7 @@ fun GoreeCloudAppStore(
                                 title = "Browse all",
                                 subtitle = catalogCountLabel(visible.size),
                                 sort = catalogSort,
-                                onSortChanged = { catalogSort = it },
+                                onSortChanged = setCatalogSort,
                             )
                         }
                     }
@@ -992,7 +996,10 @@ private fun FeaturedItemCard(item: StoreItem, onClick: () -> Unit) {
     ElevatedCard(
         modifier = Modifier
             .width(156.dp)
-            .clickable(onClick = onClick),
+            .clickable(
+                onClickLabel = "View ${item.name}",
+                onClick = onClick,
+            ),
         shape = GlazeSmallCardShape,
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -1119,7 +1126,10 @@ private fun StoreItemCard(
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(
+                onClickLabel = "View ${item.name}",
+                onClick = onClick,
+            ),
         shape = GlazeSmallCardShape,
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -1452,7 +1462,10 @@ private fun LibraryHistoryStatusRow(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(
+                onClickLabel = "View Development status",
+                onClick = onClick,
+            ),
         shape = GlazeSmallCardShape,
         color = MaterialTheme.colorScheme.surfaceVariant,
     ) {
