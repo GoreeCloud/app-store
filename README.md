@@ -20,6 +20,7 @@ The current development branch establishes:
 - Discover, Apps, Services, Updates, and Library surfaces;
 - search constrained to the already-entitled catalog;
 - category filtering and a horizontally browsable Featured shelf for the expanded development catalog;
+- deterministic catalog sorting by source order, name, or category on Discover browse-all, Apps, and Services, with per-section sort choice retained for the active Development identity;
 - an expanded 34-entry non-production portfolio fixture so ordinary browsing is no longer limited to the original six bootstrap items;
 - official canonical artwork for every catalog application and service, with user-facing placeholder/monogram fallbacks prohibited and CI-enforced;
 - device-review mobile-density refinement that shortens account labels, reduces Discover chrome, removes redundant Development pills, compacts Featured/catalog cards, and uses denser Updates/Library states while preserving 48dp-class interaction targets;
@@ -28,7 +29,9 @@ The current development branch establishes:
 - filter-reset and detail-sheet polish with one-tap empty-result recovery, tighter category and Featured geometry, a more compact header, actionable disconnected-state rows, and consolidated Favorite/Save controls and local-state copy;
 - mobile interaction and accessibility polish with concise onboarding language, a clearer Start browsing completion action, search-keyboard completion behavior, explicit selected-filter clearing, local Favorite/Saved state glyphs on catalog rows, and an explicit assistive label for the development-identity control;
 - per-development-identity device-local Save for later state for currently entitled items, with Library presentation that remains explicitly separate from installed/history/Everkeep authority and hashed local preference namespaces that do not embed the raw identity subject;
+- session-local Recently opened browsing with per-identity separation, Library-wide search, compact collection counts/actions, and Discover Continue browsing without durable browsing-history storage;
 - store-style application/service cards and product-detail bottom sheets;
+- actionable product availability cards linked to Development status, plus release-channel metadata visibility enforcement so version/channel fields are shown only when the active identity has the corresponding channel grant;
 - approved first-party artwork derivatives tied to canonical assets in `GoreeCloud/branding-assets`;
 - development-status diagnostics separated from ordinary catalog browsing;
 - compact-width safeguards for account controls, catalog headings, item metadata, release-channel labels, detail metadata, and platform-status rows;
