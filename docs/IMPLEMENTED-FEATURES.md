@@ -22,6 +22,7 @@
 - Session-local **Recently opened** Library recency with per-identity separation, bounded ordering, Library-wide search, compact collection counts/actions, and Discover **Continue browsing** while keeping persistent history disconnected.
 - Deterministic catalog sorting for entitled Discover browse-all, Apps, and Services results: authoritative catalog order, name, or category-then-name, exposed through compact accessible sort controls.
 - Actionable product availability status cards that replace inactive delivery controls and route to Development status while preserving fail-closed delivery authority.
+- Release-channel metadata visibility enforced through explicit Development identity channel grants; unauthorized channel/version fields are concealed even when the catalog item itself is entitled.
 - Application and service item models.
 - Development JSON catalog loader.
 - Multi-user development session switcher.
