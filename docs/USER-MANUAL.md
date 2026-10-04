@@ -18,7 +18,7 @@ Current development/debug builds use:
 
 - application ID `com.goreecloud.appstore.dev`;
 - Android label **GoreeCloud App Store Dev**;
-- development version line `0.1.12-dev` / version code `13` at this checkpoint;
+- development version line `0.1.13-dev` / version code `14` at this checkpoint;
 - the repository-managed, development-only signing certificate documented in `development/signing/README.md`.
 
 The development package is intentionally separate from the reserved future production application ID `com.goreecloud.appstore`. The development signing identity is non-production test material and must never sign the production package or a Stable artifact.
@@ -73,7 +73,7 @@ Shows device-local **Favorites** and **Saved for later** collections for the act
 
 ## Search
 
-Use the section-specific search field (**Search apps and services**, **Search apps**, or **Search services**) to filter the current entitled section by application/service name, summary, or category. The Android Search keyboard action dismisses the keyboard while keeping the current live-filtered results in place. When a query is active, use the trailing clear-search action to reset it immediately. A selected category shows a close glyph and can be tapped again to clear it. If search or category filtering produces no matches, use **Reset** in the empty-result card to clear both filters in one action.
+Use the section-specific search field (**Search apps and services**, **Search apps**, or **Search services**) to filter the current entitled section by application/service name, summary, or category. The Android Search keyboard action dismisses the keyboard while keeping the current live-filtered results in place. Use the compact sort control beside **Browse all**, **Apps**, or **Services** to switch between authoritative catalog order, alphabetical name order, and category-then-name order. Sorting never widens entitlement visibility. When a query is active, use the trailing clear-search action to reset it immediately. A selected category shows a close glyph and can be tapped again to clear it. If search or category filtering produces no matches, use **Reset** in the empty-result card to clear both filters in one action.
 
 Search operates only on entries already available to the active development identity. It does not reveal entries that were filtered out by entitlement rules. **Search your library** applies the same entitlement boundary while filtering Favorites, Saved for later, and Recently opened together.
 
@@ -91,11 +91,11 @@ The card layout gives primary text flexible width and uses a single-line summary
 
 ## Product details
 
-Select an application or service card to open its store-style development detail sheet. The sheet can show approved artwork, type/category, development release channel, version information, access state, compact Favorite/Save controls, and the unavailable primary action.
+Select an application or service card to open its store-style development detail sheet. The sheet can show approved artwork, type/category, development release channel, version information, access state, compact Favorite/Save controls, and an actionable availability-status card.
 
 Detail metadata uses vertically stacked label/value presentation so long values remain readable on compact widths instead of competing with their labels in one horizontal row. Favorites and saved items share one concise device-local identity boundary instead of repeating separate explanatory blocks.
 
-The **Install** or **Open** action remains disabled because package/service delivery is not yet trusted or connected.
+Package installation and service launch remain unavailable because their authoritative delivery integrations are not yet trusted or connected. Instead of a disabled install/open button, the detail sheet shows **Installation unavailable** or **Service launch unavailable** with the current reason; selecting that status opens **Development status** for the integration boundary.
 
 ## Development status and integral GoreeCloud systems
 
