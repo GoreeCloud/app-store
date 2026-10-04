@@ -211,7 +211,7 @@ private fun AppStoreOnboardingWizard(
                                 )
                                 OnboardingCapabilityRow(
                                     title = "Available now",
-                                    body = "Browse the catalog, manage local collections, and view development integration status.",
+                                    body = "Browse, search, sort, manage local collections, and view development integration status.",
                                 )
                                 HorizontalDivider()
                                 OnboardingCapabilityRow(
