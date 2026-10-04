@@ -85,7 +85,7 @@ The branding repository remains authoritative. Copies in this App Store reposito
 
 ## Catalog cards and release channels
 
-Catalog cards show official artwork, name, a compact summary, type/category metadata, local Favorite/Saved-for-later state glyphs when applicable, and a product-navigation affordance. Development channel pills are suppressed on Development rows because the entire build already carries that context; non-Development channel pills remain available for future mixed-channel catalogs.
+Catalog cards show official artwork, name, a compact summary, type/category metadata, local Favorite/Saved-for-later state glyphs when applicable, and a product-navigation affordance. Development channel pills are suppressed on Development rows because the entire build already carries that context; non-Development channel pills remain available for future mixed-channel catalogs. Channel/version metadata is additionally gated by the active Development identity's explicit channel grant; catalog entitlement or an administrator fixture alone does not reveal a channel the identity is not authorized to inspect.
 
 The card layout gives primary text flexible width and uses a single-line summary plus a compact metadata line. On compact widths, long metadata is ellipsized rather than forcing wrapping or pushing navigation controls off screen. Product titles may use up to two lines when needed.
 
@@ -93,7 +93,7 @@ The card layout gives primary text flexible width and uses a single-line summary
 
 Select an application or service card to open its store-style development detail sheet. The sheet can show approved artwork, type/category, development release channel, version information, access state, compact Favorite/Save controls, and an actionable availability-status card.
 
-Detail metadata uses vertically stacked label/value presentation so long values remain readable on compact widths instead of competing with their labels in one horizontal row. Favorites and saved items share one concise device-local identity boundary instead of repeating separate explanatory blocks.
+Detail metadata uses vertically stacked label/value presentation so long values remain readable on compact widths instead of competing with their labels in one horizontal row. Favorites and saved items share one concise device-local identity boundary instead of repeating separate explanatory blocks. If the active identity lacks the item's channel grant, version and channel fields are omitted rather than exposing restricted release metadata.
 
 Package installation and service launch remain unavailable because their authoritative delivery integrations are not yet trusted or connected. Instead of a disabled install/open button, the detail sheet shows **Installation unavailable** or **Service launch unavailable** with the current reason; selecting that status opens **Development status** for the integration boundary.
 
