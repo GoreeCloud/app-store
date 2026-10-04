@@ -44,7 +44,7 @@ The interface now uses a compact catalog-browsing hierarchy validated iterativel
 
 CI/debug builds install as `com.goreecloud.appstore.dev` with the Android label **GoreeCloud App Store Dev**. They are signed with one repository-managed development-only certificate so successive development builds can update each other instead of receiving a new ephemeral Android debug identity from every CI runner.
 
-The current development version line is `0.1.10-dev` with version code `11`.
+The current development version line is `0.1.13-dev` with version code `14`.
 
 The reserved future production application ID remains `com.goreecloud.appstore`. The development signing key MUST NOT sign that production package or any artifact represented as production-approved or Stable. See `development/signing/README.md` for the explicit boundary and certificate fingerprint.
 
