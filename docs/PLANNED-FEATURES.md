@@ -1,5 +1,11 @@
 # GoreeCloud App Store — Planned Features
 
+## October 6, 2026 — Development package-delivery backend candidate
+
+The current Development-only child candidate adds the first real package transport and Android install handoff without broadening production authority. A loopback backend re-authorizes the local Development fixture subject from a server-owned identity map, publishes an immutable Development release descriptor, validates the pinned APK SHA-256 before serving, and exposes only the cataloged artifact. The debug client refuses non-loopback origins and redirects, validates response length and SHA-256, verifies package name/version and the expected Development signing certificate, then uses Android PackageInstaller with normal user authorization and confirmation. The initial governed seed is GoreeCloud Gallery 0.8.11-dev / versionCode 2000883.
+
+This closes only a bounded Development mechanics milestone within FR-004. Production GoreeCloud Identity, authoritative catalog/release services, Wardveil acceptance, trusted release evidence, protected production signing, resilient queue/update/rollback, Everkeep recovery, Production Acceptance, Stable, and Anchor qualification remain open. Release/production builds do not receive the debug install permission or loopback cleartext exception.
+
 ## October 2, 2026 — local Library cleanup candidate
 
 The current child capability candidate adds explicit, confirmation-gated **Clear Favorites** behavior for the active development identity, completing cleanup parity with the existing confirmation-gated **Clear saved for later** action. Each action clears only its own device-local identity-scoped preference namespace. It does not uninstall software, change entitlements, expose hidden catalog entries, create or erase account-wide history, synchronize state, or invoke Everkeep/package-delivery authority. This remains Development candidate work and must stay unmerged until the parent stack is reconciled under effective protected-main governance and the child is freshly validated on the accepted base.
