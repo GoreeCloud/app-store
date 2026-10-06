@@ -211,12 +211,12 @@ private fun AppStoreOnboardingWizard(
                                 )
                                 OnboardingCapabilityRow(
                                     title = "Available now",
-                                    body = "Browse, search, sort, manage local collections, and view development integration status.",
+                                    body = "Browse, search, sort, manage local collections, and use bounded package download and install on configured Development builds with Android confirmation.",
                                 )
                                 HorizontalDivider()
                                 OnboardingCapabilityRow(
                                     title = "Not connected yet",
-                                    body = "Install, updates, service launch, and installed history.",
+                                    body = "Production package delivery and updates, service launch, and account-backed installed history.",
                                 )
                             }
 
