@@ -86,6 +86,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.goreecloud.appstore.R
 import com.goreecloud.appstore.data.CatalogJsonLoader
+import com.goreecloud.appstore.delivery.PackageDeliveryGatewayFactory
+import com.goreecloud.appstore.delivery.PackageDeliveryState
 import com.goreecloud.appstore.domain.CatalogPresentation
 import com.goreecloud.appstore.domain.CatalogSort
 import com.goreecloud.appstore.domain.EntitlementEngine
@@ -125,12 +127,20 @@ fun GoreeCloudAppStore(
     val favoriteCatalogStore = remember(context.applicationContext) {
         FavoriteCatalogStore(context.applicationContext)
     }
+    val packageDeliveryGateway = remember(context.applicationContext) {
+        PackageDeliveryGatewayFactory.create(context.applicationContext)
+    }
     val listState = rememberLazyListState()
 
     var session by remember { mutableStateOf(identityGateway.initialSession) }
     var selectedTab by remember { mutableStateOf(StoreTab.DISCOVER) }
     var query by remember { mutableStateOf("") }
     var selectedItem by remember { mutableStateOf<StoreItem?>(null) }
+    var packageDeliveryState by remember {
+        mutableStateOf<PackageDeliveryState>(
+            PackageDeliveryState.Unavailable("Development package delivery is not configured."),
+        )
+    }
     var showPlatformStatus by remember { mutableStateOf(false) }
     var savedItemIds by remember(session.subjectId) {
         mutableStateOf(savedCatalogStore.load(session.subjectId))
@@ -688,6 +698,30 @@ fun GoreeCloudAppStore(
         }
 
         selectedItem?.let { item ->
+            LaunchedEffect(
+                item.id,
+                item.packageName,
+                item.version,
+                session.subjectId,
+                session.audiences,
+            ) {
+                if (
+                    item.type == StoreItemType.APPLICATION &&
+                    ReleaseChannelAccess.canAccess(session, item.releaseChannel)
+                ) {
+                    packageDeliveryGateway.probe(session, item) {
+                        packageDeliveryState = it
+                    }
+                } else {
+                    packageDeliveryState = PackageDeliveryState.Unavailable(
+                        if (item.type == StoreItemType.APPLICATION) {
+                            "This Development release channel is not authorized for the active identity."
+                        } else {
+                            "Service launch delivery is not connected."
+                        },
+                    )
+                }
+            }
             StoreItemSheet(
                 item = item,
                 isFavorite = item.id in favoriteItemIds,
@@ -707,6 +741,38 @@ fun GoreeCloudAppStore(
                         itemId = item.id,
                         saved = saved,
                     )
+                },
+                deliveryState = packageDeliveryState,
+                onDeliveryAction = {
+                    when (val current = packageDeliveryState) {
+                        is PackageDeliveryState.Ready -> {
+                            packageDeliveryGateway.downloadAndInstall(
+                                session = session,
+                                item = item,
+                                release = current.release,
+                            ) {
+                                packageDeliveryState = it
+                            }
+                        }
+
+                        is PackageDeliveryState.InstallPermissionRequired -> {
+                            packageDeliveryGateway.downloadAndInstall(
+                                session = session,
+                                item = item,
+                                release = current.release,
+                            ) {
+                                packageDeliveryState = it
+                            }
+                        }
+
+                        is PackageDeliveryState.Failed -> {
+                            packageDeliveryGateway.probe(session, item) {
+                                packageDeliveryState = it
+                            }
+                        }
+
+                        else -> Unit
+                    }
                 },
                 onShowPlatformStatus = {
                     selectedItem = null
@@ -1606,6 +1672,8 @@ private fun StoreItemSheet(
     isSaved: Boolean,
     showReleaseMetadata: Boolean,
     onSavedChanged: (Boolean) -> Unit,
+    deliveryState: PackageDeliveryState,
+    onDeliveryAction: () -> Unit,
     onShowPlatformStatus: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -1707,7 +1775,10 @@ private fun StoreItemSheet(
 
             ProductAvailabilityCard(
                 item = item,
-                onClick = onShowPlatformStatus,
+                deliveryState = deliveryState,
+                deliveryAuthorized = showReleaseMetadata,
+                onDeliveryAction = onDeliveryAction,
+                onShowPlatformStatus = onShowPlatformStatus,
             )
             Spacer(Modifier.height(8.dp))
         }
@@ -1717,26 +1788,115 @@ private fun StoreItemSheet(
 @Composable
 private fun ProductAvailabilityCard(
     item: StoreItem,
-    onClick: () -> Unit,
+    deliveryState: PackageDeliveryState,
+    deliveryAuthorized: Boolean,
+    onDeliveryAction: () -> Unit,
+    onShowPlatformStatus: () -> Unit,
 ) {
     val isApplication = item.type == StoreItemType.APPLICATION
-    val title = if (isApplication) {
-        "Installation unavailable"
-    } else {
-        "Service launch unavailable"
+    val actionable = isApplication && deliveryAuthorized && when (deliveryState) {
+        is PackageDeliveryState.Ready,
+        is PackageDeliveryState.InstallPermissionRequired,
+        is PackageDeliveryState.Failed,
+        -> true
+
+        else -> false
     }
-    val body = if (isApplication) {
-        "Release metadata, provenance, Wardveil verification, and package delivery are not connected yet."
+
+    val title: String
+    val body: String
+    val actionLabel: String
+    val icon: ImageVector
+
+    if (!isApplication) {
+        title = "Service launch unavailable"
+        body = "Production Identity authorization and approved service endpoint policy are not connected yet."
+        actionLabel = "View Development status"
+        icon = Icons.Rounded.Info
+    } else if (!deliveryAuthorized) {
+        title = "Development install not authorized"
+        body = "The active identity can browse this item but does not have the required release-channel grant."
+        actionLabel = "View Development status"
+        icon = Icons.Rounded.Info
     } else {
-        "Production Identity authorization and approved service endpoint policy are not connected yet."
+        when (deliveryState) {
+            PackageDeliveryState.Checking -> {
+                title = "Checking Development release"
+                body = "Verifying backend authorization, exact release metadata, and current security evidence."
+                actionLabel = "Checking Development release"
+                icon = Icons.Rounded.Update
+            }
+
+            is PackageDeliveryState.Ready -> {
+                title = "Download & install \${deliveryState.release.versionName}"
+                body = "The backend has a current clean Wardveil Development scan. The App Store will re-check APK digest, package/version identity, and signing certificate before Android installation."
+                actionLabel = "Download and install Development release"
+                icon = Icons.Rounded.Update
+            }
+
+            is PackageDeliveryState.Downloading -> {
+                title = "Downloading & verifying"
+                body = "The package is being staged in private App Store cache and verified before any install session is opened."
+                actionLabel = "Downloading Development release"
+                icon = Icons.Rounded.Update
+            }
+
+            is PackageDeliveryState.InstallPermissionRequired -> {
+                title = "Allow App Store installation access"
+                body = "Android installation settings were opened. Enable permission for GoreeCloud App Store Dev, return here, then tap again to continue with the already-verified package."
+                actionLabel = "Continue Development installation"
+                icon = Icons.Rounded.Info
+            }
+
+            is PackageDeliveryState.AwaitingAndroid -> {
+                title = "Complete installation in Android"
+                body = "The verified APK has been handed to Android PackageInstaller. Android user confirmation remains required."
+                actionLabel = "Waiting for Android installation confirmation"
+                icon = Icons.Rounded.Update
+            }
+
+            is PackageDeliveryState.Installed -> {
+                title = "Installed"
+                body = "\${deliveryState.release.versionName} is installed for the current Android user."
+                actionLabel = "Installed"
+                icon = Icons.Rounded.Check
+            }
+
+            is PackageDeliveryState.Failed -> {
+                title = "Development delivery blocked"
+                body = "\${deliveryState.reason} Tap to retry the backend and evidence checks."
+                actionLabel = "Retry Development delivery checks"
+                icon = Icons.Rounded.Info
+            }
+
+            is PackageDeliveryState.Unavailable -> {
+                title = "Installation unavailable"
+                body = deliveryState.reason
+                actionLabel = "View Development status"
+                icon = Icons.Rounded.Info
+            }
+        }
+    }
+
+    val clickAction = when {
+        actionable -> onDeliveryAction
+        !isApplication || !deliveryAuthorized || deliveryState is PackageDeliveryState.Unavailable ->
+            onShowPlatformStatus
+        else -> null
     }
 
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(
-                onClickLabel = "View Development status",
-                onClick = onClick,
+            .then(
+                if (clickAction != null) {
+                    Modifier.clickable(
+                        onClickLabel = actionLabel,
+                        onClick = clickAction,
+                    )
+                } else {
+                    Modifier
+                },
             ),
         shape = GlazeSmallCardShape,
         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -1747,7 +1907,7 @@ private fun ProductAvailabilityCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                Icons.Rounded.Info,
+                icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
             )
@@ -1766,10 +1926,12 @@ private fun ProductAvailabilityCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Icon(
-                Icons.Rounded.ChevronRight,
-                contentDescription = "View Development status",
-            )
+            if (clickAction != null) {
+                Icon(
+                    Icons.Rounded.ChevronRight,
+                    contentDescription = actionLabel,
+                )
+            }
         }
     }
 }
