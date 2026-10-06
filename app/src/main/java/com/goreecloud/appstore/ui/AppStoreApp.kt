@@ -30,6 +30,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.LibraryBooks
+import androidx.compose.material.icons.automirrored.rounded.Sort
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.Check
@@ -44,7 +45,6 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Bookmark
 import androidx.compose.material.icons.rounded.BookmarkBorder
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Sort
 import androidx.compose.material.icons.rounded.Update
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -1168,7 +1168,7 @@ private fun CatalogSortMenu(
             onClick = { expanded = true },
         ) {
             Icon(
-                Icons.Rounded.Sort,
+                Icons.AutoMirrored.Rounded.Sort,
                 contentDescription = "Sort catalog. Current: ${sort.label()}",
             )
         }
