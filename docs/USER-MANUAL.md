@@ -68,7 +68,7 @@ To exercise the first delivery path:
 3. Open **GoreeCloud Gallery**. The detail sheet checks the exact Development release and current Wardveil scan evidence.
 4. Select **Download & install**. The APK is stored only in private App Store cache while its size, SHA-256, package name, versionName/versionCode, and Development signing certificate are verified.
 5. If Android asks whether GoreeCloud App Store Dev may install unknown apps, explicitly enable that Android-controlled permission for the Development App Store, return to the detail sheet, and select the install action again.
-6. Complete Android's installation confirmation. The App Store cannot silently bypass the platform confirmation.
+6. Complete Android's installation confirmation. The App Store cannot silently bypass the platform confirmation. Return to the detail sheet and use **Check install status** to reconcile Android's installed package/version state.
 
 The backend is read-only and does not accept uploads. A failed authorization, stale/unhealthy Wardveil result, digest mismatch, signing mismatch, TLS-pin mismatch, incompatible SDK, missing permission, or Android install failure blocks the flow. This path does not make the Gallery artifact Production Accepted, Stable, Sealed, or Anchored.
 
