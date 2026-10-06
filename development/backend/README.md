@@ -18,6 +18,43 @@ The backend:
 
 The first configured package is GoreeCloud Gallery `0.8.11-dev` / versionCode `2000883`, using the persistent GoreeCloud Gallery Development signing identity.
 
+## Local Development setup
+
+The repository includes mode-independent helper scripts. Run them with `bash` so setup does not depend on executable-bit preservation:
+
+```bash
+bash development/backend/bootstrap.sh
+bash development/backend/run.sh
+```
+
+`bootstrap.sh` creates ignored `.dev-backend/` runtime state, including a high-entropy bearer token, a short-lived local TLS certificate, an exact release-registry copy, the TLS certificate SHA-256 pin, and client build environment variables. It never writes secrets into tracked source.
+
+The governed Gallery APK must already be present at:
+
+```text
+.dev-packages/GoreeCloud-Gallery-0.8.11-dev-vc2000883.apk
+```
+
+The bootstrap expects a current `GoreeCloud/wardveil` checkout and a loopback Wardveil/ClamAV daemon. It discovers common local paths or accepts `GOREECLOUD_WARDVEIL_REPO`.
+
+Validate and build the configured debug client with:
+
+```bash
+bash development/backend/build-debug.sh
+```
+
+When exactly one Android development device is connected, map the device's loopback port to the local HTTPS backend:
+
+```bash
+bash development/backend/enable-device.sh
+```
+
+Then open **GoreeCloud App Store Dev**, switch to the **Developer** fixture identity, and open **GoreeCloud Gallery**.
+
+## Release evidence
+
+A successful release lookup returns schema v2 Development metadata with `productionAcceptance=false`. The backend creates a short-lived evidence set bound to the exact package and artifact digest for build provenance, the bounded Development SBOM, Development release approval, and Development revocation status. All four records share one `evidenceSetId`, expire no later than the current Wardveil scan evidence, and are consumed by the Android client's existing fail-closed `PackageDeliveryPolicy` before `PackageInstaller` is opened.
+
 ## Runtime configuration
 
 Do not commit runtime secrets, TLS private keys, local artifact paths, or the live release registry. Supply them through environment variables:
@@ -40,7 +77,7 @@ The Wardveil ClamAV endpoint must remain loopback-only on the backend host. Use 
 
 ## Client configuration
 
-The Android debug build reads these Gradle properties:
+The Android debug build reads these Gradle properties (or the equivalent `GOREECLOUD_DEV_DELIVERY_*` environment variables written by `bootstrap.sh`):
 
 ```text
 goreecloudDevDeliveryBaseUrl
