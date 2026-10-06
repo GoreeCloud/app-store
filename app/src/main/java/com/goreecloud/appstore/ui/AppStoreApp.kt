@@ -765,9 +765,17 @@ fun GoreeCloudAppStore(
                             }
                         }
 
-                        is PackageDeliveryState.Failed -> {
+                        is PackageDeliveryState.AwaitingAndroid -> {
                             packageDeliveryGateway.probe(session, item) {
                                 packageDeliveryState = it
+                            }
+                        }
+
+                        is PackageDeliveryState.Failed -> {
+                            if (current.retryable) {
+                                packageDeliveryGateway.probe(session, item) {
+                                    packageDeliveryState = it
+                                }
                             }
                         }
 
@@ -1797,8 +1805,10 @@ private fun ProductAvailabilityCard(
     val actionable = isApplication && deliveryAuthorized && when (deliveryState) {
         is PackageDeliveryState.Ready,
         is PackageDeliveryState.InstallPermissionRequired,
-        is PackageDeliveryState.Failed,
+        is PackageDeliveryState.AwaitingAndroid,
         -> true
+
+        is PackageDeliveryState.Failed -> deliveryState.retryable
 
         else -> false
     }
@@ -1850,8 +1860,8 @@ private fun ProductAvailabilityCard(
 
             is PackageDeliveryState.AwaitingAndroid -> {
                 title = "Complete installation in Android"
-                body = "The verified APK has been handed to Android PackageInstaller. Android user confirmation remains required."
-                actionLabel = "Waiting for Android installation confirmation"
+                body = "The verified APK has been handed to Android PackageInstaller. Complete Android's confirmation, then check the installed state here."
+                actionLabel = "Check install status"
                 icon = Icons.Rounded.Update
             }
 
@@ -1864,8 +1874,16 @@ private fun ProductAvailabilityCard(
 
             is PackageDeliveryState.Failed -> {
                 title = "Development delivery blocked"
-                body = "${deliveryState.reason} Tap to retry the backend and evidence checks."
-                actionLabel = "Retry Development delivery checks"
+                body = if (deliveryState.retryable) {
+                    "${deliveryState.reason} Tap to retry the backend and evidence checks."
+                } else {
+                    deliveryState.reason
+                }
+                actionLabel = if (deliveryState.retryable) {
+                    "Retry Development delivery checks"
+                } else {
+                    "Development delivery blocked"
+                }
                 icon = Icons.Rounded.Info
             }
 
