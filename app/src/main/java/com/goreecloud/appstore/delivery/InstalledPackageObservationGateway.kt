@@ -11,6 +11,12 @@ sealed interface InstalledPackageLookupResult {
         val versionCode: Long,
     ) : InstalledPackageLookupResult
 
+    /**
+     * Exact absence is accepted only when the caller has explicitly declared this package identity
+     * observable (for example with an Android <queries><package .../></queries> entry).
+     */
+    data object Absent : InstalledPackageLookupResult
+
     /** Android cannot distinguish absent from hidden when package visibility denies observation. */
     data object NotObserved : InstalledPackageLookupResult
 
@@ -27,6 +33,8 @@ sealed interface InstalledPackageObservation {
         val versionCode: Long,
     ) : InstalledPackageObservation
 
+    data object Absent : InstalledPackageObservation
+
     data class Unknown(val reason: Reason) : InstalledPackageObservation {
         enum class Reason {
             INVALID_PACKAGE_IDENTITY,
@@ -41,9 +49,9 @@ sealed interface InstalledPackageObservation {
 /**
  * Reads one explicitly supplied package identity at a time.
  *
- * This gateway never enumerates installed applications and never interprets Android's
- * NameNotFoundException as proof of absence. On Android 11+ an installed package can be hidden by
- * package-visibility rules, so an unobserved lookup remains UNKNOWN and cannot authorize INSTALL.
+ * This gateway never enumerates installed applications. A missing package becomes accepted absence
+ * only when the platform lookup itself can prove that exact identity is observable. Otherwise
+ * NameNotFoundException remains UNKNOWN so package visibility can never authorize INSTALL.
  */
 class InstalledPackageObservationGateway(
     private val lookup: InstalledPackageLookup,
@@ -71,6 +79,8 @@ class InstalledPackageObservationGateway(
                 )
             }
 
+            InstalledPackageLookupResult.Absent -> InstalledPackageObservation.Absent
+
             InstalledPackageLookupResult.NotObserved -> InstalledPackageObservation.Unknown(
                 InstalledPackageObservation.Unknown.Reason.NOT_FOUND_OR_NOT_VISIBLE,
             )
@@ -91,6 +101,8 @@ class InstalledPackageObservationGateway(
             versionCode = observation.versionCode,
         )
 
+        InstalledPackageObservation.Absent -> PackageDeliveryPolicy.DeviceState.observedAbsent(sdkInt)
+
         is InstalledPackageObservation.Unknown -> PackageDeliveryPolicy.DeviceState.unobserved(sdkInt)
     }
 
@@ -109,11 +121,14 @@ class InstalledPackageObservationGateway(
 /**
  * Android implementation for one exact package lookup.
  *
- * No QUERY_ALL_PACKAGES permission and no installed-package enumeration are required or used here.
- * NameNotFoundException and SecurityException both remain NotObserved because neither proves that
- * the target package is absent under Android package-visibility rules.
+ * [observablePackageNames] must contain only identities deliberately declared through Android
+ * package-visibility configuration for this build. Only those exact names may translate
+ * NameNotFoundException into accepted absence. SecurityException always remains UNKNOWN.
  */
-class AndroidInstalledPackageLookup(context: Context) : InstalledPackageLookup {
+class AndroidInstalledPackageLookup(
+    context: Context,
+    private val observablePackageNames: Set<String> = emptySet(),
+) : InstalledPackageLookup {
     private val packageManager = context.applicationContext.packageManager
 
     override fun lookup(packageName: String): InstalledPackageLookupResult = try {
@@ -134,7 +149,11 @@ class AndroidInstalledPackageLookup(context: Context) : InstalledPackageLookup {
             versionCode = versionCode,
         )
     } catch (_: PackageManager.NameNotFoundException) {
-        InstalledPackageLookupResult.NotObserved
+        if (packageName in observablePackageNames) {
+            InstalledPackageLookupResult.Absent
+        } else {
+            InstalledPackageLookupResult.NotObserved
+        }
     } catch (_: SecurityException) {
         InstalledPackageLookupResult.NotObserved
     } catch (error: RuntimeException) {
