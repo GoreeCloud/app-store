@@ -56,7 +56,7 @@ AAPT="$(find "${SDK_ROOT}/build-tools" -type f -name aapt -print | sort -V | tai
 APKSIGNER="$(find "${SDK_ROOT}/build-tools" -type f -name apksigner -print | sort -V | tail -n 1)"
 [[ -x "${AAPT}" && -x "${APKSIGNER}" ]]
 
-WARDVEIL_REPO="${GORECLOUD_WARDVEIL_REPO:-}"
+WARDVEIL_REPO="${GOREECLOUD_WARDVEIL_REPO:-}"
 if [[ -z "${WARDVEIL_REPO}" ]]; then
   for candidate in "${ROOT}/../wardveil" "${HOME}/GoreeCloud/Repositories/wardveil" "${HOME}/GoreeCloud-work/wardveil"; do
     if [[ -f "${candidate}/reference/wardveil_clamav.py" ]]; then
