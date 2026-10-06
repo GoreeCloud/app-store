@@ -2,7 +2,7 @@
 
 ## Current status
 
-GoreeCloud App Store is currently an **active-development Android application**. It is not production-ready and does not yet install applications or open GoreeCloud services.
+GoreeCloud App Store is currently an **active-development Android application**. It is not production-ready. A separately configured debug build can now exercise a bounded Development-only APK download/install path; production application installation and GoreeCloud service launch remain unavailable.
 
 The present application validates the native store experience, multi-user catalog behavior, first-party GoreeCloud artwork consumption, responsive store presentation, and GoreeCloud platform integration boundaries before real distribution is enabled.
 
@@ -37,6 +37,20 @@ Future development artifacts are intended to retain the same development package
 
 The first launch presents a concise three-step guide with visible progress near the top of the usable screen. It explains the entitled catalog, distinguishes currently available browsing/status functions from install/update/production-service actions that remain disconnected, and lets you enable or disable contextual tips. Back/Continue/**Start browsing** navigation stays anchored to the bottom safe area while step content remains independently scrollable for constrained or accessibility-scaled layouts. Step 1 omits the inactive Back action. Progress is persisted so an interrupted setup resumes at the last durable step, and the guide can be replayed later from **Guidance & setup**.
 
+## Development package backend
+
+The package backend is intentionally local and Development-only. It is not enabled by default.
+
+1. Place the governed Development APK under the repository-local ignored `.dev-packages/` directory. The initial accepted seed is `GoreeCloud-Gallery-0.8.11-dev-vc2000883.apk`.
+2. Set a non-committed Development bearer credential of at least 32 characters.
+3. Start `development/package-delivery-backend/server.py`. It binds to `127.0.0.1:47831` by default and refuses non-loopback addresses.
+4. For a USB-connected Android device, run `adb reverse tcp:47831 tcp:47831`.
+5. Build **GoreeCloud App Store Dev** with `GOREECLOUD_APP_STORE_DEV_BACKEND_URL=http://127.0.0.1:47831` and the matching Development credential supplied as Gradle properties.
+6. Open GoreeCloud Gallery in the App Store. The backend resolves the current Development fixture subject itself and re-authorizes the item. If authorized, the detail sheet shows **Download & install**.
+7. On first use, Android may open **Install unknown apps** for GoreeCloud App Store Dev. Enable that Development test permission, return to the App Store, and select **Download & install** again. Android presents the normal package installation confirmation.
+
+This path is for controlled Development testing only. The local credential is not a production secret, the fixture identity is not GoreeCloud Identity, SHA/signing checks are not a substitute for Wardveil, and a successful Development installation is not Production Acceptance, Stable, or Anchor qualification.
+
 ## Development account switcher
 
 The persistent account control in the App Store header offers concise Development labels such as **Standard**, **Preview**, **Admin**, **Developer**, and **Signed out**. The active identity is marked in the account menu.
@@ -57,7 +71,7 @@ The available-item count is presented below the section heading so compact-width
 
 ### Apps
 
-Shows only entitled installable-application entries. Installation is currently disabled until secure release ingestion, artifact provenance, Wardveil verification, and Android package-delivery acceptance are implemented.
+Shows only entitled application entries. In an ordinary Development build, installation remains unavailable. When the loopback Development package backend is explicitly configured into a debug build, an application with a backend-authorized Development artifact shows **Download & install**. The initial seed is GoreeCloud Gallery 0.8.11-dev. Production installation remains disabled until authoritative Identity/catalog/release ingestion, Wardveil verification, and production package-delivery acceptance are implemented.
 
 ### Services
 
@@ -95,7 +109,7 @@ Select an application or service card to open its store-style development detail
 
 Detail metadata uses vertically stacked label/value presentation so long values remain readable on compact widths instead of competing with their labels in one horizontal row. Favorites and saved items share one concise device-local identity boundary instead of repeating separate explanatory blocks. If the active identity lacks the item's channel grant, version and channel fields are omitted rather than exposing restricted release metadata.
 
-Package installation and service launch remain unavailable because their authoritative delivery integrations are not yet trusted or connected. Instead of a disabled install/open button, the detail sheet shows **Installation unavailable** or **Service launch unavailable** with the current reason; selecting that status opens **Development status** for the integration boundary.
+Production package installation and service launch remain unavailable because their authoritative delivery integrations are not yet trusted or connected. In a debug build configured for the loopback Development backend, a backend-authorized application instead shows **Development package available** and a **Download & install** action. The client downloads into private cache, verifies exact length and SHA-256, checks package name/version and the expected Development signing certificate, then hands the verified bytes to Android PackageInstaller. Android still requires the applicable user authorization and confirmation. Unseeded applications and all services retain the unavailable-state card.
 
 ## Development status and integral GoreeCloud systems
 
@@ -114,7 +128,7 @@ The status surface covers:
 
 ## Privacy and security behavior
 
-The development client does not collect analytics. Cleartext application traffic is disabled. It does not request Android package-install authority.
+The development client does not collect analytics. The production/release manifest does not request Android package-install authority and does not permit cleartext traffic. Only the debug variant requests `REQUEST_INSTALL_PACKAGES`; its network-security exception permits cleartext only to loopback so a USB-connected device can use `adb reverse` to reach the local Development backend.
 
 The development account selector, audience labels, versions, catalog package names, and service endpoints are not production policy or release metadata. Production package identities and endpoints will be populated only from approved authoritative sources.
 
