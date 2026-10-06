@@ -1828,7 +1828,7 @@ private fun ProductAvailabilityCard(
             }
 
             is PackageDeliveryState.Ready -> {
-                title = "Download & install \${deliveryState.release.versionName}"
+                title = "Download & install ${deliveryState.release.versionName}"
                 body = "The backend has a current clean Wardveil Development scan. The App Store will re-check APK digest, package/version identity, and signing certificate before Android installation."
                 actionLabel = "Download and install Development release"
                 icon = Icons.Rounded.Update
@@ -1857,14 +1857,14 @@ private fun ProductAvailabilityCard(
 
             is PackageDeliveryState.Installed -> {
                 title = "Installed"
-                body = "\${deliveryState.release.versionName} is installed for the current Android user."
+                body = "${deliveryState.release.versionName} is installed for the current Android user."
                 actionLabel = "Installed"
                 icon = Icons.Rounded.Check
             }
 
             is PackageDeliveryState.Failed -> {
                 title = "Development delivery blocked"
-                body = "\${deliveryState.reason} Tap to retry the backend and evidence checks."
+                body = "${deliveryState.reason} Tap to retry the backend and evidence checks."
                 actionLabel = "Retry Development delivery checks"
                 icon = Icons.Rounded.Info
             }
