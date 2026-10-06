@@ -82,9 +82,9 @@ The early bootstrap lineage that used `com.goreecloud.appstore` with ephemeral r
 
 ## Package-delivery boundary
 
-No installer permission is requested in the bootstrap. Before Android installation is enabled, the implementation needs:
+Production package delivery remains fail-closed and does not request install authority. Production acceptance still requires:
 
-1. a protected artifact endpoint with backend re-authorization;
+1. a protected artifact endpoint with authoritative backend re-authorization;
 2. immutable artifact identity and SHA-256 digest;
 3. application signing-certificate expectations/provenance;
 4. Wardveil verification policy and fail-closed result handling;
@@ -92,7 +92,37 @@ No installer permission is requested in the bootstrap. Before Android installati
 6. explicit Android user consent for installation;
 7. install/update result reconciliation;
 8. recovery/rollback behavior and audit evidence;
-9. package-install permission only when required by the accepted implementation.
+9. package-install permission only when required by the accepted production implementation.
+
+### Development package-delivery lane
+
+The debug client has a separate, explicitly non-production lane for exercising the real Android download/install mechanics without minting production authority.
+
+```text
+Development identity fixture subject
+        │
+        ▼
+loopback Development backend
+  ├── resolves fixture subject server-side
+  ├── re-checks catalog audience
+  ├── verifies pinned APK SHA-256 before serving
+  └── serves one immutable Development artifact
+        │
+        ▼
+App Store Dev
+  ├── refuses non-loopback backend origins
+  ├── refuses redirects
+  ├── enforces declared length + SHA-256
+  ├── verifies package / version / Development signer
+  └── hands verified bytes to Android PackageInstaller
+        │
+        ▼
+Android user confirmation
+```
+
+Only the debug manifest requests `REQUEST_INSTALL_PACKAGES`; release/production manifests do not. The cleartext exception is also debug-only and limited to loopback for USB `adb reverse` testing. Backend credentials are injected at debug build time and are not committed.
+
+The current seed is the governed GoreeCloud Gallery 0.8.11-dev artifact (package `com.goreecloud.gallery.dev`, versionCode `2000883`). Its package bytes remain outside Git. This lane does not satisfy production Identity, Wardveil, protected release-evidence, recovery/rollback, Production Acceptance, Stable, or Anchor requirements.
 
 ## Service-launch boundary
 
@@ -104,6 +134,6 @@ A future offline cache may show a previously authorized catalog only within a de
 
 ## Current development boundary
 
-Implemented now: native Android application, development catalog loader, development Identity adapter, entitlement filtering, application/service views, dedicated development platform-status surface, canonical artwork derivatives, stable `.dev` installation identity and signing certificate, tests, lint, exact-source CI, and development APK evidence publication.
+Implemented now: native Android application, development catalog loader, development Identity adapter, entitlement filtering, application/service views, dedicated development platform-status surface, canonical artwork derivatives, stable `.dev` installation identity and signing certificate, tests, lint, exact-source CI, development APK evidence publication, and the bounded loopback Development package-delivery lane described above.
 
-Not connected now: production Identity, production catalog service, package download/install, service launch, production updates, installed library, Wardveil runtime acceptance, Privacy Shield runtime acceptance, Everkeep runtime acceptance, Mesh runtime, production signing, or Stable Glaze UI conformance. `productionAcceptance` therefore remains `false`.
+Not connected now: production Identity, production catalog service, production package delivery/install authority, service launch, production updates, installed library reconciliation, Wardveil runtime acceptance, Privacy Shield runtime acceptance, Everkeep runtime acceptance, Mesh runtime, production signing, or Stable Glaze UI conformance. `productionAcceptance` therefore remains `false`.
