@@ -347,7 +347,7 @@ internal class DevelopmentPackageDeliveryGateway(
         release: DevelopmentDeliveryRelease,
     ): File {
         val directory = File(context.cacheDir, "development-delivery").apply { mkdirs() }
-        val target = File(directory, "\${release.sha256}.apk")
+        val target = File(directory, "${release.sha256}.apk")
         if (!target.isFile || target.length() != release.sizeBytes ||
             sha256(target) != release.sha256
         ) {
@@ -526,7 +526,7 @@ internal class DevelopmentPackageDeliveryGateway(
         )
         connection.setRequestProperty(
             "User-Agent",
-            "GoreeCloud-App-Store-Development/\${BuildConfig.VERSION_NAME}",
+            "GoreeCloud-App-Store-Development/${BuildConfig.VERSION_NAME}",
         )
         connection.sslSocketFactory = pinnedSslContext().socketFactory
         return connection
