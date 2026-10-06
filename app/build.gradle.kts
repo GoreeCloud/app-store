@@ -41,9 +41,18 @@ android {
             manifestPlaceholders["appLabel"] = "GoreeCloud App Store Dev"
             signingConfig = signingConfigs.getByName("development")
 
-            val deliveryBaseUrl = providers.gradleProperty("goreecloudDevDeliveryBaseUrl").orNull.orEmpty()
-            val deliveryToken = providers.gradleProperty("goreecloudDevDeliveryToken").orNull.orEmpty()
-            val deliveryTlsPin = providers.gradleProperty("goreecloudDevDeliveryTlsCertSha256").orNull.orEmpty()
+            val deliveryBaseUrl = providers.gradleProperty("goreecloudDevDeliveryBaseUrl")
+                .orElse(providers.environmentVariable("GORECLOUD_DEV_DELIVERY_BASE_URL"))
+                .orNull
+                .orEmpty()
+            val deliveryToken = providers.gradleProperty("goreecloudDevDeliveryToken")
+                .orElse(providers.environmentVariable("GORECLOUD_DEV_DELIVERY_TOKEN"))
+                .orNull
+                .orEmpty()
+            val deliveryTlsPin = providers.gradleProperty("goreecloudDevDeliveryTlsCertSha256")
+                .orElse(providers.environmentVariable("GORECLOUD_DEV_DELIVERY_TLS_CERT_SHA256"))
+                .orNull
+                .orEmpty()
             buildConfigField("String", "DEVELOPMENT_DELIVERY_BASE_URL", buildConfigString(deliveryBaseUrl))
             buildConfigField("String", "DEVELOPMENT_DELIVERY_TOKEN", buildConfigString(deliveryToken))
             buildConfigField("String", "DEVELOPMENT_DELIVERY_TLS_CERT_SHA256", buildConfigString(deliveryTlsPin))
