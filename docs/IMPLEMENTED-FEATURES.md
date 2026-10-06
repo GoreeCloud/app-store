@@ -43,8 +43,8 @@
 - Server-authoritative entitlement/catalog API.
 - Authenticated/signed catalog snapshots and rollback/revocation semantics.
 - GoreeCloud application release ingestion pipeline.
-- Package provenance, digest, signing-certificate, and Wardveil verification.
-- Secure APK download and Android package installation.
+- Production/generalized package provenance, digest, signing-certificate, release-evidence, and Wardveil verification beyond the bounded Gallery Development path.
+- Production/generalized secure APK distribution and Android package installation beyond the current debug-only Gallery Development path.
 - Update detection, staged download, user-visible release notes, and rollback-safe state.
 - Installed Library scoped by identity and device.
 - Service endpoint/deep-link launch with allowlisting and service-side reauthorization.
