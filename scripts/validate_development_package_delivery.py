@@ -103,9 +103,9 @@ def main() -> int:
     ):
         require(property_name in build, f"missing debug delivery property {property_name}")
     for environment_name in (
-        "GORECLOUD_DEV_DELIVERY_BASE_URL",
-        "GORECLOUD_DEV_DELIVERY_TOKEN",
-        "GORECLOUD_DEV_DELIVERY_TLS_CERT_SHA256",
+        "GOREECLOUD_DEV_DELIVERY_BASE_URL",
+        "GOREECLOUD_DEV_DELIVERY_TOKEN",
+        "GOREECLOUD_DEV_DELIVERY_TLS_CERT_SHA256",
     ):
         require(environment_name in build, f"missing debug delivery environment {environment_name}")
 
