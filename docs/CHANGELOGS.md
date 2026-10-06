@@ -1,5 +1,16 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-06 — Development package-delivery backend
+
+- Added a loopback-only Development package backend with server-side fixture-subject resolution and item re-authorization.
+- Added an immutable Gallery 0.8.11-dev seed descriptor pinned to APK SHA-256, package identity, versionCode, minimum SDK, and GoreeCloud Gallery Development signing-certificate SHA-256.
+- Added client download integrity enforcement, package/version/signer verification, redirect refusal, and bounded private-cache handling.
+- Added debug-only Android `REQUEST_INSTALL_PACKAGES` authority and a loopback-only network-security exception; release/production builds receive neither.
+- Added Android PackageInstaller handoff with normal user confirmation and terminal result capture.
+- Replaced the blanket application-install-unavailable detail state with a backend-resolved **Download & install** action only when a governed Development package is available.
+- Added fail-closed source validators and six backend authorization/integrity tests to Android CI.
+- Production Identity/catalog/release/Wardveil authority, production package distribution, resilient update/rollback, Production Acceptance, Stable, and Anchor qualification remain open.
+
 ## 2026-10-03 — Catalog presentation improvements
 
 - Added deterministic catalog ordering options: source order, name, and category.
