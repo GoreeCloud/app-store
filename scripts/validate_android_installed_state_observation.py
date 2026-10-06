@@ -57,12 +57,14 @@ def main() -> None:
 
     require(doc, "NameNotFoundException", "documentation")
     require(doc, "NotObserved / UNKNOWN", "documentation")
-    require(doc, "does not request QUERY_ALL_PACKAGES", "documentation")
-    require(doc, "current Android exact-package lookup does not manufacture that negative authority", "documentation")
+    require(doc, "does not request `QUERY_ALL_PACKAGES`", "documentation")
+    require(doc, "explicitly included in the lookup gateway's observable-package allowlist", "documentation")
+    require(doc, "debug manifest declares only the exact Gallery Development package", "documentation")
 
     print(
         "Android installed-state boundary validated: exact-package lookup only; "
-        "broad-enumeration=false negative-observation=false package-installer=false"
+        "broad-enumeration=false arbitrary-negative-observation=false "
+        "debug-bounded-negative-observation=true"
     )
 
 
