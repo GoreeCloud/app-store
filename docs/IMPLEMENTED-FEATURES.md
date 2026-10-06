@@ -32,6 +32,7 @@
 - Per-development-identity, device-local **Save for later** state for currently entitled catalog items, with exact opaque identity-subject namespacing and no raw subject embedded in preference-key metadata.
 - Explicit **Clear saved for later** behavior scoped to the active development identity without uninstalling software or changing entitlement/account history.
 - Fail-closed package-delivery policy, exact-package installed-state observation, and read-only delivery preflight that cannot manufacture accepted installation absence or invoke package mutation/install authority.
+- Bounded debug-only Development package delivery for the exact GoreeCloud Gallery `0.8.11-dev` artifact: backend subject re-authorization, byte/package/signing validation, current Wardveil ClamAV reference clean-scan gating, pinned HTTPS, private-cache staging, client-side digest/package/signing re-verification, and Android PackageInstaller handoff with user confirmation. Release builds remain unavailable and no production package authority is claimed.
 - Historical GLAZE UI V1.6 / 1.6.0 presentation-policy mapping retained as Development source evidence while current user-facing system naming uses Glaze; application-specific rendered/device/production acceptance remains separate.
 - Platform-integration checkpoint for Glaze, Identity, Wardveil, Privacy Shield, Everkeep, and Mesh.
 - Unit tests and Android CI.
