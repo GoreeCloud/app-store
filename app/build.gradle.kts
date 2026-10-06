@@ -28,19 +28,33 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    val developmentBackendUrl = providers.gradleProperty("GOREECLOUD_APP_STORE_DEV_BACKEND_URL")
+        .orElse("")
+        .get()
+    val developmentBackendToken = providers.gradleProperty("GOREECLOUD_APP_STORE_DEV_TOKEN")
+        .orElse("")
+        .get()
+    fun quotedBuildConfig(value: String): String =
+        "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+
     buildTypes {
         getByName("debug") {
             applicationIdSuffix = ".dev"
             manifestPlaceholders["appLabel"] = "GoreeCloud App Store Dev"
             signingConfig = signingConfigs.getByName("development")
+            buildConfigField("String", "DEVELOPMENT_BACKEND_URL", quotedBuildConfig(developmentBackendUrl))
+            buildConfigField("String", "DEVELOPMENT_BACKEND_TOKEN", quotedBuildConfig(developmentBackendToken))
         }
         getByName("release") {
             manifestPlaceholders["appLabel"] = "GoreeCloud App Store"
+            buildConfigField("String", "DEVELOPMENT_BACKEND_URL", "\"\"")
+            buildConfigField("String", "DEVELOPMENT_BACKEND_TOKEN", "\"\"")
         }
     }
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {
@@ -58,6 +72,7 @@ dependencies {
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 
