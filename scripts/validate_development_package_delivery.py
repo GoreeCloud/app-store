@@ -102,6 +102,12 @@ def main() -> int:
         "goreecloudDevDeliveryTlsCertSha256",
     ):
         require(property_name in build, f"missing debug delivery property {property_name}")
+    for environment_name in (
+        "GORECLOUD_DEV_DELIVERY_BASE_URL",
+        "GORECLOUD_DEV_DELIVERY_TOKEN",
+        "GORECLOUD_DEV_DELIVERY_TLS_CERT_SHA256",
+    ):
+        require(environment_name in build, f"missing debug delivery environment {environment_name}")
 
     release_source = release_factory.read_text(encoding="utf-8")
     require("override val isAvailable: Boolean = false" in release_source, "release delivery enabled")
@@ -114,6 +120,9 @@ def main() -> int:
         "wardveil_development_scan_not_clean",
         "apk_signing_certificate_mismatch",
         "PackageInstaller.SessionParams",
+        "PackageDeliveryPreflightCoordinator",
+        "PackageDeliveryPolicy.Evidence",
+        "releaseEvidence",
     ):
         require(marker in debug_source, f"missing debug delivery fail-closed marker: {marker}")
 
@@ -125,6 +134,10 @@ def main() -> int:
         "certificate SHA-256 digest",
         "self.wardveil.scan",
         "protectionClaimAuthority",
+        "build_release_evidence",
+        "development-package-delivery-v1",
+        "artifactSha256",
+        "evidenceSetId",
     ):
         require(marker in backend_source, f"missing backend trust marker: {marker}")
     require("def do_POST" not in backend_source, "Development backend must remain read-only")
