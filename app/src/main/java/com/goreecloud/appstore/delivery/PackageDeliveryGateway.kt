@@ -1,6 +1,7 @@
 package com.goreecloud.appstore.delivery
 
 import com.goreecloud.appstore.domain.IdentitySession
+import com.goreecloud.appstore.domain.PackageDeliveryPolicy
 import com.goreecloud.appstore.domain.StoreItem
 
 data class DevelopmentDeliveryRelease(
@@ -17,6 +18,7 @@ data class DevelopmentDeliveryRelease(
     val downloadPath: String,
     val wardveilEvidenceRef: String,
     val wardveilValidUntilEpochSeconds: Long,
+    val releaseEvidence: PackageDeliveryPolicy.ReleaseEvidence,
 )
 
 sealed interface PackageDeliveryState {
