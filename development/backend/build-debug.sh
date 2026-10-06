@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ENV_FILE="${ROOT}/.dev-backend/runtime.env"
 if [[ ! -f "${ENV_FILE}" ]]; then
-  "${ROOT}/development/backend/bootstrap.sh"
+  bash "${ROOT}/development/backend/bootstrap.sh"
 fi
 # shellcheck disable=SC1090
 source "${ENV_FILE}"
