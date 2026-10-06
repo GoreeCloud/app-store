@@ -395,17 +395,17 @@ def required_path(name: str) -> Path:
 
 
 def main() -> int:
-    token = os.environ.get("GORECLOUD_APP_STORE_TOKEN", "").strip()
+    token = os.environ.get("GOREECLOUD_APP_STORE_TOKEN", "").strip()
     if len(token) < 32:
         raise BackendBlocked("development_token_too_short")
-    host = os.environ.get("GORECLOUD_APP_STORE_HOST", "127.0.0.1")
-    port = int(os.environ.get("GORECLOUD_APP_STORE_PORT", "8443"))
-    releases_file = required_path("GORECLOUD_APP_STORE_RELEASES")
-    wardveil_repo = required_path("GORECLOUD_WARDVEIL_REPO")
-    aapt = required_path("GORECLOUD_AAPT")
-    apksigner = required_path("GORECLOUD_APKSIGNER")
-    tls_cert = required_path("GORECLOUD_APP_STORE_TLS_CERT")
-    tls_key = required_path("GORECLOUD_APP_STORE_TLS_KEY")
+    host = os.environ.get("GOREECLOUD_APP_STORE_HOST", "127.0.0.1")
+    port = int(os.environ.get("GOREECLOUD_APP_STORE_PORT", "8443"))
+    releases_file = required_path("GOREECLOUD_APP_STORE_RELEASES")
+    wardveil_repo = required_path("GOREECLOUD_WARDVEIL_REPO")
+    aapt = required_path("GOREECLOUD_AAPT")
+    apksigner = required_path("GOREECLOUD_APKSIGNER")
+    tls_cert = required_path("GOREECLOUD_APP_STORE_TLS_CERT")
+    tls_key = required_path("GOREECLOUD_APP_STORE_TLS_KEY")
 
     registry = ReleaseRegistry(releases_file, wardveil_repo, aapt, apksigner)
     server = DevelopmentBackend((host, port), registry, token)
