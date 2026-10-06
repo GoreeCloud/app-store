@@ -149,6 +149,50 @@ class WardveilGate:
         }
 
 
+def build_release_evidence(
+    release: Release,
+    wardveil: dict[str, Any],
+    *,
+    now: int | None = None,
+) -> dict[str, Any]:
+    evaluated_at = int(time.time()) if now is None else now
+    evidence_expiry = min(
+        evaluated_at + 10 * 60,
+        int(wardveil["validUntilEpochSeconds"]),
+    )
+    if evidence_expiry <= evaluated_at:
+        raise BackendBlocked("release_evidence_expired")
+    evidence_set_id = (
+        f"development:{release.artifact_id}:{release.sha256[:16]}:{evaluated_at}"
+    )
+
+    def record(evidence_type: str, source_reference: str) -> dict[str, Any]:
+        return {
+            "type": evidence_type,
+            "state": "accepted",
+            "producerId": "goreecloud.app-store.development-backend",
+            "authorityDomain": "development.app-store.package-delivery",
+            "producerAuthority": "accepted",
+            "subjectPackageName": release.package_name,
+            "artifactSha256": release.sha256,
+            "evidenceSetId": evidence_set_id,
+            "contractVersion": "development-package-delivery-v1",
+            "createdAtEpochSeconds": evaluated_at,
+            "expiresAtEpochSeconds": evidence_expiry,
+            "sourceReference": source_reference,
+        }
+
+    return {
+        "buildProvenance": record("BUILD_PROVENANCE", release.build_provenance_ref),
+        "sbom": record("SBOM", release.sbom_ref),
+        "releaseApproval": record("RELEASE_APPROVAL", release.release_approval_ref),
+        "revocationStatus": record(
+            "REVOCATION_STATUS",
+            release.revocation_status_ref,
+        ),
+    }
+
+
 class ReleaseRegistry:
     def __init__(
         self,
@@ -285,30 +329,6 @@ class RequestHandler(BaseHTTPRequestHandler):
                     return
                 self._authorized_subject(release)
                 wardveil = self.server.registry.validate_artifact(release, scan=True)
-                now = int(time.time())
-                evidence_expiry = min(now + 10 * 60, int(wardveil["validUntilEpochSeconds"]))
-                if evidence_expiry <= now:
-                    raise BackendBlocked("release_evidence_expired")
-                evidence_set_id = (
-                    f"development:{release.artifact_id}:{release.sha256[:16]}:{now}"
-                )
-
-                def evidence_record(evidence_type: str, source_reference: str) -> dict[str, Any]:
-                    return {
-                        "type": evidence_type,
-                        "state": "accepted",
-                        "producerId": "goreecloud.app-store.development-backend",
-                        "authorityDomain": "development.app-store.package-delivery",
-                        "producerAuthority": "accepted",
-                        "subjectPackageName": release.package_name,
-                        "artifactSha256": release.sha256,
-                        "evidenceSetId": evidence_set_id,
-                        "contractVersion": "development-package-delivery-v1",
-                        "createdAtEpochSeconds": now,
-                        "expiresAtEpochSeconds": evidence_expiry,
-                        "sourceReference": source_reference,
-                    }
-
                 self._json(
                     HTTPStatus.OK,
                     {
@@ -328,21 +348,10 @@ class RequestHandler(BaseHTTPRequestHandler):
                             "sizeBytes": release.size_bytes,
                             "downloadPath": release.download_path,
                             "wardveil": wardveil,
-                            "releaseEvidence": {
-                                "buildProvenance": evidence_record(
-                                    "BUILD_PROVENANCE",
-                                    release.build_provenance_ref,
-                                ),
-                                "sbom": evidence_record("SBOM", release.sbom_ref),
-                                "releaseApproval": evidence_record(
-                                    "RELEASE_APPROVAL",
-                                    release.release_approval_ref,
-                                ),
-                                "revocationStatus": evidence_record(
-                                    "REVOCATION_STATUS",
-                                    release.revocation_status_ref,
-                                ),
-                            },
+                            "releaseEvidence": build_release_evidence(
+                                release,
+                                wardveil,
+                            ),
                         },
                     },
                 )
