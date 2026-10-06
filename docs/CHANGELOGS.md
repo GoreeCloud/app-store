@@ -1,5 +1,16 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-06 — bounded Development package delivery
+
+- Added a read-only Development package backend with bearer-token and exact fixture-subject re-authorization.
+- Bound the first installable Development entry to GoreeCloud Gallery `0.8.11-dev` / versionCode `2000883`, exact APK SHA-256 `5516f03092252ca053a54b3240ec0c95e97d1d12ccda1089c4bba377a81dcd0a`, and Development signing-certificate SHA-256 `7976b1035c5c1b259682eb384ce5cd7e3fbc49c6611911182a112724825b9cbc`.
+- Added backend byte/package/version/signing validation and current Wardveil ClamAV reference clean-scan gating before release metadata or APK bytes are served.
+- Added pinned-HTTPS Android debug delivery, private-cache staging, client-side digest/package/version/signing re-verification, and Android PackageInstaller handoff with mandatory user confirmation.
+- Kept `REQUEST_INSTALL_PACKAGES` out of the main/release manifest; the debug manifest is bounded to the exact Gallery Development package.
+- Added release-build fail-closed gateway behavior and CI guards that reject permission, scope, digest, signing, backend-mutation, and version-boundary drift.
+- Advanced the App Store Development package to `0.1.14-dev` / versionCode `15`.
+- This is Draft PR #48 stacked on PR #47. Fresh exact-head CI/runtime, configured backend runtime reachability, representative-device install/update acceptance, protected distribution, production platform integrations, Production Acceptance, and Seal/Anchor/Stable gates remain open.
+
 ## 2026-10-03 — Catalog presentation improvements
 
 - Added deterministic catalog ordering options: source order, name, and category.
