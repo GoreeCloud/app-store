@@ -1,5 +1,11 @@
 # GoreeCloud App Store — Planned Features
 
+## October 6, 2026 — bounded Development package delivery candidate
+
+Draft PR #48 adds the first executable package-delivery slice for FR-004 without satisfying the production distribution obligation. The candidate is intentionally limited to the exact GoreeCloud Gallery `0.8.11-dev` APK, the `dev:developer` fixture subject, a debug-only Android install-source permission, pinned HTTPS, exact digest/package/version/signing verification, current Wardveil ClamAV reference clean-scan gating, and Android user-approved PackageInstaller execution.
+
+Production package distribution remains planned and separate. It still requires authoritative GoreeCloud Identity/backend authorization, governed production catalog/release evidence, production Wardveil acceptance, protected production signing and hosting, supported update/rollback behavior, representative-device and accessibility acceptance, recovery/continuity evidence, Production Acceptance, and applicable Seal/Anchor qualification. No Development evidence from PR #48 should be silently promoted into those states.
+
 ## October 2, 2026 — local Library cleanup candidate
 
 The current child capability candidate adds explicit, confirmation-gated **Clear Favorites** behavior for the active development identity, completing cleanup parity with the existing confirmation-gated **Clear saved for later** action. Each action clears only its own device-local identity-scoped preference namespace. It does not uninstall software, change entitlements, expose hidden catalog entries, create or erase account-wide history, synchronize state, or invoke Everkeep/package-delivery authority. This remains Development candidate work and must stay unmerged until the parent stack is reconciled under effective protected-main governance and the child is freshly validated on the accepted base.
