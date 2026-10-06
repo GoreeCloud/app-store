@@ -120,14 +120,14 @@ The status surface covers:
 
 - **Glaze** — current user-facing system identity; this App Store remains targeted at the historical **GLAZE UI V1.6 / 1.6.0 Official Anchor**, and rendered conformance is not yet claimed.
 - **GoreeCloud Identity** — production authentication/authorization integration is not connected.
-- **Wardveil Security** — package trust and verification integration is not connected.
+- **Wardveil Security** — the bounded Gallery Development path consumes the current Wardveil ClamAV reference adapter and scanner-health gate; production Wardveil runtime acceptance and broader package-protection authority remain unconnected.
 - **Privacy Shield** — production privacy-policy integration is not connected; development analytics are off.
 - **Everkeep** — library/history recovery integration is not connected.
 - **GoreeCloud Mesh** — lifecycle/catalog coordination transport is not connected.
 
 ## Privacy and security behavior
 
-The development client does not collect analytics. Cleartext application traffic is disabled. It does not request Android package-install authority.
+The development client does not collect analytics. Cleartext application traffic is disabled. The ordinary/main and release manifests do not request Android package-install authority; the debug-only Development delivery source set requests `REQUEST_INSTALL_PACKAGES` solely for the exact bounded package-delivery path and still requires Android user approval.
 
 The development account selector, audience labels, versions, catalog package names, and service endpoints are not production policy or release metadata. Production package identities and endpoints will be populated only from approved authoritative sources.
 
