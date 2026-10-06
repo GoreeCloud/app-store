@@ -63,7 +63,15 @@ The account switcher is **not** a production GoreeCloud Identity login. It uses 
 
 The development catalog also does not assert production package identities, service endpoints, versions, or audience taxonomy. Those values must come from approved authoritative release, service, and Identity metadata.
 
-Package download, APK installation, service launch, production update delivery, Wardveil package-verification acceptance, production Privacy Shield policy evaluation, Everkeep library recovery, and Mesh lifecycle transport are deliberately unavailable until their real integrations are implemented and validated. The UI must not imply otherwise.
+Production package download/installation, service launch, production update delivery, Wardveil package-verification acceptance, production Privacy Shield policy evaluation, Everkeep library recovery, and Mesh lifecycle transport remain unavailable until their real integrations are implemented and validated. The debug client now has a separately bounded **Development-only** package-delivery path: a loopback backend re-authorizes the local fixture identity, serves only cataloged Development artifacts whose source bytes match pinned SHA-256 metadata, and the client independently verifies the downloaded bytes, package identity, version, and Development signing certificate before handing the APK to Android PackageInstaller. This Development path is not production authority and must not be presented as Production Accepted, Wardveil-approved, Stable, or Anchor-qualified.
+
+## Development package delivery
+
+The Development backend lives at `development/package-delivery-backend/`. It is intentionally loopback-only, defaults to `127.0.0.1:47831`, refuses non-loopback bind addresses, does not persist request logs, and requires a separately supplied Development bearer credential. For USB-connected Android testing, `adb reverse tcp:47831 tcp:47831` exposes that host loopback endpoint to the device without opening a LAN service.
+
+The initial governed seed is GoreeCloud Gallery `0.8.11-dev` / versionCode `2000883`, package `com.goreecloud.gallery.dev`. The backend catalog pins its APK SHA-256 and GoreeCloud Gallery Development signing-certificate SHA-256; the APK binary itself remains outside Git under `.dev-packages/`.
+
+Only debug builds receive Android `REQUEST_INSTALL_PACKAGES` authority and the loopback cleartext exception. Production/release builds receive neither. See `development/package-delivery-backend/README.md` for the local setup commands.
 
 ## Authorization model
 
