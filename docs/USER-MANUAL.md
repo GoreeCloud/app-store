@@ -2,7 +2,7 @@
 
 ## Current status
 
-GoreeCloud App Store is currently an **active-development Android application**. It is not production-ready and does not yet install applications or open GoreeCloud services.
+GoreeCloud App Store is currently an **active-development Android application**. It is not production-ready. This Development candidate implements one bounded Gallery APK download/install path when the debug build is configured for the authorized backend and the active fixture identity has the Development-channel grant; GoreeCloud service launch and production software distribution remain unavailable.
 
 The present application validates the native store experience, multi-user catalog behavior, first-party GoreeCloud artwork consumption, responsive store presentation, and GoreeCloud platform integration boundaries before real distribution is enabled.
 
@@ -18,7 +18,7 @@ Current development/debug builds use:
 
 - application ID `com.goreecloud.appstore.dev`;
 - Android label **GoreeCloud App Store Dev**;
-- development version line `0.1.13-dev` / version code `14` at this checkpoint;
+- development candidate version line `0.1.14-dev` / version code `15`;
 - the repository-managed, development-only signing certificate documented in `development/signing/README.md`.
 
 The development package is intentionally separate from the reserved future production application ID `com.goreecloud.appstore`. The development signing identity is non-production test material and must never sign the production package or a Stable artifact.
@@ -57,7 +57,20 @@ The available-item count is presented below the section heading so compact-width
 
 ### Apps
 
-Shows only entitled installable-application entries. Installation is currently disabled until secure release ingestion, artifact provenance, Wardveil verification, and Android package-delivery acceptance are implemented.
+Shows only entitled application entries. Most entries remain browsing-only. The first bounded Development delivery entry is GoreeCloud Gallery `0.8.11-dev`; it becomes installable only for the **Developer** fixture identity when the debug build has an authorized backend configuration and every backend/client verification gate passes.
+
+#### Development Gallery installation
+
+To exercise the first delivery path:
+
+1. Use a GoreeCloud App Store Dev build compiled with the Development backend base URL, bearer token, and exact TLS certificate SHA-256 pin.
+2. Switch the local account fixture to **Developer**. Other fixtures do not have the `channel:development` grant and the backend independently rejects subjects other than `dev:developer`.
+3. Open **GoreeCloud Gallery**. The detail sheet checks the exact Development release and current Wardveil scan evidence.
+4. Select **Download & install**. The APK is stored only in private App Store cache while its size, SHA-256, package name, versionName/versionCode, and Development signing certificate are verified.
+5. If Android asks whether GoreeCloud App Store Dev may install unknown apps, explicitly enable that Android-controlled permission for the Development App Store, return to the detail sheet, and select the install action again.
+6. Complete Android's installation confirmation. The App Store cannot silently bypass the platform confirmation.
+
+The backend is read-only and does not accept uploads. A failed authorization, stale/unhealthy Wardveil result, digest mismatch, signing mismatch, TLS-pin mismatch, incompatible SDK, missing permission, or Android install failure blocks the flow. This path does not make the Gallery artifact Production Accepted, Stable, Sealed, or Anchored.
 
 ### Services
 
@@ -95,7 +108,7 @@ Select an application or service card to open its store-style development detail
 
 Detail metadata uses vertically stacked label/value presentation so long values remain readable on compact widths instead of competing with their labels in one horizontal row. Favorites and saved items share one concise device-local identity boundary instead of repeating separate explanatory blocks. If the active identity lacks the item's channel grant, version and channel fields are omitted rather than exposing restricted release metadata.
 
-Package installation and service launch remain unavailable because their authoritative delivery integrations are not yet trusted or connected. Instead of a disabled install/open button, the detail sheet shows **Installation unavailable** or **Service launch unavailable** with the current reason; selecting that status opens **Development status** for the integration boundary.
+For a delivery-enabled Development application, the detail sheet checks backend authorization and current security evidence before showing **Download & install**. The current first package is GoreeCloud Gallery `0.8.11-dev`. The backend verifies exact artifact metadata and requires a current clean Wardveil ClamAV reference result; the Android client then re-verifies the downloaded SHA-256, package/version identity, and Development signing certificate before opening Android PackageInstaller. Android user confirmation is still required. Apps without an explicit Development release, identities without the release-channel grant, and all services remain unavailable and surface the applicable boundary instead of pretending an action is possible.
 
 ## Development status and integral GoreeCloud systems
 
@@ -122,7 +135,7 @@ Client-side catalog filtering is not the future sole authorization boundary. Pro
 
 ## Current limitations
 
-The application currently has no production login, server-authoritative production catalog service, APK download/install flow, service-launch flow, production update delivery, installed-library reconciliation, production signing, Wardveil package-verification acceptance, Privacy Shield runtime acceptance, Everkeep runtime recovery acceptance, Mesh runtime event transport, or Stable Glaze UI conformance acceptance.
+The application currently has no production login, server-authoritative production catalog service, production package-distribution flow, service-launch flow, production update delivery, installed-library reconciliation, production signing, production Wardveil acceptance, Privacy Shield runtime acceptance, Everkeep runtime recovery acceptance, Mesh runtime event transport, or Stable Glaze UI conformance acceptance. The Development Gallery path is deliberately narrower: one exact package, one Development identity subject, pinned TLS, exact digest/package/signing checks, a current Wardveil ClamAV reference scan, and Android user-approved PackageInstaller execution.
 
 The compact-width and onboarding/status refinements described above remain Development work and still require continued real-device review across supported screen sizes and font-scale/accessibility settings before any form-factor or Glaze conformance claim is made.
 
