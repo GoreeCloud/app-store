@@ -22,12 +22,12 @@ object PlatformIntegrationRegistry {
         PlatformIntegrationStatus(
             system = "GoreeCloud Identity",
             state = IntegrationState.SOURCE_BOUNDARY,
-            detail = "Identity and entitlement boundaries exist; production OIDC runtime is not connected.",
+            detail = "Development subject re-authorization exists for the bounded package backend; production OIDC runtime is not connected.",
         ),
         PlatformIntegrationStatus(
             system = "Wardveil Security",
             state = IntegrationState.SOURCE_BOUNDARY,
-            detail = "Package verification is reserved; package delivery is not connected.",
+            detail = "Delivery-enabled Development artifacts require a current clean Wardveil ClamAV reference scan; production Wardveil acceptance remains pending.",
         ),
         PlatformIntegrationStatus(
             system = "Privacy Shield",
@@ -45,12 +45,4 @@ object PlatformIntegrationRegistry {
             detail = "Catalog and lifecycle events are defined; production transport is not connected.",
         ),
     )
-}
-
-interface PackageDeliveryGateway {
-    val isAvailable: Boolean
-}
-
-object UnavailablePackageDeliveryGateway : PackageDeliveryGateway {
-    override val isAvailable: Boolean = false
 }
