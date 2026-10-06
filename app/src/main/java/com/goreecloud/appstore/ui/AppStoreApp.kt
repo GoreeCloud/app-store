@@ -70,6 +70,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -86,6 +87,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.goreecloud.appstore.R
 import com.goreecloud.appstore.data.CatalogJsonLoader
+import com.goreecloud.appstore.delivery.DevelopmentInstallAttempt
+import com.goreecloud.appstore.delivery.DevelopmentPackageDeliveryGateway
+import com.goreecloud.appstore.delivery.DevelopmentRelease
+import com.goreecloud.appstore.delivery.DevelopmentReleaseResolution
 import com.goreecloud.appstore.domain.CatalogPresentation
 import com.goreecloud.appstore.domain.CatalogSort
 import com.goreecloud.appstore.domain.EntitlementEngine
@@ -101,6 +106,9 @@ import com.goreecloud.appstore.library.SavedCatalogStore
 import com.goreecloud.appstore.onboarding.AppStoreGuidanceState
 import com.goreecloud.appstore.platform.IntegrationState
 import com.goreecloud.appstore.platform.PlatformIntegrationRegistry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 enum class StoreTab(val title: String, val icon: ImageVector) {
     DISCOVER("Discover", Icons.Rounded.Home),
@@ -119,6 +127,9 @@ fun GoreeCloudAppStore(
     val context = LocalContext.current
     val allItems = remember { CatalogJsonLoader.load(context) }
     val identityGateway = remember { DevelopmentIdentityGateway }
+    val developmentDeliveryGateway = remember(context.applicationContext) {
+        DevelopmentPackageDeliveryGateway.createOrNull(context.applicationContext)
+    }
     val savedCatalogStore = remember(context.applicationContext) {
         SavedCatalogStore(context.applicationContext)
     }
@@ -690,6 +701,8 @@ fun GoreeCloudAppStore(
         selectedItem?.let { item ->
             StoreItemSheet(
                 item = item,
+                session = session,
+                developmentDeliveryGateway = developmentDeliveryGateway,
                 isFavorite = item.id in favoriteItemIds,
                 onFavoriteChanged = { favorite ->
                     favoriteItemIds = favoriteCatalogStore.setFavorite(
@@ -1601,6 +1614,8 @@ private fun StoreNavigation(selected: StoreTab, onSelected: (StoreTab) -> Unit) 
 @Composable
 private fun StoreItemSheet(
     item: StoreItem,
+    session: IdentitySession,
+    developmentDeliveryGateway: DevelopmentPackageDeliveryGateway?,
     isFavorite: Boolean,
     onFavoriteChanged: (Boolean) -> Unit,
     isSaved: Boolean,
@@ -1707,6 +1722,8 @@ private fun StoreItemSheet(
 
             ProductAvailabilityCard(
                 item = item,
+                session = session,
+                developmentDeliveryGateway = developmentDeliveryGateway,
                 onClick = onShowPlatformStatus,
             )
             Spacer(Modifier.height(8.dp))
@@ -1717,20 +1734,176 @@ private fun StoreItemSheet(
 @Composable
 private fun ProductAvailabilityCard(
     item: StoreItem,
+    session: IdentitySession,
+    developmentDeliveryGateway: DevelopmentPackageDeliveryGateway?,
     onClick: () -> Unit,
 ) {
-    val isApplication = item.type == StoreItemType.APPLICATION
-    val title = if (isApplication) {
-        "Installation unavailable"
-    } else {
-        "Service launch unavailable"
-    }
-    val body = if (isApplication) {
-        "Release metadata, provenance, Wardveil verification, and package delivery are not connected yet."
-    } else {
-        "Production Identity authorization and approved service endpoint policy are not connected yet."
+    if (item.type != StoreItemType.APPLICATION) {
+        UnavailableProductActionCard(
+            title = "Service launch unavailable",
+            body = "Production Identity authorization and approved service endpoint policy are not connected yet.",
+            onClick = onClick,
+        )
+        return
     }
 
+    if (developmentDeliveryGateway == null) {
+        UnavailableProductActionCard(
+            title = "Installation unavailable",
+            body = "The Development package backend is not configured for this build. Production package delivery remains disconnected.",
+            onClick = onClick,
+        )
+        return
+    }
+
+    var resolution by remember(item.id, session.subjectId) {
+        mutableStateOf<DevelopmentReleaseResolution?>(null)
+    }
+    var installing by remember(item.id, session.subjectId) { mutableStateOf(false) }
+    var actionMessage by remember(item.id, session.subjectId) { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(item.id, session.subjectId, developmentDeliveryGateway) {
+        resolution = withContext(Dispatchers.IO) {
+            developmentDeliveryGateway.resolve(session, item)
+        }
+    }
+
+    when (val current = resolution) {
+        null -> DevelopmentDeliveryStatusCard(
+            title = "Checking Development package",
+            body = "Re-authorizing this item with the local Development package backend.",
+        )
+
+        DevelopmentReleaseResolution.NotAvailable -> UnavailableProductActionCard(
+            title = "Installation unavailable",
+            body = "No governed Development package is currently published for this catalog item.",
+            onClick = onClick,
+        )
+
+        is DevelopmentReleaseResolution.Failed -> DevelopmentDeliveryStatusCard(
+            title = "Development backend unavailable",
+            body = current.message,
+        )
+
+        is DevelopmentReleaseResolution.Available -> DevelopmentPackageActionCard(
+            release = current.release,
+            installing = installing,
+            actionMessage = actionMessage,
+            onInstall = {
+                if (!installing) {
+                    installing = true
+                    actionMessage = "Downloading and verifying the Development APK…"
+                    scope.launch {
+                        val result = withContext(Dispatchers.IO) {
+                            developmentDeliveryGateway.downloadVerifyAndInstall(
+                                session = session,
+                                item = item,
+                                release = current.release,
+                            )
+                        }
+                        installing = false
+                        actionMessage = when (result) {
+                            DevelopmentInstallAttempt.Submitted ->
+                                "Android received the verified package. Confirm the system installation prompt."
+
+                            DevelopmentInstallAttempt.PermissionRequired ->
+                                "Allow installs from GoreeCloud App Store Dev, return here, and tap Download & install again."
+
+                            is DevelopmentInstallAttempt.Failed -> result.message
+                        }
+                    }
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun DevelopmentPackageActionCard(
+    release: DevelopmentRelease,
+    installing: Boolean,
+    actionMessage: String?,
+    onInstall: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = GlazeSmallCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(
+                "Development package available",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                "${release.versionName} · versionCode ${release.versionCode}. The App Store will verify downloaded bytes, package identity, version, and the Development signing certificate before handing the APK to Android.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp),
+                enabled = !installing,
+                onClick = onInstall,
+            ) {
+                Text(if (installing) "Downloading & verifying…" else "Download & install")
+            }
+            actionMessage?.let {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Text(
+                "Development-only distribution. This does not establish Production Acceptance, Wardveil production approval, or Stable/Anchor status.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun DevelopmentDeliveryStatusCard(
+    title: String,
+    body: String,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = GlazeSmallCardShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(
+                title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                body,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+private fun UnavailableProductActionCard(
+    title: String,
+    body: String,
+    onClick: () -> Unit,
+) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
