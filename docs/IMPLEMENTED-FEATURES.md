@@ -31,7 +31,8 @@
 - Mandatory three-step first-use guidance with durable interruption/resume state, replay, globally disableable contextual hints, and bounded dismissal/reset controls.
 - Per-development-identity, device-local **Save for later** state for currently entitled catalog items, with exact opaque identity-subject namespacing and no raw subject embedded in preference-key metadata.
 - Explicit **Clear saved for later** behavior scoped to the active development identity without uninstalling software or changing entitlement/account history.
-- Fail-closed package-delivery policy, exact-package installed-state observation, and read-only delivery preflight that cannot manufacture accepted installation absence or invoke package mutation/install authority.
+- Fail-closed production package-delivery policy, exact-package installed-state observation, and read-only production delivery preflight that cannot manufacture accepted installation absence or invoke package mutation/install authority.
+- Development-only loopback package-delivery backend with backend-owned fixture-identity re-authorization, catalog-pinned APK SHA-256 and signing identity, client-side byte/package/version/signer verification, debug-only Android install-source authority, and explicit PackageInstaller user-confirmation handoff. The initial governed seed is GoreeCloud Gallery 0.8.11-dev / versionCode 2000883; this does not establish production Identity, Wardveil, release, Stable, or Anchor authority.
 - Historical GLAZE UI V1.6 / 1.6.0 presentation-policy mapping retained as Development source evidence while current user-facing system naming uses Glaze; application-specific rendered/device/production acceptance remains separate.
 - Platform-integration checkpoint for Glaze, Identity, Wardveil, Privacy Shield, Everkeep, and Mesh.
 - Unit tests and Android CI.
@@ -43,7 +44,7 @@
 - Authenticated/signed catalog snapshots and rollback/revocation semantics.
 - GoreeCloud application release ingestion pipeline.
 - Package provenance, digest, signing-certificate, and Wardveil verification.
-- Secure APK download and Android package installation.
+- Production-secure APK download and Android package installation backed by authoritative Identity/catalog/release/Wardveil evidence.
 - Update detection, staged download, user-visible release notes, and rollback-safe state.
 - Installed Library scoped by identity and device.
 - Service endpoint/deep-link launch with allowlisting and service-side reauthorization.
