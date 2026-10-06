@@ -14,6 +14,7 @@ import com.goreecloud.appstore.BuildConfig
 import com.goreecloud.appstore.domain.IdentitySession
 import com.goreecloud.appstore.domain.PackageDeliveryPolicy
 import com.goreecloud.appstore.domain.ReleaseChannel
+import com.goreecloud.appstore.domain.ReleaseChannelAccess
 import com.goreecloud.appstore.domain.StoreItem
 import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.install.DevelopmentInstallResultReceiver
@@ -72,6 +73,24 @@ internal class DevelopmentPackageDeliveryGateway(
             )
             return
         }
+        if (!ReleaseChannelAccess.canAccess(session, item.releaseChannel)) {
+            callbackOnMain(
+                callback,
+                PackageDeliveryState.Unavailable(
+                    "Switch to the Developer demo identity to access Development packages.",
+                ),
+            )
+            return
+        }
+        if (item.packageName.isNullOrBlank() || item.version.isNullOrBlank()) {
+            callbackOnMain(
+                callback,
+                PackageDeliveryState.Unavailable(
+                    "No exact Development package is bound to this catalog entry yet.",
+                ),
+            )
+            return
+        }
 
         callbackOnMain(callback, PackageDeliveryState.Checking)
         executor.execute {
@@ -102,6 +121,16 @@ internal class DevelopmentPackageDeliveryGateway(
             callbackOnMain(
                 callback,
                 PackageDeliveryState.Failed("Development package delivery is unavailable."),
+            )
+            return
+        }
+        if (!ReleaseChannelAccess.canAccess(session, item.releaseChannel)) {
+            callbackOnMain(
+                callback,
+                PackageDeliveryState.Failed(
+                    reason = "Development release channel is not authorized for this identity.",
+                    retryable = false,
+                ),
             )
             return
         }
