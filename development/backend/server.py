@@ -394,11 +394,20 @@ def required_path(name: str) -> Path:
     return path
 
 
+def require_loopback_host(value: str) -> str:
+    host = value.strip().lower()
+    if host not in {"127.0.0.1", "localhost"}:
+        raise BackendBlocked("development_backend_must_bind_loopback")
+    return host
+
+
 def main() -> int:
     token = os.environ.get("GOREECLOUD_APP_STORE_TOKEN", "").strip()
     if len(token) < 32:
         raise BackendBlocked("development_token_too_short")
-    host = os.environ.get("GOREECLOUD_APP_STORE_HOST", "127.0.0.1")
+    host = require_loopback_host(
+        os.environ.get("GOREECLOUD_APP_STORE_HOST", "127.0.0.1")
+    )
     port = int(os.environ.get("GOREECLOUD_APP_STORE_PORT", "8443"))
     releases_file = required_path("GOREECLOUD_APP_STORE_RELEASES")
     wardveil_repo = required_path("GOREECLOUD_WARDVEIL_REPO")

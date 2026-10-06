@@ -106,5 +106,17 @@ class RegistryExampleTest(unittest.TestCase):
         )
 
 
+class DevelopmentBindBoundaryTest(unittest.TestCase):
+    def test_loopback_hosts_are_accepted(self) -> None:
+        self.assertEqual("127.0.0.1", backend.require_loopback_host("127.0.0.1"))
+        self.assertEqual("localhost", backend.require_loopback_host("LOCALHOST"))
+
+    def test_non_loopback_host_fails_closed(self) -> None:
+        for host in ("0.0.0.0", "192.168.1.10", "::"):
+            with self.subTest(host=host):
+                with self.assertRaises(backend.BackendBlocked):
+                    backend.require_loopback_host(host)
+
+
 if __name__ == "__main__":
     unittest.main()
