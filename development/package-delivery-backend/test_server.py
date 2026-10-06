@@ -54,12 +54,11 @@ class BackendTest(unittest.TestCase):
         self.server.server_close()
         self.tmp.cleanup()
 
-    def request(self, path, *, authenticated=True, audiences="audience:standard"):
+    def request(self, path, *, authenticated=True, subject="dev:standard"):
         request = urllib.request.Request(self.base + path)
         if authenticated:
             request.add_header("Authorization", "Bearer " + "x" * 40)
-        request.add_header("X-GoreeCloud-Development-Subject", "fixture-standard")
-        request.add_header("X-GoreeCloud-Development-Audiences", audiences)
+        request.add_header("X-GoreeCloud-Development-Subject", subject)
         return urllib.request.urlopen(request, timeout=2)
 
     def test_health(self):
@@ -73,9 +72,14 @@ class BackendTest(unittest.TestCase):
             self.request("/v1/items/goreecloud.sample", authenticated=False)
         self.assertEqual(context.exception.code, 401)
 
-    def test_item_reauthorizes_audience(self):
+    def test_signed_out_identity_is_rejected(self):
         with self.assertRaises(urllib.error.HTTPError) as context:
-            self.request("/v1/items/goreecloud.sample", audiences="audience:developer")
+            self.request("/v1/items/goreecloud.sample", subject="dev:signed-out")
+        self.assertEqual(context.exception.code, 403)
+
+    def test_unknown_identity_is_rejected(self):
+        with self.assertRaises(urllib.error.HTTPError) as context:
+            self.request("/v1/items/goreecloud.sample", subject="dev:unknown")
         self.assertEqual(context.exception.code, 403)
 
     def test_item_and_artifact_round_trip(self):
