@@ -3,6 +3,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+fun buildConfigString(value: String): String =
+    "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+
 android {
     namespace = "com.goreecloud.appstore"
     compileSdk = 37
@@ -25,9 +28,9 @@ android {
         versionName = "0.1.14-dev"
         manifestPlaceholders["appLabel"] = "GoreeCloud App Store"
 
-        buildConfigField("String", "DEVELOPMENT_DELIVERY_BASE_URL", """")
-        buildConfigField("String", "DEVELOPMENT_DELIVERY_TOKEN", """")
-        buildConfigField("String", "DEVELOPMENT_DELIVERY_TLS_CERT_SHA256", """")
+        buildConfigField("String", "DEVELOPMENT_DELIVERY_BASE_URL", buildConfigString(""))
+        buildConfigField("String", "DEVELOPMENT_DELIVERY_TOKEN", buildConfigString(""))
+        buildConfigField("String", "DEVELOPMENT_DELIVERY_TLS_CERT_SHA256", buildConfigString(""))
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -41,9 +44,9 @@ android {
             val deliveryBaseUrl = providers.gradleProperty("goreecloudDevDeliveryBaseUrl").orNull.orEmpty()
             val deliveryToken = providers.gradleProperty("goreecloudDevDeliveryToken").orNull.orEmpty()
             val deliveryTlsPin = providers.gradleProperty("goreecloudDevDeliveryTlsCertSha256").orNull.orEmpty()
-            buildConfigField("String", "DEVELOPMENT_DELIVERY_BASE_URL", ""$deliveryBaseUrl"")
-            buildConfigField("String", "DEVELOPMENT_DELIVERY_TOKEN", ""$deliveryToken"")
-            buildConfigField("String", "DEVELOPMENT_DELIVERY_TLS_CERT_SHA256", ""$deliveryTlsPin"")
+            buildConfigField("String", "DEVELOPMENT_DELIVERY_BASE_URL", buildConfigString(deliveryBaseUrl))
+            buildConfigField("String", "DEVELOPMENT_DELIVERY_TOKEN", buildConfigString(deliveryToken))
+            buildConfigField("String", "DEVELOPMENT_DELIVERY_TLS_CERT_SHA256", buildConfigString(deliveryTlsPin))
         }
         getByName("release") {
             manifestPlaceholders["appLabel"] = "GoreeCloud App Store"
