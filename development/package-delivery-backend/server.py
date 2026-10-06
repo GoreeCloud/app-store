@@ -19,6 +19,32 @@ SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 ITEM_ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{1,127}$")
 ARTIFACT_ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{1,159}$")
 
+# Mirrors only the current local Development identity fixtures. The client sends the opaque
+# fixture subject; authorization-relevant audiences are resolved here rather than trusted from
+# client-supplied audience headers.
+DEVELOPMENT_IDENTITIES = {
+    "dev:standard": {
+        "authenticated": True,
+        "audiences": frozenset({"audience:standard"}),
+    },
+    "dev:preview": {
+        "authenticated": True,
+        "audiences": frozenset({"audience:standard"}),
+    },
+    "dev:administrator": {
+        "authenticated": True,
+        "audiences": frozenset({"audience:standard", "audience:administrator"}),
+    },
+    "dev:developer": {
+        "authenticated": True,
+        "audiences": frozenset({"audience:standard", "audience:developer"}),
+    },
+    "dev:signed-out": {
+        "authenticated": False,
+        "audiences": frozenset(),
+    },
+}
+
 
 @dataclass(frozen=True)
 class Release:
@@ -188,15 +214,11 @@ class Handler(BaseHTTPRequestHandler):
             return False
 
         subject = self.headers.get("X-GoreeCloud-Development-Subject", "").strip()
-        audiences = {
-            part.strip()
-            for part in self.headers.get("X-GoreeCloud-Development-Audiences", "").split(",")
-            if part.strip()
-        }
-        if not subject or not audiences:
-            self._json(HTTPStatus.FORBIDDEN, {"error": "development_identity_context_required"})
+        identity = DEVELOPMENT_IDENTITIES.get(subject)
+        if identity is None or not identity["authenticated"]:
+            self._json(HTTPStatus.FORBIDDEN, {"error": "development_identity_not_authorized"})
             return False
-        if release.allowed_audiences.isdisjoint(audiences):
+        if release.allowed_audiences.isdisjoint(identity["audiences"]):
             self._json(HTTPStatus.FORBIDDEN, {"error": "development_catalog_not_authorized"})
             return False
         return True
