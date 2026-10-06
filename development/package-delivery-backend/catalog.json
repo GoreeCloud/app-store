@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "environment": "development-local",
+  "items": [
+    {
+      "itemId": "goreecloud.gallery",
+      "artifactId": "goreecloud-gallery-0.8.11-dev-vc2000883",
+      "fileName": "GoreeCloud-Gallery-0.8.11-dev-vc2000883.apk",
+      "packageName": "com.goreecloud.gallery.dev",
+      "versionName": "0.8.11-dev",
+      "versionCode": 2000883,
+      "minSdk": 29,
+      "releaseChannel": "development",
+      "sha256": "5516f03092252ca053a54b3240ec0c95e97d1d12ccda1089c4bba377a81dcd0a",
+      "signerSha256": "7976b1035c5c1b259682eb384ce5cd7e3fbc49c6611911182a112724825b9cbc",
+      "allowedAudiences": [
+        "audience:standard",
+        "audience:administrator"
+      ]
+    }
+  ]
+}
