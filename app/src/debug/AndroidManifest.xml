@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <queries>
+        <package android:name="com.goreecloud.gallery.dev" />
+    </queries>
+
+    <application>
+        <receiver
+            android:name=".install.DevelopmentInstallResultReceiver"
+            android:exported="false" />
+    </application>
+</manifest>
