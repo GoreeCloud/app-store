@@ -32,6 +32,11 @@ jobs:
         run: python3 scripts/validate_android_installed_state_observation.py
       - name: Validate read-only package delivery preflight
         run: python3 scripts/validate_package_delivery_preflight.py
+      - name: Validate Development package-delivery boundary
+        run: python3 scripts/validate_development_package_delivery.py
+      - name: Test Development package-delivery backend
+        working-directory: development/package-delivery-backend
+        run: python3 -m unittest -v test_server.py
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
