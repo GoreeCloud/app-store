@@ -12,6 +12,8 @@ import android.os.Looper
 import android.provider.Settings
 import com.goreecloud.appstore.BuildConfig
 import com.goreecloud.appstore.domain.IdentitySession
+import com.goreecloud.appstore.domain.PackageDeliveryPolicy
+import com.goreecloud.appstore.domain.ReleaseChannel
 import com.goreecloud.appstore.domain.StoreItem
 import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.install.DevelopmentInstallResultReceiver
@@ -109,12 +111,69 @@ internal class DevelopmentPackageDeliveryGateway(
             val state = runCatching {
                 validateReleaseBinding(item, release)
                 val stagedApk = stageVerifiedApk(session, release)
+
+                val observationGateway = InstalledPackageObservationGateway(
+                    AndroidInstalledPackageLookup(
+                        context = context,
+                        observablePackageNames = setOf(release.packageName),
+                    ),
+                )
+                val observation = observationGateway.observe(release.packageName)
+                val action = when (observation) {
+                    is InstalledPackageObservation.Installed -> {
+                        if (observation.versionCode >= release.versionCode) {
+                            return@runCatching PackageDeliveryState.Installed(
+                                release = release,
+                                installedVersionCode = observation.versionCode,
+                            )
+                        }
+                        PackageDeliveryPolicy.Action.UPDATE
+                    }
+
+                    InstalledPackageObservation.Absent ->
+                        PackageDeliveryPolicy.Action.INSTALL
+
+                    is InstalledPackageObservation.Unknown ->
+                        PackageDeliveryPolicy.Action.INSTALL
+                }
+                val artifact = PackageDeliveryPolicy.ArtifactCandidate(
+                    packageName = release.packageName,
+                    versionName = release.versionName,
+                    versionCode = release.versionCode,
+                    releaseChannel = ReleaseChannel.valueOf(release.releaseChannel.uppercase()),
+                    minSdk = release.minSdk,
+                    sha256 = release.sha256,
+                )
+                val evidence = PackageDeliveryPolicy.Evidence(
+                    catalogBinding = PackageDeliveryPolicy.AcceptanceState.ACCEPTED,
+                    digest = PackageDeliveryPolicy.AcceptanceState.ACCEPTED,
+                    signature = PackageDeliveryPolicy.AcceptanceState.ACCEPTED,
+                    wardveil = PackageDeliveryPolicy.AcceptanceState.ACCEPTED,
+                    release = release.releaseEvidence,
+                )
+                val preflight = PackageDeliveryPreflightCoordinator(observationGateway).evaluate(
+                    session = session,
+                    item = item,
+                    artifact = artifact,
+                    evidence = evidence,
+                    action = action,
+                    context = PackageDeliveryPolicy.EvidenceEvaluationContext(
+                        evaluatedAtEpochSeconds = System.currentTimeMillis() / 1000L,
+                    ),
+                    sdkInt = Build.VERSION.SDK_INT,
+                )
+                if (!preflight.decision.eligibleForHandoff) {
+                    val blockers = preflight.decision.blockers
+                        .joinToString("-") { it.name.lowercase() }
+                    error("package_preflight_blocked:$blockers")
+                }
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
                     !context.packageManager.canRequestPackageInstalls()
                 ) {
                     val settingsIntent = Intent(
                         Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
-                        Uri.parse("package:\${context.packageName}"),
+                        Uri.parse("package:${context.packageName}"),
                     ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(settingsIntent)
                     PackageDeliveryState.InstallPermissionRequired(release)
@@ -140,8 +199,15 @@ internal class DevelopmentPackageDeliveryGateway(
         if (response.optString("environment") != "development") {
             error("release_environment_not_development")
         }
+        if (response.optBoolean("productionAcceptance", true)) {
+            error("unexpected_production_acceptance")
+        }
+        if (response.optInt("schemaVersion", 0) < 2) {
+            error("release_schema_too_old")
+        }
         val releaseJson = response.getJSONObject("release")
         val wardveil = releaseJson.getJSONObject("wardveil")
+        val releaseEvidence = parseReleaseEvidence(releaseJson.getJSONObject("releaseEvidence"))
         val release = DevelopmentDeliveryRelease(
             storeItemId = releaseJson.getString("storeItemId"),
             artifactId = releaseJson.getString("artifactId"),
@@ -156,6 +222,7 @@ internal class DevelopmentPackageDeliveryGateway(
             downloadPath = releaseJson.getString("downloadPath"),
             wardveilEvidenceRef = wardveil.getString("evidenceRef"),
             wardveilValidUntilEpochSeconds = wardveil.getLong("validUntilEpochSeconds"),
+            releaseEvidence = releaseEvidence,
         )
         if (wardveil.optString("result") != "clean") {
             error("wardveil_development_scan_not_clean")
@@ -171,6 +238,53 @@ internal class DevelopmentPackageDeliveryGateway(
         }
         validateReleaseBinding(item, release)
         return release
+    }
+
+    private fun parseReleaseEvidence(root: JSONObject): PackageDeliveryPolicy.ReleaseEvidence {
+        fun record(
+            key: String,
+            expectedType: PackageDeliveryPolicy.ReleaseEvidenceType,
+        ): PackageDeliveryPolicy.ReleaseEvidenceRecord {
+            val value = root.getJSONObject(key)
+            val type = PackageDeliveryPolicy.ReleaseEvidenceType.valueOf(
+                value.getString("type").uppercase(),
+            )
+            if (type != expectedType) error("release_evidence_type_mismatch")
+            return PackageDeliveryPolicy.ReleaseEvidenceRecord(
+                type = type,
+                state = PackageDeliveryPolicy.AcceptanceState.valueOf(
+                    value.getString("state").uppercase(),
+                ),
+                producerId = value.getString("producerId"),
+                authorityDomain = value.getString("authorityDomain"),
+                producerAuthority = PackageDeliveryPolicy.AcceptanceState.valueOf(
+                    value.getString("producerAuthority").uppercase(),
+                ),
+                subjectPackageName = value.getString("subjectPackageName"),
+                artifactSha256 = value.getString("artifactSha256").lowercase(),
+                evidenceSetId = value.getString("evidenceSetId"),
+                contractVersion = value.getString("contractVersion"),
+                createdAtEpochSeconds = value.getLong("createdAtEpochSeconds"),
+                expiresAtEpochSeconds = value.getLong("expiresAtEpochSeconds"),
+                sourceReference = value.getString("sourceReference"),
+            )
+        }
+
+        return PackageDeliveryPolicy.ReleaseEvidence(
+            buildProvenance = record(
+                "buildProvenance",
+                PackageDeliveryPolicy.ReleaseEvidenceType.BUILD_PROVENANCE,
+            ),
+            sbom = record("sbom", PackageDeliveryPolicy.ReleaseEvidenceType.SBOM),
+            releaseApproval = record(
+                "releaseApproval",
+                PackageDeliveryPolicy.ReleaseEvidenceType.RELEASE_APPROVAL,
+            ),
+            revocationStatus = record(
+                "revocationStatus",
+                PackageDeliveryPolicy.ReleaseEvidenceType.REVOCATION_STATUS,
+            ),
+        )
     }
 
     private fun validateReleaseBinding(
