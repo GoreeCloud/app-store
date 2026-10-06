@@ -20,6 +20,7 @@ def main() -> int:
     main_manifest = ROOT / "app/src/main/AndroidManifest.xml"
     debug_manifest = ROOT / "app/src/debug/AndroidManifest.xml"
     backend = ROOT / "development/backend/server.py"
+    bootstrap = ROOT / "development/backend/bootstrap.sh"
     example = ROOT / "development/backend/releases.example.json"
     catalog_path = ROOT / "app/src/main/assets/catalog/development-catalog.json"
     build_file = ROOT / "app/build.gradle.kts"
@@ -34,6 +35,7 @@ def main() -> int:
         main_manifest,
         debug_manifest,
         backend,
+        bootstrap,
         example,
         catalog_path,
         build_file,
@@ -127,7 +129,22 @@ def main() -> int:
         require(marker in debug_source, f"missing debug delivery fail-closed marker: {marker}")
 
     backend_source = backend.read_text(encoding="utf-8")
+    bootstrap_source = bootstrap.read_text(encoding="utf-8")
     compile(backend_source, str(backend), "exec")
+    for environment_name in (
+        "GOREECLOUD_APP_STORE_TOKEN",
+        "GOREECLOUD_APP_STORE_RELEASES",
+        "GOREECLOUD_WARDVEIL_REPO",
+        "GOREECLOUD_AAPT",
+        "GOREECLOUD_APKSIGNER",
+        "GOREECLOUD_APP_STORE_TLS_CERT",
+        "GOREECLOUD_APP_STORE_TLS_KEY",
+    ):
+        require(environment_name in backend_source, f"missing backend environment {environment_name}")
+        require(environment_name in bootstrap_source, f"bootstrap/backend environment drift: {environment_name}")
+    require("GORECLOUD_" not in backend_source, "single-E GoreeCloud backend environment prefix reintroduced")
+    require("GORECLOUD_" not in bootstrap_source, "single-E GoreeCloud bootstrap environment prefix reintroduced")
+    require("GORECLOUD_" not in build, "single-E GoreeCloud Android environment prefix reintroduced")
     for marker in (
         "X-GoreeCloud-Dev-Subject",
         "hmac.compare_digest",
