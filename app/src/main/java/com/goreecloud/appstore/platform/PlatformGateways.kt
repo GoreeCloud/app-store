@@ -27,7 +27,7 @@ object PlatformIntegrationRegistry {
         PlatformIntegrationStatus(
             system = "Wardveil Security",
             state = IntegrationState.SOURCE_BOUNDARY,
-            detail = "Package verification is reserved; package delivery is not connected.",
+            detail = "Production Wardveil verification remains unconnected; the bounded debug delivery lane verifies pinned digest/package/version/Development-signer metadata locally and is not Wardveil acceptance.",
         ),
         PlatformIntegrationStatus(
             system = "Privacy Shield",
