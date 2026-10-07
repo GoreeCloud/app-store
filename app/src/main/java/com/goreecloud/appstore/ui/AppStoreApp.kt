@@ -404,19 +404,12 @@ fun GoreeCloudAppStore(
                             )
                         }
                         item {
-                            Box(
-                                modifier = Modifier
-                                    .fillParentMaxHeight(0.55f)
-                                    .fillMaxWidth(),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                UnavailableState(
-                                    icon = Icons.Rounded.Update,
-                                    title = "Release delivery not connected",
-                                    body = "Available app updates will appear here after authenticated release metadata and package delivery are connected.",
-                                    onDetails = { showPlatformStatus = true },
-                                )
-                            }
+                            UnavailableState(
+                                icon = Icons.Rounded.Update,
+                                title = "Updates not connected yet",
+                                body = "Automatic update checks are unavailable in this Development build. Authorized Development downloads are available only on separately configured test builds.",
+                                onDetails = { showPlatformStatus = true },
+                            )
                         }
                     }
 
