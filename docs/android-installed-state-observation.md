@@ -1,43 +1,67 @@
-# Android Installed-State Observation — Current-Main Recovery
+# Android Installed-State Observation — Development Package Delivery
 
 ## Status and scope
 
-This Development tranche recovers one exact-package, read-only Android installation-state observation boundary onto the current App Store current-main stack. It exists only to provide accepted positive installed-package identity/version evidence to the already recovered pure package-delivery pre-handoff policy.
+The App Store keeps installed-state observation exact-package and fail-closed. The ordinary/main and release-facing boundary does not enumerate installed applications and does not request `QUERY_ALL_PACKAGES`.
 
-It does not authorize downloads, package installation, update execution, rollback execution, uninstall, package mutation, or broad installed-application inventory.
+The bounded Development delivery source set adds visibility for one exact package identity, `com.goreecloud.gallery.dev`, through the debug manifest. That exact visibility declaration is the negative-observation authority for the first Development install path: Android `NameNotFoundException` may become accepted absence only for a package name the caller has explicitly declared observable.
+
+This does not create broad installed-application inventory, production package authority, or permission to infer absence for arbitrary packages.
 
 ## Exact-package observation
 
-The production-facing seam accepts one explicit package identity at a time. The Android adapter uses PackageManager.getPackageInfo() for that exact package name.
+The observer accepts one explicit package identity at a time and uses `PackageManager.getPackageInfo()` for that exact identity.
 
-The observer does not call installed-application or installed-package enumeration APIs and the manifest does not request QUERY_ALL_PACKAGES or declare a <queries> block for this tranche.
+Malformed, trim-dependent, control-bearing, response-identity-mismatched, or invalid-version results fail closed. Installed-package enumeration APIs remain prohibited.
 
-Malformed, trim-dependent, control-bearing, mismatched, or invalid-version responses fail closed.
+The main manifest does not request `QUERY_ALL_PACKAGES` and does not declare a package-visibility query. The debug manifest declares only the exact Gallery Development package used by the current delivery tranche.
 
 ## Package-visibility boundary
 
-Android package visibility means NameNotFoundException cannot safely be interpreted as proof that a package is absent. A visibility-related SecurityException has the same limitation.
+Android package visibility means `NameNotFoundException` is not globally equivalent to package absence.
 
-Both conditions therefore become NotObserved / UNKNOWN. The adapter converts UNKNOWN observation into DeviceState.unobserved(sdkInt), so the package-delivery policy cannot treat an unobservable package as accepted absence.
+Accordingly:
 
-This current Android exact-package lookup does not manufacture that negative authority. Fresh INSTALL remains blocked until a separately governed negative-observation authority can distinguish verified absence from visibility ambiguity without broad enumeration.
+- for an exact package identity explicitly included in the lookup gateway's observable-package allowlist, `NameNotFoundException` becomes `InstalledPackageObservation.Absent` and then `DeviceState.observedAbsent(sdkInt)`;
+- for every other package identity, the same result remains `NotObserved / UNKNOWN`;
+- `SecurityException` always remains UNKNOWN;
+- a platform failure always remains UNKNOWN.
+
+This prevents package visibility ambiguity from silently authorizing fresh INSTALL while allowing the single query-visible Development package to prove absence without broad enumeration.
 
 ## Accepted positive observation
 
-When Android returns the exact requested package identity with a non-negative version code, the observer can produce accepted installed-state evidence for update or rollback policy evaluation.
+When Android returns the exact requested package identity with a non-negative version code, the observer produces accepted installed-state evidence. The delivery flow uses that evidence to distinguish an eligible UPDATE from a fresh INSTALL and to reject same-or-newer already-installed versions.
 
-That positive observation does not itself authorize update or rollback. The package-delivery policy still requires exact catalog/artifact identity, release-channel authorization, digest/signature/Wardveil acceptance, coherent release evidence, version ordering, and rollback acceptance where applicable.
+Positive observation alone never authorizes package mutation. Exact catalog/artifact identity, release-channel authorization, digest/signature/Wardveil acceptance, coherent release evidence, compatible SDK state, and applicable version-ordering requirements must still pass the existing `PackageDeliveryPolicy`.
 
-## Authority boundary
+## Development install boundary
 
-This tranche adds no PackageInstaller use, REQUEST_INSTALL_PACKAGES permission, download client, package bytes, signing authority, release approval, revocation service, trusted-time authority, broad app inventory, or production evidence transport.
+Only the debug source set currently carries `REQUEST_INSTALL_PACKAGES`, and only the exact Gallery Development package is query-visible. The release build keeps the package-delivery gateway unavailable.
 
-The existing UnavailablePackageDeliveryGateway remains unavailable and this branch adds no UI/runtime call site that can mutate packages.
+Before Android `PackageInstaller` is invoked, the Development client:
 
-## Validation and follow-up
+1. receives backend-re-authorized exact release metadata;
+2. requires current Development Wardveil scan evidence;
+3. downloads the artifact into private App Store cache;
+4. verifies the exact APK SHA-256, package name, versionName/versionCode, and Development signing certificate;
+5. evaluates the existing package-delivery preflight using the observed installed/absent state and correlated release evidence;
+6. hands the package to Android only when the preflight is eligible.
 
-The repository validator must prove exact-package lookup only, no broad enumeration, no package-install authority, UNKNOWN handling for unobserved packages, and the retained fail-closed installation-state policy.
+Android user confirmation remains mandatory.
 
-Unit tests must prove exact installed identity/version preservation, unobserved-to-UNKNOWN behavior, malformed identity rejection before platform lookup, mismatched response rejection, invalid version rejection, and platform failure remaining UNKNOWN.
+## Validation
 
-A later tranche may wire this observer into a governed runtime decision path only after its source boundary is independently accepted. Fresh INSTALL still requires separate accepted negative-observation authority.
+Repository validation must continue to prove:
+
+- no broad installed-package enumeration;
+- no `QUERY_ALL_PACKAGES`;
+- no package-visibility query in the main manifest;
+- the debug query scope is exactly the bounded Gallery Development package;
+- arbitrary unobserved packages remain UNKNOWN;
+- explicitly observable exact absence may become ACCEPTED;
+- release builds retain no package-install execution authority.
+
+Unit tests cover exact installed identity/version preservation, observable absence, unobserved-to-UNKNOWN behavior, malformed identity rejection before platform lookup, mismatched response rejection, invalid version rejection, and platform failure remaining UNKNOWN.
+
+This remains Development evidence only. Production installed-state authority, production package distribution, Production Acceptance, Seal/Anchor, and Stable qualification remain separate gates.

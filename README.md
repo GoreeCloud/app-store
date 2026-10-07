@@ -25,13 +25,14 @@ The current development branch establishes:
 - official canonical artwork for every catalog application and service, with user-facing placeholder/monogram fallbacks prohibited and CI-enforced;
 - device-review mobile-density refinement that shortens account labels, reduces Discover chrome, removes redundant Development pills, compacts Featured/catalog cards, and uses denser Updates/Library states while preserving 48dp-class interaction targets;
 - representative-device onboarding/status refinement with top-anchored progress-led first-run guidance, bottom-anchored navigation, structured capability summaries, current Glaze naming, compact integration cards, and denser catalog rows;
-- a follow-up compact-phone polish pass that removes the redundant Discover status strip, clarifies identity-scoped catalog counts, marks the active account in the selector, tightens category/Featured browsing, adds clear-search controls, centers the disconnected Updates state, and compacts Library history status;
+- a follow-up compact-phone polish pass that removes the redundant Discover status strip, clarifies identity-scoped catalog counts, marks the active account in the selector, tightens category/Featured browsing, adds clear-search controls, keeps the disconnected Updates notice near its heading, and compacts Library history status;
 - filter-reset and detail-sheet polish with one-tap empty-result recovery, tighter category and Featured geometry, a more compact header, actionable disconnected-state rows, and consolidated Favorite/Save controls and local-state copy;
 - mobile interaction and accessibility polish with concise onboarding language, a clearer Start browsing completion action, search-keyboard completion behavior, explicit selected-filter clearing, local Favorite/Saved state glyphs on catalog rows, and an explicit assistive label for the development-identity control;
 - per-development-identity device-local Save for later state for currently entitled items, with Library presentation that remains explicitly separate from installed/history/Everkeep authority and hashed local preference namespaces that do not embed the raw identity subject;
 - session-local Recently opened browsing with per-identity separation, Library-wide search, compact collection counts/actions, and Discover Continue browsing without durable browsing-history storage;
 - store-style application/service cards and product-detail bottom sheets;
-- actionable product availability cards linked to Development status, plus release-channel metadata visibility enforcement so version/channel fields are shown only when the active identity has the corresponding channel grant;
+- actionable product availability cards plus release-channel metadata visibility enforcement so version/channel fields are shown only when the active identity has the corresponding channel grant;
+- a bounded Development-only Gallery package-delivery path: backend subject re-authorization, exact artifact/package/signing metadata checks, current Wardveil ClamAV reference scanning, pinned HTTPS, client-side byte/signing re-verification, private-cache staging, and Android PackageInstaller handoff with user confirmation;
 - approved first-party artwork derivatives tied to canonical assets in `GoreeCloud/branding-assets`;
 - development-status diagnostics separated from ordinary catalog browsing;
 - compact-width safeguards for account controls, catalog headings, item metadata, release-channel labels, detail metadata, and platform-status rows;
@@ -47,7 +48,7 @@ The interface now uses a compact catalog-browsing hierarchy validated iterativel
 
 CI/debug builds install as `com.goreecloud.appstore.dev` with the Android label **GoreeCloud App Store Dev**. They are signed with one repository-managed development-only certificate so successive development builds can update each other instead of receiving a new ephemeral Android debug identity from every CI runner.
 
-The current development version line is `0.1.13-dev` with version code `14`.
+The current development candidate advances to `0.1.15-dev` with version code `16`.
 
 The reserved future production application ID remains `com.goreecloud.appstore`. The development signing key MUST NOT sign that production package or any artifact represented as production-approved or Stable. See `development/signing/README.md` for the explicit boundary and certificate fingerprint.
 
@@ -63,7 +64,7 @@ The account switcher is **not** a production GoreeCloud Identity login. It uses 
 
 The development catalog also does not assert production package identities, service endpoints, versions, or audience taxonomy. Those values must come from approved authoritative release, service, and Identity metadata.
 
-Package download, APK installation, service launch, production update delivery, Wardveil package-verification acceptance, production Privacy Shield policy evaluation, Everkeep library recovery, and Mesh lifecycle transport are deliberately unavailable until their real integrations are implemented and validated. The UI must not imply otherwise.
+A bounded **Development-only** package path is now implemented for the exact GoreeCloud Gallery `0.8.11-dev` artifact when the debug build is configured for the authorized Development backend and the active fixture identity has the Development-channel grant. The backend and client both fail closed on authorization, metadata, digest, signing, TLS-pin, and current Wardveil Development scan failures, and Android still requires user installation approval. This does **not** establish production package distribution, production GoreeCloud Identity, production Wardveil acceptance, service launch, production update delivery, Privacy Shield runtime acceptance, Everkeep recovery, Mesh lifecycle transport, Production Acceptance, Seal/Anchor, or Stable status.
 
 ## Authorization model
 
@@ -120,6 +121,7 @@ CI installs the pinned Gradle distribution directly, checks out and records the 
 - `docs/PRIVACY.md` — current Development privacy boundary
 - `.github/SECURITY.md` — security guidance and vulnerability-reporting boundary
 - `development/signing/README.md` — development package/signing boundary
+- `development/backend/README.md` — bounded Development package-delivery backend and runtime configuration
 - `goreecloud.platform.yaml` — Platform Contract 0.4 current conformance declaration
 - `contracts/platform-integrations.json` — machine-readable current integration truth
 - `app/src/main/assets/catalog/development-catalog.json` — non-authoritative development fixture catalog

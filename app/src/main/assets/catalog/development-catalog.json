@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "environment": "development-fixture",
   "authoritative": false,
-  "notice": "This expanded catalog is a non-production portfolio fixture for App Store development and UI testing. Visibility audiences, versions, package identities, endpoints, release channels, installability, and service launch authority are not production assertions. Package names and endpoints remain blank until approved authoritative release/service metadata is ingested.",
+  "notice": "This expanded catalog is a non-production portfolio fixture for App Store development and UI testing. Visibility audiences, endpoints, release channels, installability, and service launch authority are not production assertions. Entries remain non-installable unless a Development release is explicitly bound to an exact verified package identity; GoreeCloud Gallery is the first bounded Development delivery entry.",
   "items": [
     {
       "id": "goreecloud.app-store",
@@ -262,9 +262,9 @@
       "summary": "A native gallery for browsing and managing local photos and videos.",
       "type": "application",
       "category": "Photography",
-      "version": "development",
+      "version": "0.8.11-dev",
       "releaseChannel": "development",
-      "packageName": "",
+      "packageName": "com.goreecloud.gallery.dev",
       "serviceUrl": "",
       "access": {
         "requireSignedIn": true,

@@ -3,6 +3,9 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+fun buildConfigString(value: String): String =
+    "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+
 android {
     namespace = "com.goreecloud.appstore"
     compileSdk = 37
@@ -21,9 +24,13 @@ android {
         applicationId = "com.goreecloud.appstore"
         minSdk = 26
         targetSdk = 36
-        versionCode = 14
-        versionName = "0.1.13-dev"
+        versionCode = 16
+        versionName = "0.1.15-dev"
         manifestPlaceholders["appLabel"] = "GoreeCloud App Store"
+
+        buildConfigField("String", "DEVELOPMENT_DELIVERY_BASE_URL", buildConfigString(""))
+        buildConfigField("String", "DEVELOPMENT_DELIVERY_TOKEN", buildConfigString(""))
+        buildConfigField("String", "DEVELOPMENT_DELIVERY_TLS_CERT_SHA256", buildConfigString(""))
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,6 +40,22 @@ android {
             applicationIdSuffix = ".dev"
             manifestPlaceholders["appLabel"] = "GoreeCloud App Store Dev"
             signingConfig = signingConfigs.getByName("development")
+
+            val deliveryBaseUrl = providers.gradleProperty("goreecloudDevDeliveryBaseUrl")
+                .orElse(providers.environmentVariable("GOREECLOUD_DEV_DELIVERY_BASE_URL"))
+                .orNull
+                .orEmpty()
+            val deliveryToken = providers.gradleProperty("goreecloudDevDeliveryToken")
+                .orElse(providers.environmentVariable("GOREECLOUD_DEV_DELIVERY_TOKEN"))
+                .orNull
+                .orEmpty()
+            val deliveryTlsPin = providers.gradleProperty("goreecloudDevDeliveryTlsCertSha256")
+                .orElse(providers.environmentVariable("GOREECLOUD_DEV_DELIVERY_TLS_CERT_SHA256"))
+                .orNull
+                .orEmpty()
+            buildConfigField("String", "DEVELOPMENT_DELIVERY_BASE_URL", buildConfigString(deliveryBaseUrl))
+            buildConfigField("String", "DEVELOPMENT_DELIVERY_TOKEN", buildConfigString(deliveryToken))
+            buildConfigField("String", "DEVELOPMENT_DELIVERY_TLS_CERT_SHA256", buildConfigString(deliveryTlsPin))
         }
         getByName("release") {
             manifestPlaceholders["appLabel"] = "GoreeCloud App Store"
@@ -41,6 +64,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {

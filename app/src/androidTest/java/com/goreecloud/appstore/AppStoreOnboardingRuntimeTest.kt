@@ -1,6 +1,8 @@
 package com.goreecloud.appstore
 
 import android.content.Context
+import android.content.res.Configuration
+import androidx.core.view.WindowCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -21,6 +23,52 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class AppStoreOnboardingRuntimeTest {
+    @Test
+    fun systemBarIconsMatchCurrentAppearance() {
+        resetGuidance()
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                val light = (
+                    activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                ) != Configuration.UI_MODE_NIGHT_YES
+                val controller = WindowCompat.getInsetsController(
+                    activity.window,
+                    activity.window.decorView,
+                )
+                assertEquals(light, controller.isAppearanceLightStatusBars)
+                assertEquals(light, controller.isAppearanceLightNavigationBars)
+            }
+        }
+    }
+
+    @Test
+    fun disconnectedUpdatesGuidanceStaysNearHeading() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val device = UiDevice.getInstance(instrumentation)
+        val context = resetGuidance()
+        ActivityScenario.launch(MainActivity::class.java).use {
+            waitForText(device, "Welcome to GoreeCloud App Store")
+            clickTextButton(device, "Continue")
+            waitForText(device, "What works today")
+            clickTextButton(device, "Continue")
+            waitForText(device, "Helpful tips")
+            clickTextButton(device, "Start browsing")
+            waitForText(device, "Discover")
+
+            clickTextButton(device, "Updates")
+            val header = device.findObjects(By.text("Updates"))
+                .minByOrNull { it.visibleBounds.top }
+            val message = waitForText(device, "Updates not connected yet")
+            val screenDensity = context.resources.displayMetrics.density
+            assertTrue(
+                "Updates disconnected state should remain close to its heading",
+                header != null &&
+                    (message.visibleBounds.top - header.visibleBounds.top) /
+                    screenDensity < 220f,
+            )
+        }
+    }
+
     @Test
     fun firstUseSetupResumesAtPersistedStepAfterRecreation() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()

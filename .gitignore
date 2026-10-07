@@ -8,3 +8,8 @@
 .externalNativeBuild/
 .cxx/
 **/build/
+/.dev-backend/
+/.dev-packages/
+/.kotlin/
+**/__pycache__/
+*.pyc

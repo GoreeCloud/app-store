@@ -42,6 +42,21 @@ class InstalledPackageObservationGatewayTest {
     }
 
     @Test
+    fun explicitlyObservableAbsenceBecomesAcceptedAbsence() {
+        val gateway = InstalledPackageObservationGateway(
+            FakeLookup(InstalledPackageLookupResult.Absent),
+        )
+
+        val observation = gateway.observe("com.goreecloud.gallery.dev")
+        assertEquals(InstalledPackageObservation.Absent, observation)
+
+        val device = gateway.toDeviceState(35, observation)
+        assertEquals(AcceptanceState.ACCEPTED, device.installationState)
+        assertEquals(null, device.installedPackageName)
+        assertEquals(null, device.installedVersionCode)
+    }
+
+    @Test
     fun notObservedNeverBecomesAcceptedAbsence() {
         val gateway = InstalledPackageObservationGateway(
             FakeLookup(InstalledPackageLookupResult.NotObserved),

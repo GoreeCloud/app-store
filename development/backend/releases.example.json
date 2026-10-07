@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "environment": "development",
+  "productionAcceptance": false,
+  "releases": [
+    {
+      "storeItemId": "goreecloud.gallery",
+      "artifactId": "goreecloud-gallery-0.8.11-dev-vc2000883",
+      "filePath": ".dev-packages/GoreeCloud-Gallery-0.8.11-dev-vc2000883.apk",
+      "packageName": "com.goreecloud.gallery.dev",
+      "versionName": "0.8.11-dev",
+      "versionCode": 2000883,
+      "releaseChannel": "development",
+      "minSdk": 29,
+      "sha256": "5516f03092252ca053a54b3240ec0c95e97d1d12ccda1089c4bba377a81dcd0a",
+      "certificateSha256": "7976b1035c5c1b259682eb384ce5cd7e3fbc49c6611911182a112724825b9cbc",
+      "sizeBytes": 3315772,
+      "allowedSubjects": [
+        "dev:developer"
+      ],
+      "buildProvenanceRef": "GoreeCloud/android-app-defaults@d5461282867e7c5dea11d8ab342abfdf88ce2a8c;Drive:1n4jkb0QmjPsh8LDy5NMz0OQdImtElQ_q;sha256:5516f03092252ca053a54b3240ec0c95e97d1d12ccda1089c4bba377a81dcd0a",
+      "sbomRef": "development/backend/evidence/gallery-0.8.11-dev.sbom.json",
+      "releaseApprovalRef": "owner-development-delivery-authorization:2026-10-06",
+      "revocationStatusRef": "development-catalog:goreecloud.gallery:0.8.11-dev:not-revoked"
+    }
+  ]
+}
