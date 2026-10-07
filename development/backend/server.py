@@ -23,6 +23,21 @@ from typing import Any
 CANONICAL_SHA256 = re.compile(r"^[0-9a-f]{64}$")
 PACKAGE_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)+$")
 MAX_APK_BYTES = 64 * 1024 * 1024
+# This first Development tranche is deliberately restricted to one audited artifact.
+# New apps or channels require an explicit reviewed contract change.
+AUDITED_GALLERY = {
+    "store_item_id": "goreecloud.gallery",
+    "artifact_id": "goreecloud-gallery-0.8.11-dev-vc2000883",
+    "package_name": "com.goreecloud.gallery.dev",
+    "version_name": "0.8.11-dev",
+    "version_code": 2000883,
+    "release_channel": "development",
+    "sha256": "5516f03092252ca053a54b3240ec0c95e97d1d12ccda1089c4bba377a81dcd0a",
+    "certificate_sha256": "7976b1035c5c1b259682eb384ce5cd7e3fbc49c6611911182a112724825b9cbc",
+    "size_bytes": 3315772,
+    "min_sdk": 29,
+    "allowed_subjects": frozenset({"dev:developer"}),
+}
 
 
 class BackendBlocked(RuntimeError):
@@ -76,6 +91,9 @@ class Release:
         return release
 
     def validate_static(self) -> None:
+        for key, expected in AUDITED_GALLERY.items():
+            if getattr(self, key) != expected:
+                raise BackendBlocked(f"unauthorized_development_{key}")
         if not self.store_item_id or len(self.store_item_id) > 160:
             raise BackendBlocked("invalid_store_item_id")
         if not self.artifact_id or len(self.artifact_id) > 160 or "/" in self.artifact_id:
@@ -207,6 +225,8 @@ class ReleaseRegistry:
         releases = [Release.from_json(v) for v in payload.get("releases", [])]
         if not releases:
             raise BackendBlocked("release_registry_empty")
+        if len(releases) != 1:
+            raise BackendBlocked("development_registry_must_have_one_release")
         self.by_item = {r.store_item_id: r for r in releases}
         self.by_artifact = {r.artifact_id: r for r in releases}
         if len(self.by_item) != len(releases) or len(self.by_artifact) != len(releases):
