@@ -24,8 +24,8 @@ android {
         applicationId = "com.goreecloud.appstore"
         minSdk = 26
         targetSdk = 36
-        versionCode = 15
-        versionName = "0.1.14-dev"
+        versionCode = 16
+        versionName = "0.1.15-dev"
         manifestPlaceholders["appLabel"] = "GoreeCloud App Store"
 
         buildConfigField("String", "DEVELOPMENT_DELIVERY_BASE_URL", buildConfigString(""))
