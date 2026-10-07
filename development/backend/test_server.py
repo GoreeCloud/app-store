@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
 import sys
@@ -110,6 +111,45 @@ class ReleaseEvidenceTest(unittest.TestCase):
                 {"validUntilEpochSeconds": 1_700_000_000},
                 now=1_700_000_000,
             )
+
+
+class ArtifactSnapshotTest(unittest.TestCase):
+    def test_exact_delivery_bytes_are_captured_and_verified(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "governed.apk"
+            content = b"audited-development-apk-bytes"
+            path.write_bytes(content)
+            self.assertEqual(
+                content,
+                backend.load_verified_artifact_bytes(
+                    path, len(content), hashlib.sha256(content).hexdigest()
+                ),
+            )
+
+    def test_replaced_bytes_fail_closed_before_response_headers(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "governed.apk"
+            original = b"original-exact-bytes"
+            expected_digest = hashlib.sha256(original).hexdigest()
+            path.write_bytes(b"tampered-exact-bytes")
+            self.assertEqual(len(original), path.stat().st_size)
+            with self.assertRaisesRegex(backend.BackendBlocked, "artifact_digest_mismatch"):
+                backend.load_verified_artifact_bytes(
+                    path, len(original), expected_digest
+                )
+
+    def test_truncated_or_extended_artifacts_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "governed.apk"
+            original = b"expected-binary-data"
+            expected_digest = hashlib.sha256(original).hexdigest()
+            for content in (original[:-1], original + b"x"):
+                with self.subTest(size=len(content)):
+                    path.write_bytes(content)
+                    with self.assertRaisesRegex(backend.BackendBlocked, "artifact_size_mismatch"):
+                        backend.load_verified_artifact_bytes(
+                            path, len(original), expected_digest
+                        )
 
 
 class RegistryExampleTest(unittest.TestCase):
