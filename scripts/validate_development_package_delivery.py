@@ -97,7 +97,7 @@ def main() -> int:
     )
 
     build = build_file.read_text(encoding="utf-8")
-    require('versionCode = 15' in build and 'versionName = "0.1.14-dev"' in build, "APK version drift")
+    require('versionCode = 16' in build and 'versionName = "0.1.15-dev"' in build, "APK version drift")
     for property_name in (
         "goreecloudDevDeliveryBaseUrl",
         "goreecloudDevDeliveryToken",
