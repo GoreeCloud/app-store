@@ -157,6 +157,7 @@ def main() -> int:
         "evidenceSetId",
         "require_loopback_host",
         "development_backend_must_bind_loopback",
+        "load_verified_artifact_bytes",
     ):
         require(marker in backend_source, f"missing backend trust marker: {marker}")
     require("def do_POST" not in backend_source, "Development backend must remain read-only")
