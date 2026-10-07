@@ -26,9 +26,9 @@ def valid_release_payload(file_path: str) -> dict:
         "versionCode": 2000883,
         "releaseChannel": "development",
         "minSdk": 29,
-        "sha256": "5" * 64,
-        "certificateSha256": "7" * 64,
-        "sizeBytes": 1234,
+        "sha256": "5516f03092252ca053a54b3240ec0c95e97d1d12ccda1089c4bba377a81dcd0a",
+        "certificateSha256": "7976b1035c5c1b259682eb384ce5cd7e3fbc49c6611911182a112724825b9cbc",
+        "sizeBytes": 3315772,
         "allowedSubjects": ["dev:developer"],
         "buildProvenanceRef": "source@example",
         "sbomRef": "sbom@example",
@@ -42,6 +42,26 @@ class ReleaseValidationTest(unittest.TestCase):
         release = backend.Release.from_json(valid_release_payload("/tmp/example.apk"))
         self.assertEqual("development", release.release_channel)
         self.assertEqual(frozenset({"dev:developer"}), release.allowed_subjects)
+
+    def test_unaudited_artifact_and_identity_are_rejected(self) -> None:
+        changes = {
+            "storeItemId": "goreecloud.other-app",
+            "artifactId": "other-package",
+            "packageName": "com.goreecloud.other.dev",
+            "versionName": "0.8.12-dev",
+            "versionCode": 2000884,
+            "sha256": "0" * 64,
+            "certificateSha256": "1" * 64,
+            "sizeBytes": 3315773,
+            "minSdk": 30,
+            "allowedSubjects": ["dev:admin"],
+        }
+        for key, value in changes.items():
+            with self.subTest(key=key):
+                payload = valid_release_payload("/tmp/example.apk")
+                payload[key] = value
+                with self.assertRaises(backend.BackendBlocked):
+                    backend.Release.from_json(payload)
 
     def test_non_development_channel_fails_closed(self) -> None:
         payload = valid_release_payload("/tmp/example.apk")
