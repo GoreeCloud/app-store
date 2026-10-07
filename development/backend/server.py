@@ -291,6 +291,24 @@ class ReleaseRegistry:
         return self.wardveil.scan(release) if scan else None
 
 
+def load_verified_artifact_bytes(path: Path, expected_size: int, expected_sha256: str) -> bytes:
+    """Capture the exact response bytes before sending any HTTP success headers.
+
+    The earlier package/signature/Wardveil checks are necessary but may be
+    invalidated by a concurrent filesystem replacement. Re-hash the immutable
+    response body after those checks and fail closed on any changed bytes.
+    """
+    if expected_size <= 0 or expected_size > MAX_APK_BYTES:
+        raise BackendBlocked("artifact_size_invalid")
+    with path.open("rb") as handle:
+        payload = handle.read(expected_size + 1)
+    if len(payload) != expected_size:
+        raise BackendBlocked("artifact_size_mismatch")
+    if hashlib.sha256(payload).hexdigest() != expected_sha256:
+        raise BackendBlocked("artifact_digest_mismatch")
+    return payload
+
+
 class DevelopmentBackend(ThreadingHTTPServer):
     daemon_threads = True
 
@@ -384,6 +402,11 @@ class RequestHandler(BaseHTTPRequestHandler):
                     return
                 self._authorized_subject(release)
                 self.server.registry.validate_artifact(release, scan=True)
+                response_bytes = load_verified_artifact_bytes(
+                    release.file_path,
+                    release.size_bytes,
+                    release.sha256,
+                )
                 self.send_response(HTTPStatus.OK.value)
                 self.send_header("Content-Type", "application/vnd.android.package-archive")
                 self.send_header("Content-Length", str(release.size_bytes))
@@ -391,9 +414,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.send_header("ETag", f'"sha256:{release.sha256}"')
                 self.send_header("X-Content-Type-Options", "nosniff")
                 self.end_headers()
-                with release.file_path.open("rb") as handle:
-                    for chunk in iter(lambda: handle.read(64 * 1024), b""):
-                        self.wfile.write(chunk)
+                self.wfile.write(response_bytes)
                 return
             self._json(HTTPStatus.NOT_FOUND, {"error": "not_found"})
         except PermissionError:
