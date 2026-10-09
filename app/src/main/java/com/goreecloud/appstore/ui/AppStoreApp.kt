@@ -89,7 +89,6 @@ import com.goreecloud.appstore.data.CatalogJsonLoader
 import com.goreecloud.appstore.delivery.PackageDeliveryGatewayFactory
 import com.goreecloud.appstore.delivery.PackageDeliveryState
 import com.goreecloud.appstore.domain.CatalogPresentation
-import com.goreecloud.appstore.domain.CatalogSearch
 import com.goreecloud.appstore.domain.CatalogSort
 import com.goreecloud.appstore.domain.EntitlementEngine
 import com.goreecloud.appstore.domain.IdentitySession
@@ -1408,9 +1407,6 @@ private fun LibraryCountChip(label: String) {
     }
 }
 
-private fun StoreItem.matchesLibraryQuery(query: String): Boolean =
-    CatalogSearch.matches(this, query, includeType = true)
-
 private fun libraryCollectionCountLabel(
     count: Int,
     singular: String,
@@ -1477,7 +1473,7 @@ private fun EmptyLibrarySearchState(onReset: () -> Unit) {
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    "Try another search or clear the library search.",
+                    "Try another search or clear the Library filters.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
