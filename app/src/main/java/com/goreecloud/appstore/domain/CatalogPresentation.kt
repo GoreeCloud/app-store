@@ -15,14 +15,9 @@ object CatalogPresentation {
         category: String?,
         sort: CatalogSort,
     ): List<StoreItem> {
-        val normalizedQuery = query.trim()
         val filtered = items.filter { item ->
             val matchesCategory = category == null || item.category == category
-            val matchesQuery = normalizedQuery.isBlank() ||
-                item.name.contains(normalizedQuery, ignoreCase = true) ||
-                item.summary.contains(normalizedQuery, ignoreCase = true) ||
-                item.category.contains(normalizedQuery, ignoreCase = true)
-            matchesCategory && matchesQuery
+            matchesCategory && CatalogSearch.matches(item, query)
         }
 
         return when (sort) {
