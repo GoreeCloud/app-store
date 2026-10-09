@@ -34,4 +34,5 @@
 - Device compatibility and architecture filtering.
 - Download/install queue and resilient retry state.
 - Per-account update policy and optional automatic-update controls where Android policy permits.
+- Planned intelligent 24–48-hour ordinary-release stabilization window before automatic updates; risk-gated early security response, idle/charging/quiet-time scheduling, unobtrusive execution within OS permissions, and user-visible update history/status (FR-005; see `SPECIFICATIONS.md`).
 - Accessibility, tablet, foldable, keyboard/mouse, and large-window acceptance.
