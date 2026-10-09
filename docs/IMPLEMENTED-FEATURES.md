@@ -11,8 +11,14 @@
 - Every query term must occur in at least one item name, summary, or category field; Library additionally retains its application/service type matching. Category restrictions, source ordering, and configured sort options remain unchanged.
 - The caller still filters items by the active identity's entitlements *before* searching; the matcher is not an authorization mechanism and does not query restricted entries, a backend, or search history.
 - Focused JVM regression tests cover cross-field terms, negative matches, accent folding, input order, and Library-only type search.
-- **Lifecycle:** source committed on a branch stacked on Development Draft PR #48; Android CI, rendered-device testing, protected integration, and production acceptance must be verified separately. This paragraph records the candidate source only, not a release.
+- **Lifecycle:** source committed on a branch stacked on Development Draft PR #48; exact head `96d33262cd9ba5a8ce83d1484e89608e35891bc8` passed Android bootstrap and Android 16 onboarding runtime run `37989512346` on October 9. Representative physical-device testing, protected integration, and production acceptance remain pending. This records Development candidate source only, not a release.
 
+
+### October 9, 2026 — category-filter accessibility (Development candidate; unmerged)
+
+- Enlarged category-filter minimum touch-target height to 48dp without changing selection or entitlement boundaries.
+- Added Android clickable-bounds instrumentation and accent-folded search/category-intersection regression tests.
+- **Lifecycle:** source exists on a child branch of Development PR #51. Fresh exact-head CI, representative-device verification, protected integration and production acceptance remain pending.
 
 ## Implemented in the native bootstrap
 
