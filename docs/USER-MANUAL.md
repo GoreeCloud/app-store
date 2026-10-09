@@ -82,7 +82,7 @@ Shows a centered compact disconnected-state card rather than repeating the same 
 
 ### Library
 
-Shows device-local **Favorites** and **Saved for later** collections for the active Development identity, plus a bounded **Recently opened** collection for the current App Store session and a compact **Installed history** status row. The Library includes compact collection counts and a single search field across local collections. Recently opened items remain in memory only, are separated by Development identity, are re-filtered through current entitlements, and are not restored as durable browsing history. Installed-library history and Everkeep-backed cross-device recovery have not yet been connected.
+Shows device-local **Favorites** and **Saved for later** collections for the active Development identity, plus a bounded **Recently opened** collection for the current App Store session and a compact **Installed history** status row. The Library includes compact collection counts and a single search field across local collections. The unmerged Development candidate also adds identity-scoped All / Apps / Services filter chips, with Reset clearing both a nonmatching search query and the selected type. Recently opened items remain in memory only, are separated by Development identity, are re-filtered through current entitlements, and are not restored as durable browsing history. Installed-library history and Everkeep-backed cross-device recovery have not yet been connected.
 
 ## Search
 
