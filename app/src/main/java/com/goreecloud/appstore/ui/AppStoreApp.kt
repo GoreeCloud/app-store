@@ -186,14 +186,14 @@ fun GoreeCloudAppStore(
     val recentlyViewedVisible = remember(entitledById, recentlyViewedIds) {
         recentlyViewedIds.mapNotNull { entitledById[it] }
     }
-    val favoriteLibraryVisible = remember(favoriteVisible, libraryQuery) {
-        favoriteVisible.filter { it.matchesLibraryQuery(libraryQuery) }
+    val favoriteLibraryVisible = remember(favoriteVisible, libraryQuery, libraryTypeFilter) {
+        LibraryCatalogFilter.apply(favoriteVisible, libraryQuery, libraryTypeFilter)
     }
-    val savedLibraryVisible = remember(savedVisible, libraryQuery) {
-        savedVisible.filter { it.matchesLibraryQuery(libraryQuery) }
+    val savedLibraryVisible = remember(savedVisible, libraryQuery, libraryTypeFilter) {
+        LibraryCatalogFilter.apply(savedVisible, libraryQuery, libraryTypeFilter)
     }
-    val recentLibraryVisible = remember(recentlyViewedVisible, libraryQuery) {
-        recentlyViewedVisible.filter { it.matchesLibraryQuery(libraryQuery) }
+    val recentLibraryVisible = remember(recentlyViewedVisible, libraryQuery, libraryTypeFilter) {
+        LibraryCatalogFilter.apply(recentlyViewedVisible, libraryQuery, libraryTypeFilter)
     }
     val tabItems = remember(entitled, selectedTab) {
         when (selectedTab) {
