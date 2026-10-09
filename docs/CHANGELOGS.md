@@ -1,5 +1,13 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-09 — Library application/service filter restoration (Development candidate)
+
+- Reconciled the unmerged Apps/Services type-filter capability from historical Library PR #46 into the current catalog/UI stack without reverting newer session-only recency, normalized search, or Library layout behavior.
+- Added 48dp-minimum All / Apps / Services Library chips, scoped to the active Development identity; filtering applies consistently to Favorites, Saved for later, and Recently opened after entitlement restriction.
+- Kept Unicode-normalized multi-term matching, hid nonmatching collection sections, and made empty-state Reset clear both text and type filters.
+- Added JVM regressions covering type filters, Unicode terms, source ordering, and entitlement-first visibility, plus Android 16 runtime interaction coverage.
+- **Verification:** this unmerged Draft PR #52 source requires fresh exact-head Android CI, physical-device accessibility review, protected integration, and independent release gates. PR #46 must not be considered merged or superseded until its unique work is reconciled.
+
 ## 2026-10-09 — category-filter accessibility (Development candidate)
 
 - Raised minimum Discover/Apps/Services category-chip touch-target height to 48dp without changing category selection or entitlement filtering.
