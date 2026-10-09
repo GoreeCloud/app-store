@@ -99,6 +99,8 @@ import com.goreecloud.appstore.domain.StoreItem
 import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
 import com.goreecloud.appstore.library.FavoriteCatalogStore
+import com.goreecloud.appstore.library.LibraryCatalogFilter
+import com.goreecloud.appstore.library.LibraryItemTypeFilter
 import com.goreecloud.appstore.library.RecentlyViewedCatalogSelection
 import com.goreecloud.appstore.library.SavedCatalogStore
 import com.goreecloud.appstore.onboarding.AppStoreGuidanceState
@@ -156,6 +158,9 @@ fun GoreeCloudAppStore(
         mutableStateOf<Map<String, List<String>>>(emptyMap())
     }
     var libraryQuery by remember(session.subjectId) { mutableStateOf("") }
+    var libraryTypeFilter by remember(session.subjectId) {
+        mutableStateOf(LibraryItemTypeFilter.ALL)
+    }
     var catalogSortByTab by remember(session.subjectId) {
         mutableStateOf<Map<StoreTab, CatalogSort>>(emptyMap())
     }
