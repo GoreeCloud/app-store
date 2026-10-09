@@ -86,6 +86,8 @@ Shows device-local **Favorites** and **Saved for later** collections for the act
 
 ## Search
 
+In the unmerged Development accessibility candidate, category filters in Discover/Apps/Services use 48dp-minimum touch controls. This change has not been accepted as a production release.
+
 Use the section-specific search field (**Search apps and services**, **Search apps**, or **Search services**) to filter the current entitled section by application/service name, summary, or category. The Android Search keyboard action dismisses the keyboard while keeping the current live-filtered results in place. Use the compact sort control beside **Browse all**, **Apps**, or **Services** to switch between authoritative catalog order, alphabetical name order, and category-then-name order. Sorting never widens entitlement visibility. When a query is active, use the trailing clear-search action to reset it immediately. A selected category shows a close glyph and can be tapped again to clear it. If search or category filtering produces no matches, use **Reset** in the empty-result card to clear both filters in one action.
 
 Search operates only on entries already available to the active development identity. It does not reveal entries that were filtered out by entitlement rules. **Search your library** applies the same entitlement boundary while filtering Favorites, Saved for later, and Recently opened together.
