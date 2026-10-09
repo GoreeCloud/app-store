@@ -447,6 +447,12 @@ fun GoreeCloudAppStore(
                                     onQueryChanged = { libraryQuery = it },
                                 )
                             }
+                            item {
+                                LibraryTypeFilterRow(
+                                    selected = libraryTypeFilter,
+                                    onSelected = { libraryTypeFilter = it },
+                                )
+                            }
                         }
 
                         val searchingLibrary = libraryQuery.isNotBlank()
