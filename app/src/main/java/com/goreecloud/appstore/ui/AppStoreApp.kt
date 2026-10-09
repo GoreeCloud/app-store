@@ -138,6 +138,7 @@ fun GoreeCloudAppStore(
     var selectedTab by remember { mutableStateOf(StoreTab.DISCOVER) }
     var query by remember { mutableStateOf("") }
     var selectedItem by remember { mutableStateOf<StoreItem?>(null) }
+    var selectionRevision by remember { mutableStateOf(0L) }
     var packageDeliveryState by remember {
         mutableStateOf<PackageDeliveryState>(
             PackageDeliveryState.Unavailable("Development package delivery is not configured."),
@@ -234,6 +235,7 @@ fun GoreeCloudAppStore(
             )
             recentlyViewedByIdentity = recentlyViewedByIdentity + (subjectId to next)
             packageDeliveryState = PackageDeliveryState.Checking
+            selectionRevision += 1
             selectedItem = currentItem
         }
     }
@@ -252,6 +254,7 @@ fun GoreeCloudAppStore(
                     sessions = identityGateway.availableSessions,
                     onSessionSelected = { nextSession ->
                         if (session != nextSession) {
+                            selectionRevision += 1
                             selectedItem = null
                             packageDeliveryState = PackageDeliveryState.Unavailable(
                                 "Development package delivery is not configured.",
@@ -706,8 +709,19 @@ fun GoreeCloudAppStore(
 
         CatalogDetailSelection.resolve(selectedItem, entitledById)?.let { item ->
             val detailSession = session
+            val detailRevision = selectionRevision
+            val requestIsCurrent: () -> Boolean = {
+                CatalogDetailSelection.isCurrentRequest(
+                    requestRevision = detailRevision,
+                    currentRevision = selectionRevision,
+                    requestSession = detailSession,
+                    currentSession = session,
+                    selectedItemId = selectedItem?.id,
+                    requestItemId = item.id,
+                )
+            }
             val deliveryCallback: (PackageDeliveryState) -> Unit = { nextState ->
-                if (session == detailSession && selectedItem?.id == item.id) {
+                if (requestIsCurrent()) {
                     packageDeliveryState = nextState
                 }
             }
@@ -736,7 +750,7 @@ fun GoreeCloudAppStore(
                 item = item,
                 isFavorite = item.id in favoriteItemIds,
                 onFavoriteChanged = { favorite ->
-                    if (session == detailSession && selectedItem?.id == item.id) {
+                    if (requestIsCurrent()) {
                         favoriteItemIds = favoriteCatalogStore.setFavorite(
                             subjectId = detailSession.subjectId,
                             itemId = item.id,
@@ -748,7 +762,7 @@ fun GoreeCloudAppStore(
                 showReleaseMetadata =
                     ReleaseChannelAccess.canAccess(detailSession, item.releaseChannel),
                 onSavedChanged = { saved ->
-                    if (session == detailSession && selectedItem?.id == item.id) {
+                    if (requestIsCurrent()) {
                         savedItemIds = savedCatalogStore.setSaved(
                             subjectId = detailSession.subjectId,
                             itemId = item.id,
@@ -758,7 +772,7 @@ fun GoreeCloudAppStore(
                 },
                 deliveryState = packageDeliveryState,
                 onDeliveryAction = {
-                    if (session != detailSession || selectedItem?.id != item.id) {
+                    if (!requestIsCurrent()) {
                         return@StoreItemSheet
                     }
                     when (val current = packageDeliveryState) {
