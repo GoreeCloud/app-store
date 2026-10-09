@@ -62,6 +62,67 @@ class CatalogPresentationTest {
         )
     }
 
+    @Test
+    fun searchAcceptsMultipleTermsAcrossFieldsInAnyOrder() {
+        for (query in listOf("alpha communication", "  COMMUNICATION   alpha  ")) {
+            assertEquals(
+                listOf("alpha"),
+                CatalogPresentation.filterAndSort(
+                    items = items,
+                    query = query,
+                    category = null,
+                    sort = CatalogSort.CATALOG_ORDER,
+                ).map { it.id },
+            )
+        }
+    }
+
+    @Test
+    fun searchRequiresEveryTermToMatch() {
+        assertEquals(
+            emptyList<String>(),
+            CatalogPresentation.filterAndSort(
+                items = items,
+                query = "alpha platform",
+                category = null,
+                sort = CatalogSort.CATALOG_ORDER,
+            ).map { it.id },
+        )
+    }
+
+    @Test
+    fun searchFoldsAccentsAndCompatibilityCharactersWithoutReordering() {
+        val accented = item("cafe", "Café", "Utilities")
+        val plain = item("plain", "Cafe", "Utilities")
+        assertEquals(
+            listOf("cafe", "plain"),
+            CatalogPresentation.filterAndSort(
+                items = listOf(accented, plain),
+                query = "CAFÉ",
+                category = null,
+                sort = CatalogSort.CATALOG_ORDER,
+            ).map { it.id },
+        )
+        assertEquals(
+            listOf("cafe", "plain"),
+            CatalogPresentation.filterAndSort(
+                items = listOf(accented, plain),
+                query = "cafe",
+                category = null,
+                sort = CatalogSort.CATALOG_ORDER,
+            ).map { it.id },
+        )
+    }
+
+    @Test
+    fun librarySearchCanIncludeTypeWithoutChangingPublicCatalogSearch() {
+        val first = items.first()
+        assertEquals(false, CatalogSearch.matches(first, "application"))
+        assertEquals(true, CatalogSearch.matches(first, "application", includeType = true))
+        assertEquals(false, CatalogSearch.matches(first, "service", includeType = true))
+        assertEquals(true, CatalogSearch.matches(first, "  "))
+    }
+
     private fun item(
         id: String,
         name: String,
