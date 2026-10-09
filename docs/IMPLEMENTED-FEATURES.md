@@ -16,7 +16,7 @@
 
 ### October 9, 2026 — entitlement-aware detail selection (Development candidate; unmerged)
 
-- Re-resolves a selected product from current identity-entitled source data, resets prior-session detail and delivery presentation on account switching, and rejects stale previous-session callback/action state.
+- Re-resolves a selected product from current identity-entitled source data, resets prior-session detail and delivery presentation on account switching, and rejects stale callback/action state using identity, selected item, and per-opening revision checks.
 - Prevents stale item click handlers from opening no-longer-entitled entries. JVM regressions check identity isolation and current catalog metadata replacement.
 - **Lifecycle:** source candidate lives on its own branch stacked on PR #51. Backend authority, exact-head CI, physical-device acceptance, protected integration, and Production/Stable acceptance remain separate gates.
 
