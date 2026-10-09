@@ -115,6 +115,32 @@ class CatalogPresentationTest {
     }
 
     @Test
+    fun accentedMultiTermSearchCannotBypassCategoryRestriction() {
+        val catalog = listOf(
+            item("camera", "Cámara", "Photography"),
+            item("other", "Cámara", "Utilities"),
+        )
+        assertEquals(
+            listOf("camera"),
+            CatalogPresentation.filterAndSort(
+                items = catalog,
+                query = "photography CAMARA",
+                category = "Photography",
+                sort = CatalogSort.NAME,
+            ).map { it.id },
+        )
+        assertEquals(
+            emptyList<String>(),
+            CatalogPresentation.filterAndSort(
+                items = catalog,
+                query = "utilities camara",
+                category = "Photography",
+                sort = CatalogSort.NAME,
+            ).map { it.id },
+        )
+    }
+
+    @Test
     fun librarySearchCanIncludeTypeWithoutChangingPublicCatalogSearch() {
         val first = items.first()
         assertEquals(false, CatalogSearch.matches(first, "application"))
