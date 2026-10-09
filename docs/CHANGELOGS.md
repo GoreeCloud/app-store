@@ -1,5 +1,13 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-09 — session-scoped catalog detail hardening (Development candidate)
+
+- Re-resolve product details from the *current identity's* entitled catalog before presenting a sheet; an old selection cannot retain restricted metadata after an identity/catalog transition.
+- Ignore stale clicks on no-longer-entitled catalog rows and clear the detail sheet and delivery presentation state when changing Development identities.
+- Bind asynchronous package-delivery callbacks and detail-sheet actions to the identity, selected item, and a per-opening revision, preventing delayed responses from an earlier opening of the same product from replacing current state.
+- Add JVM tests for hidden prior-identity details and refreshed current metadata. This is presentation-layer defense in depth; backend authorization is independently required.
+- **Verification:** source committed on a distinct child Development branch of PR #51; fresh exact-head Android CI, representative physical-device tests, protected integration, and Production/Stable acceptance remain pending.
+
 ## 2026-10-09 — normalized catalog and Library search (Development candidate)
 
 - Unified search behavior across entitled Discover/Apps/Services entries and the active Development identity's local Library.

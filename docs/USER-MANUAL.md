@@ -45,6 +45,8 @@ These are not real GoreeCloud accounts, groups, or production roles. They are lo
 
 Changing the development identity immediately recalculates which catalog entries are visible and returns the current section to its top. An entry for which the active session is not entitled is concealed from visible lists and search results.
 
+A separate unmerged Development security-hardening candidate also closes product details on identity changes, resolves selected details from the new identity's entitled catalog, and ignores stale delivery responses from previous sessions or an earlier opening of the same product. This is client-side defense in depth; it does not replace backend release authorization.
+
 The active Development identity is shown in the compact header subtitle, while the account menu trigger is icon-sized so labels such as **Standard** do not truncate on narrow phones. The same concise labels remain in the menu and still map to local Development fixture subjects; they are not production roles.
 
 ## Store sections

@@ -89,6 +89,7 @@ import com.goreecloud.appstore.data.CatalogJsonLoader
 import com.goreecloud.appstore.delivery.PackageDeliveryGatewayFactory
 import com.goreecloud.appstore.delivery.PackageDeliveryState
 import com.goreecloud.appstore.domain.CatalogPresentation
+import com.goreecloud.appstore.domain.CatalogDetailSelection
 import com.goreecloud.appstore.domain.CatalogSearch
 import com.goreecloud.appstore.domain.CatalogSort
 import com.goreecloud.appstore.domain.EntitlementEngine
@@ -137,6 +138,7 @@ fun GoreeCloudAppStore(
     var selectedTab by remember { mutableStateOf(StoreTab.DISCOVER) }
     var query by remember { mutableStateOf("") }
     var selectedItem by remember { mutableStateOf<StoreItem?>(null) }
+    var selectionRevision by remember { mutableStateOf(0L) }
     var packageDeliveryState by remember {
         mutableStateOf<PackageDeliveryState>(
             PackageDeliveryState.Unavailable("Development package delivery is not configured."),
@@ -224,13 +226,18 @@ fun GoreeCloudAppStore(
         entitled.count { it.type == StoreItemType.SERVICE }
     }
     val openItem: (StoreItem) -> Unit = { item ->
-        val subjectId = session.subjectId
-        val next = RecentlyViewedCatalogSelection.record(
-            current = recentlyViewedByIdentity[subjectId].orEmpty(),
-            itemId = item.id,
-        )
-        recentlyViewedByIdentity = recentlyViewedByIdentity + (subjectId to next)
-        selectedItem = item
+        // Reject stale click handlers after an identity/catalog change.
+        entitledById[item.id]?.let { currentItem ->
+            val subjectId = session.subjectId
+            val next = RecentlyViewedCatalogSelection.record(
+                current = recentlyViewedByIdentity[subjectId].orEmpty(),
+                itemId = currentItem.id,
+            )
+            recentlyViewedByIdentity = recentlyViewedByIdentity + (subjectId to next)
+            packageDeliveryState = PackageDeliveryState.Checking
+            selectionRevision += 1
+            selectedItem = currentItem
+        }
     }
 
     LaunchedEffect(selectedTab, session.subjectId) {
@@ -245,7 +252,16 @@ fun GoreeCloudAppStore(
                 StoreTopBar(
                     session = session,
                     sessions = identityGateway.availableSessions,
-                    onSessionSelected = { session = it },
+                    onSessionSelected = { nextSession ->
+                        if (session != nextSession) {
+                            selectionRevision += 1
+                            selectedItem = null
+                            packageDeliveryState = PackageDeliveryState.Unavailable(
+                                "Development package delivery is not configured.",
+                            )
+                        }
+                        session = nextSession
+                    },
                     onShowGuidanceSettings = onShowGuidanceSettings,
                     onShowPlatformStatus = { showPlatformStatus = true },
                 )
@@ -691,21 +707,35 @@ fun GoreeCloudAppStore(
             )
         }
 
-        selectedItem?.let { item ->
+        CatalogDetailSelection.resolve(selectedItem, entitledById)?.let { item ->
+            val detailSession = session
+            val detailRevision = selectionRevision
+            val requestIsCurrent: () -> Boolean = {
+                CatalogDetailSelection.isCurrentRequest(
+                    requestRevision = detailRevision,
+                    currentRevision = selectionRevision,
+                    requestSession = detailSession,
+                    currentSession = session,
+                    selectedItemId = selectedItem?.id,
+                    requestItemId = item.id,
+                )
+            }
+            val deliveryCallback: (PackageDeliveryState) -> Unit = { nextState ->
+                if (requestIsCurrent()) {
+                    packageDeliveryState = nextState
+                }
+            }
             LaunchedEffect(
                 item.id,
                 item.packageName,
                 item.version,
-                session.subjectId,
-                session.audiences,
+                detailSession,
             ) {
                 if (
                     item.type == StoreItemType.APPLICATION &&
-                    ReleaseChannelAccess.canAccess(session, item.releaseChannel)
+                    ReleaseChannelAccess.canAccess(detailSession, item.releaseChannel)
                 ) {
-                    packageDeliveryGateway.probe(session, item) {
-                        packageDeliveryState = it
-                    }
+                    packageDeliveryGateway.probe(detailSession, item, deliveryCallback)
                 } else {
                     packageDeliveryState = PackageDeliveryState.Unavailable(
                         if (item.type == StoreItemType.APPLICATION) {
@@ -720,56 +750,65 @@ fun GoreeCloudAppStore(
                 item = item,
                 isFavorite = item.id in favoriteItemIds,
                 onFavoriteChanged = { favorite ->
-                    favoriteItemIds = favoriteCatalogStore.setFavorite(
-                        subjectId = session.subjectId,
-                        itemId = item.id,
-                        favorite = favorite,
-                    )
+                    if (requestIsCurrent()) {
+                        favoriteItemIds = favoriteCatalogStore.setFavorite(
+                            subjectId = detailSession.subjectId,
+                            itemId = item.id,
+                            favorite = favorite,
+                        )
+                    }
                 },
                 isSaved = item.id in savedItemIds,
                 showReleaseMetadata =
-                    ReleaseChannelAccess.canAccess(session, item.releaseChannel),
+                    ReleaseChannelAccess.canAccess(detailSession, item.releaseChannel),
                 onSavedChanged = { saved ->
-                    savedItemIds = savedCatalogStore.setSaved(
-                        subjectId = session.subjectId,
-                        itemId = item.id,
-                        saved = saved,
-                    )
+                    if (requestIsCurrent()) {
+                        savedItemIds = savedCatalogStore.setSaved(
+                            subjectId = detailSession.subjectId,
+                            itemId = item.id,
+                            saved = saved,
+                        )
+                    }
                 },
                 deliveryState = packageDeliveryState,
                 onDeliveryAction = {
+                    if (!requestIsCurrent()) {
+                        return@StoreItemSheet
+                    }
                     when (val current = packageDeliveryState) {
                         is PackageDeliveryState.Ready -> {
                             packageDeliveryGateway.downloadAndInstall(
-                                session = session,
+                                session = detailSession,
                                 item = item,
                                 release = current.release,
-                            ) {
-                                packageDeliveryState = it
-                            }
+                                callback = deliveryCallback,
+                            )
                         }
 
                         is PackageDeliveryState.InstallPermissionRequired -> {
                             packageDeliveryGateway.downloadAndInstall(
-                                session = session,
+                                session = detailSession,
                                 item = item,
                                 release = current.release,
-                            ) {
-                                packageDeliveryState = it
-                            }
+                                callback = deliveryCallback,
+                            )
                         }
 
                         is PackageDeliveryState.AwaitingAndroid -> {
-                            packageDeliveryGateway.probe(session, item) {
-                                packageDeliveryState = it
-                            }
+                            packageDeliveryGateway.probe(
+                                detailSession,
+                                item,
+                                deliveryCallback,
+                            )
                         }
 
                         is PackageDeliveryState.Failed -> {
                             if (current.retryable) {
-                                packageDeliveryGateway.probe(session, item) {
-                                    packageDeliveryState = it
-                                }
+                                packageDeliveryGateway.probe(
+                                    detailSession,
+                                    item,
+                                    deliveryCallback,
+                                )
                             }
                         }
 
