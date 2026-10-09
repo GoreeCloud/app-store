@@ -104,6 +104,69 @@ class AppStoreOnboardingRuntimeTest {
     }
 
     @Test
+    fun libraryTypeChipsFilterTheActiveIdentityCollections() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val device = UiDevice.getInstance(instrumentation)
+        val context = resetGuidance()
+        val session = DevelopmentIdentityGateway.initialSession
+        val favorites = FavoriteCatalogStore(context)
+        val entitled = EntitlementEngine.visibleItems(
+            session,
+            CatalogJsonLoader.load(context),
+        )
+        val app = entitled.first { it.type == StoreItemType.APPLICATION }
+        val service = entitled.first { it.type == StoreItemType.SERVICE }
+        favorites.clear(session.subjectId)
+        favorites.setFavorite(session.subjectId, app.id, true)
+        favorites.setFavorite(session.subjectId, service.id, true)
+
+        try {
+            ActivityScenario.launch(MainActivity::class.java).use {
+                waitForText(device, "Welcome to GoreeCloud App Store")
+                clickTextButton(device, "Continue")
+                waitForText(device, "What works today")
+                clickTextButton(device, "Continue")
+                waitForText(device, "Helpful tips")
+                clickTextButton(device, "Start browsing")
+                waitForText(device, "Discover")
+
+                clickTextButton(device, "Library")
+                waitForText(device, app.name)
+                waitForText(device, service.name)
+
+                // The chip is above the bottom navigation item with the same name.
+                clickUpperTextButton(device, "Services")
+                waitForText(device, service.name)
+                assertTrue(
+                    "App entries should be hidden by the Services Library filter",
+                    device.wait(Until.gone(By.text(app.name)), UI_TIMEOUT_MS),
+                )
+
+                clickUpperTextButton(device, "Apps")
+                waitForText(device, app.name)
+                assertTrue(
+                    "Service entries should be hidden by the Apps Library filter",
+                    device.wait(Until.gone(By.text(service.name)), UI_TIMEOUT_MS),
+                )
+            }
+        } finally {
+            favorites.clear(session.subjectId)
+        }
+    }
+
+    private fun clickUpperTextButton(device: UiDevice, text: String) {
+        var target: UiObject2? = device.wait(
+            Until.findObjects(By.text(text)),
+            UI_TIMEOUT_MS,
+        )?.minByOrNull { it.visibleBounds.top }
+        while (target != null && !target.isClickable) {
+            target = target.parent
+        }
+        checkNotNull(target) { "No clickable Library filter found: $text" }.click()
+        device.waitForIdle()
+    }
+
+    @Test
     fun firstUseSetupResumesAtPersistedStepAfterRecreation() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = resetGuidance()
