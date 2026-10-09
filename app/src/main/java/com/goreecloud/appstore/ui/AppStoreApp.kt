@@ -464,7 +464,10 @@ fun GoreeCloudAppStore(
                         if (searchingLibrary && !hasLibraryMatches) {
                             item {
                                 EmptyLibrarySearchState(
-                                    onReset = { libraryQuery = "" },
+                                    onReset = {
+                                        libraryQuery = ""
+                                        libraryTypeFilter = LibraryItemTypeFilter.ALL
+                                    },
                                 )
                             }
                         } else {
