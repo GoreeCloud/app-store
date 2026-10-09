@@ -455,7 +455,7 @@ fun GoreeCloudAppStore(
                             }
                         }
 
-                        val searchingLibrary = libraryQuery.isNotBlank()
+                        val searchingLibrary = libraryQuery.isNotBlank() || libraryTypeFilter != LibraryItemTypeFilter.ALL
                         val hasLibraryMatches =
                             favoriteLibraryVisible.isNotEmpty() ||
                                 savedLibraryVisible.isNotEmpty() ||
