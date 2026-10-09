@@ -2,6 +2,8 @@ package com.goreecloud.appstore.domain
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CatalogDetailSelectionTest {
@@ -43,6 +45,56 @@ class CatalogDetailSelectionTest {
             restricted,
             currentVisibility.associateBy { it.id },
         ))
+    }
+
+    @Test
+    fun reopeningSameItemInvalidatesDelayedResponseFromEarlierSelection() {
+        val session = IdentitySession(
+            subjectId = "dev:developer",
+            displayName = "Developer",
+            audiences = setOf("audience:developer"),
+            isAuthenticated = true,
+        )
+        assertTrue(
+            CatalogDetailSelection.isCurrentRequest(
+                requestRevision = 3L,
+                currentRevision = 3L,
+                requestSession = session,
+                currentSession = session,
+                selectedItemId = restricted.id,
+                requestItemId = restricted.id,
+            ),
+        )
+        assertFalse(
+            CatalogDetailSelection.isCurrentRequest(
+                requestRevision = 3L,
+                currentRevision = 4L,
+                requestSession = session,
+                currentSession = session,
+                selectedItemId = restricted.id,
+                requestItemId = restricted.id,
+            ),
+        )
+        assertFalse(
+            CatalogDetailSelection.isCurrentRequest(
+                requestRevision = 4L,
+                currentRevision = 4L,
+                requestSession = session,
+                currentSession = session.copy(subjectId = "dev:standard"),
+                selectedItemId = restricted.id,
+                requestItemId = restricted.id,
+            ),
+        )
+        assertFalse(
+            CatalogDetailSelection.isCurrentRequest(
+                requestRevision = 4L,
+                currentRevision = 4L,
+                requestSession = session,
+                currentSession = session,
+                selectedItemId = null,
+                requestItemId = restricted.id,
+            ),
+        )
     }
 
     @Test
