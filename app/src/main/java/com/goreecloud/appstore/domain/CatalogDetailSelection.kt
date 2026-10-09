@@ -10,4 +10,20 @@ object CatalogDetailSelection {
         selected: StoreItem?,
         entitledById: Map<String, StoreItem>,
     ): StoreItem? = selected?.let { entitledById[it.id] }
+    /**
+     * A new opening of the same item is not the same request. Revision binding
+     * prevents a delayed previous opening from changing the current detail state.
+     */
+    fun isCurrentRequest(
+        requestRevision: Long,
+        currentRevision: Long,
+        requestSession: IdentitySession,
+        currentSession: IdentitySession,
+        selectedItemId: String?,
+        requestItemId: String,
+    ): Boolean =
+        requestRevision == currentRevision &&
+            requestSession == currentSession &&
+            selectedItemId == requestItemId
+
 }
