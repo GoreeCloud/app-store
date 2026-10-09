@@ -70,6 +70,40 @@ class AppStoreOnboardingRuntimeTest {
     }
 
     @Test
+    fun catalogCategoryControlsHaveAccessibleTouchTargets() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val device = UiDevice.getInstance(instrumentation)
+        val context = resetGuidance()
+
+        ActivityScenario.launch(MainActivity::class.java).use {
+            waitForText(device, "Welcome to GoreeCloud App Store")
+            clickTextButton(device, "Continue")
+            waitForText(device, "What works today")
+            clickTextButton(device, "Continue")
+            waitForText(device, "Helpful tips")
+            clickTextButton(device, "Start browsing")
+            waitForText(device, "Discover")
+
+            // Verify both the default filter and a named category on the actual
+            // rendered touch surface, not just a source-level dp constant.
+            for (label in listOf("All", "Communication")) {
+                var target: UiObject2? = waitForText(device, label)
+                while (target != null && !target.isClickable) {
+                    target = target.parent
+                }
+                val chip = checkNotNull(target) {
+                    "No clickable category control found for: $label"
+                }
+                val heightDp = chip.visibleBounds.height() / context.resources.displayMetrics.density
+                assertTrue(
+                    "Category filter $label is smaller than the 48dp touch target: $heightDp dp",
+                    heightDp >= 47.5f,
+                )
+            }
+        }
+    }
+
+    @Test
     fun firstUseSetupResumesAtPersistedStepAfterRecreation() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val context = resetGuidance()
