@@ -89,6 +89,7 @@ import com.goreecloud.appstore.data.CatalogJsonLoader
 import com.goreecloud.appstore.delivery.PackageDeliveryGatewayFactory
 import com.goreecloud.appstore.delivery.PackageDeliveryState
 import com.goreecloud.appstore.domain.CatalogPresentation
+import com.goreecloud.appstore.domain.CatalogSearch
 import com.goreecloud.appstore.domain.CatalogSort
 import com.goreecloud.appstore.domain.EntitlementEngine
 import com.goreecloud.appstore.domain.IdentitySession
@@ -1393,13 +1394,8 @@ private fun LibraryCountChip(label: String) {
     }
 }
 
-private fun StoreItem.matchesLibraryQuery(query: String): Boolean {
-    if (query.isBlank()) return true
-    return name.contains(query, ignoreCase = true) ||
-        summary.contains(query, ignoreCase = true) ||
-        category.contains(query, ignoreCase = true) ||
-        type.label().contains(query, ignoreCase = true)
-}
+private fun StoreItem.matchesLibraryQuery(query: String): Boolean =
+    CatalogSearch.matches(this, query, includeType = true)
 
 private fun libraryCollectionCountLabel(
     count: Int,

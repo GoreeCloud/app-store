@@ -4,6 +4,16 @@
 
 ## GoreeCloud App Store Features
 
+### October 9, 2026 — search normalization (Development candidate; unmerged)
+
+- Implemented a shared, presentation-only matcher for entitled Discover/Apps/Services catalog searches and identity-scoped local Library searches.
+- Searches accept multiple whitespace-separated terms in any order, fold Unicode combining accents and compatibility forms, and compare case using `Locale.ROOT`.
+- Every query term must occur in at least one item name, summary, or category field; Library additionally retains its application/service type matching. Category restrictions, source ordering, and configured sort options remain unchanged.
+- The caller still filters items by the active identity's entitlements *before* searching; the matcher is not an authorization mechanism and does not query restricted entries, a backend, or search history.
+- Focused JVM regression tests cover cross-field terms, negative matches, accent folding, input order, and Library-only type search.
+- **Lifecycle:** source committed on a branch stacked on Development Draft PR #48; Android CI, rendered-device testing, protected integration, and production acceptance must be verified separately. This paragraph records the candidate source only, not a release.
+
+
 ## Implemented in the native bootstrap
 
 - Native Android application shell using Kotlin and Jetpack Compose.
