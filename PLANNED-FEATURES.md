@@ -20,6 +20,19 @@ The detailed App Store update is maintained as a planned feature-and-capability 
 | FR-002 | Move actionable feature obligations into GoreeCloud Tasks Management when required, preserving priority, dependency, and lifecycle disposition. | High | Ongoing control |
 | FR-003 | Do not mark features implemented, complete, cancelled, or superseded without authoritative evidence and repository-native feature-record updates. | High | Ongoing control |
 | FR-004 | Develop the GoreeCloud App Store as the first-party-only GoreeCloud software discovery, distribution, update, management, security, privacy-intelligence, device-aware, cross-platform, and lifecycle control center defined by `goreecloud-app-store-update.md`, while preserving the boundary that third-party software and repositories are outside the dedicated GoreeCloud App Store catalog. | High | In Progress |
+| FR-005 | Intelligent automatic app updates: delay normal release auto-install eligibility by 24–48 hours, use release-health and safety gates, schedule unobtrusively during suitable idle/charging/quiet windows, honor user/platform authority and security exceptions, and expose quiet status/diagnostics. See `SPECIFICATIONS.md` → Intelligent automatic app updates. | High | Planned — no implementation acceptance |
+
+## FR-005 — Intelligent automatic updates
+
+**Requirement entered:** 2026-10-09. **Disposition:** Planned, not implemented/verified.
+
+Routine updates should become automatically eligible only after a 24–48-hour post-release stabilization window and applicable verification, then be applied at a suitable low-disruption opportunity, preferentially while the device is idle, charging, and within quiet hours. The App Store should reduce the maintenance burden to near zero while keeping update history and pending reasons discoverable so users can confirm automatic maintenance is functioning.
+
+Critical security releases and emergency revocations require risk-aware accelerated handling, but not weaker trust, consent, or compatibility checks. Automated installation must respect Android and other platform installer permissions and may not promise invisible installation where that authority is unavailable.
+
+**Dependencies:** trusted release health and staged-rollout signals; authorization and channel scope; signed/provenance-verified artifacts; accepted Wardveil policy; OS package-install integration; scheduler and device-state integration; user-controlled auto-update settings; retry/recovery and installed-state reconciliation; Privacy Shield review where diagnostic signals are collected.
+
+**Verification required:** unit/integration tests for delay thresholds, eligibility overrides, failed/withdrawn releases and retries; representative-device charging/idle/network/app-in-use scheduling; installer-consent constraints; background UX and accessible status visibility; multi-account isolation; security and rollback evidence. Until validated at exact source and supported runtime, this entry remains Planned.
 
 ## Current implementation increment
 
