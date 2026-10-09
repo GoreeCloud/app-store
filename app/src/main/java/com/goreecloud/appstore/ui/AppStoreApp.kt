@@ -1031,7 +1031,7 @@ private fun CategoryStrip(
     ) {
         item {
             FilterChip(
-                modifier = Modifier.heightIn(min = 40.dp),
+                modifier = Modifier.heightIn(min = 48.dp),
                 selected = selected == null,
                 onClick = { onSelected(null) },
                 label = { Text("All", style = MaterialTheme.typography.labelMedium) },
@@ -1039,7 +1039,7 @@ private fun CategoryStrip(
         }
         items(categories, key = { "category:$it" }) { category ->
             FilterChip(
-                modifier = Modifier.heightIn(min = 40.dp),
+                modifier = Modifier.heightIn(min = 48.dp),
                 selected = selected == category,
                 onClick = { onSelected(if (selected == category) null else category) },
                 label = { Text(category, style = MaterialTheme.typography.labelMedium, maxLines = 1) },
