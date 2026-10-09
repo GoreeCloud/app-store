@@ -82,9 +82,11 @@ Shows a centered compact disconnected-state card rather than repeating the same 
 
 ### Library
 
-Shows device-local **Favorites** and **Saved for later** collections for the active Development identity, plus a bounded **Recently opened** collection for the current App Store session and a compact **Installed history** status row. The Library includes compact collection counts and a single search field across local collections. Recently opened items remain in memory only, are separated by Development identity, are re-filtered through current entitlements, and are not restored as durable browsing history. Installed-library history and Everkeep-backed cross-device recovery have not yet been connected.
+Shows device-local **Favorites** and **Saved for later** collections for the active Development identity, plus a bounded **Recently opened** collection for the current App Store session and a compact **Installed history** status row. The Library includes compact collection counts and a single search field across local collections. The unmerged Development candidate also adds identity-scoped All / Apps / Services filter chips, with Reset clearing both a nonmatching search query and the selected type. Recently opened items remain in memory only, are separated by Development identity, are re-filtered through current entitlements, and are not restored as durable browsing history. Installed-library history and Everkeep-backed cross-device recovery have not yet been connected.
 
 ## Search
+
+In the unmerged Development accessibility candidate, category filters in Discover/Apps/Services use 48dp-minimum touch controls. This change has not been accepted as a production release.
 
 Use the section-specific search field (**Search apps and services**, **Search apps**, or **Search services**) to filter the current entitled section by application/service name, summary, or category. The Android Search keyboard action dismisses the keyboard while keeping the current live-filtered results in place. Use the compact sort control beside **Browse all**, **Apps**, or **Services** to switch between authoritative catalog order, alphabetical name order, and category-then-name order. Sorting never widens entitlement visibility. When a query is active, use the trailing clear-search action to reset it immediately. A selected category shows a close glyph and can be tapped again to clear it. If search or category filtering produces no matches, use **Reset** in the empty-result card to clear both filters in one action.
 

@@ -89,7 +89,6 @@ import com.goreecloud.appstore.data.CatalogJsonLoader
 import com.goreecloud.appstore.delivery.PackageDeliveryGatewayFactory
 import com.goreecloud.appstore.delivery.PackageDeliveryState
 import com.goreecloud.appstore.domain.CatalogPresentation
-import com.goreecloud.appstore.domain.CatalogSearch
 import com.goreecloud.appstore.domain.CatalogSort
 import com.goreecloud.appstore.domain.EntitlementEngine
 import com.goreecloud.appstore.domain.IdentitySession
@@ -99,6 +98,8 @@ import com.goreecloud.appstore.domain.StoreItem
 import com.goreecloud.appstore.domain.StoreItemType
 import com.goreecloud.appstore.identity.DevelopmentIdentityGateway
 import com.goreecloud.appstore.library.FavoriteCatalogStore
+import com.goreecloud.appstore.library.LibraryCatalogFilter
+import com.goreecloud.appstore.library.LibraryItemTypeFilter
 import com.goreecloud.appstore.library.RecentlyViewedCatalogSelection
 import com.goreecloud.appstore.library.SavedCatalogStore
 import com.goreecloud.appstore.onboarding.AppStoreGuidanceState
@@ -156,6 +157,9 @@ fun GoreeCloudAppStore(
         mutableStateOf<Map<String, List<String>>>(emptyMap())
     }
     var libraryQuery by remember(session.subjectId) { mutableStateOf("") }
+    var libraryTypeFilter by remember(session.subjectId) {
+        mutableStateOf(LibraryItemTypeFilter.ALL)
+    }
     var catalogSortByTab by remember(session.subjectId) {
         mutableStateOf<Map<StoreTab, CatalogSort>>(emptyMap())
     }
@@ -181,14 +185,14 @@ fun GoreeCloudAppStore(
     val recentlyViewedVisible = remember(entitledById, recentlyViewedIds) {
         recentlyViewedIds.mapNotNull { entitledById[it] }
     }
-    val favoriteLibraryVisible = remember(favoriteVisible, libraryQuery) {
-        favoriteVisible.filter { it.matchesLibraryQuery(libraryQuery) }
+    val favoriteLibraryVisible = remember(favoriteVisible, libraryQuery, libraryTypeFilter) {
+        LibraryCatalogFilter.apply(favoriteVisible, libraryQuery, libraryTypeFilter)
     }
-    val savedLibraryVisible = remember(savedVisible, libraryQuery) {
-        savedVisible.filter { it.matchesLibraryQuery(libraryQuery) }
+    val savedLibraryVisible = remember(savedVisible, libraryQuery, libraryTypeFilter) {
+        LibraryCatalogFilter.apply(savedVisible, libraryQuery, libraryTypeFilter)
     }
-    val recentLibraryVisible = remember(recentlyViewedVisible, libraryQuery) {
-        recentlyViewedVisible.filter { it.matchesLibraryQuery(libraryQuery) }
+    val recentLibraryVisible = remember(recentlyViewedVisible, libraryQuery, libraryTypeFilter) {
+        LibraryCatalogFilter.apply(recentlyViewedVisible, libraryQuery, libraryTypeFilter)
     }
     val tabItems = remember(entitled, selectedTab) {
         when (selectedTab) {
@@ -442,9 +446,15 @@ fun GoreeCloudAppStore(
                                     onQueryChanged = { libraryQuery = it },
                                 )
                             }
+                            item {
+                                LibraryTypeFilterRow(
+                                    selected = libraryTypeFilter,
+                                    onSelected = { libraryTypeFilter = it },
+                                )
+                            }
                         }
 
-                        val searchingLibrary = libraryQuery.isNotBlank()
+                        val searchingLibrary = libraryQuery.isNotBlank() || libraryTypeFilter != LibraryItemTypeFilter.ALL
                         val hasLibraryMatches =
                             favoriteLibraryVisible.isNotEmpty() ||
                                 savedLibraryVisible.isNotEmpty() ||
@@ -453,7 +463,10 @@ fun GoreeCloudAppStore(
                         if (searchingLibrary && !hasLibraryMatches) {
                             item {
                                 EmptyLibrarySearchState(
-                                    onReset = { libraryQuery = "" },
+                                    onReset = {
+                                        libraryQuery = ""
+                                        libraryTypeFilter = LibraryItemTypeFilter.ALL
+                                    },
                                 )
                             }
                         } else {
@@ -1031,7 +1044,7 @@ private fun CategoryStrip(
     ) {
         item {
             FilterChip(
-                modifier = Modifier.heightIn(min = 40.dp),
+                modifier = Modifier.heightIn(min = 48.dp),
                 selected = selected == null,
                 onClick = { onSelected(null) },
                 label = { Text("All", style = MaterialTheme.typography.labelMedium) },
@@ -1039,7 +1052,7 @@ private fun CategoryStrip(
         }
         items(categories, key = { "category:$it" }) { category ->
             FilterChip(
-                modifier = Modifier.heightIn(min = 40.dp),
+                modifier = Modifier.heightIn(min = 48.dp),
                 selected = selected == category,
                 onClick = { onSelected(if (selected == category) null else category) },
                 label = { Text(category, style = MaterialTheme.typography.labelMedium, maxLines = 1) },
@@ -1394,9 +1407,6 @@ private fun LibraryCountChip(label: String) {
     }
 }
 
-private fun StoreItem.matchesLibraryQuery(query: String): Boolean =
-    CatalogSearch.matches(this, query, includeType = true)
-
 private fun libraryCollectionCountLabel(
     count: Int,
     singular: String,
@@ -1463,7 +1473,7 @@ private fun EmptyLibrarySearchState(onReset: () -> Unit) {
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    "Try another search or clear the library search.",
+                    "Try another search or clear the Library filters.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

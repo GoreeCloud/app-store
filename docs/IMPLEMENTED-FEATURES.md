@@ -11,8 +11,21 @@
 - Every query term must occur in at least one item name, summary, or category field; Library additionally retains its application/service type matching. Category restrictions, source ordering, and configured sort options remain unchanged.
 - The caller still filters items by the active identity's entitlements *before* searching; the matcher is not an authorization mechanism and does not query restricted entries, a backend, or search history.
 - Focused JVM regression tests cover cross-field terms, negative matches, accent folding, input order, and Library-only type search.
-- **Lifecycle:** source committed on a branch stacked on Development Draft PR #48; Android CI, rendered-device testing, protected integration, and production acceptance must be verified separately. This paragraph records the candidate source only, not a release.
+- **Lifecycle:** source committed on a branch stacked on Development Draft PR #48; exact head `96d33262cd9ba5a8ce83d1484e89608e35891bc8` passed Android bootstrap and Android 16 onboarding runtime run `37989512346` on October 9. Representative physical-device testing, protected integration, and production acceptance remain pending. This records Development candidate source only, not a release.
 
+
+### October 9, 2026 — identity-scoped Library type filters (Development candidate; unmerged)
+
+- Restores Apps/Services Library filtering from historical unmerged PR #46 into the current Library presentation, alongside normalized cross-field search; each already-entitled Favorites, Saved for later, and Recently opened collection filters by the active identity's selected type.
+- Provides accessible 48dp-minimum All/Apps/Services chips and one-tap reset of both Library query and type when nothing matches; type selection resets when the Development identity changes.
+- Includes JVM entitlement/type/Unicode coverage and Android runtime type-chip interaction coverage.
+- **Lifecycle:** candidate source in Draft PR #52 only, not integrated or released. Exact-head CI, representative-device behavior, historical PR reconciliation, and Production/Stable acceptance must be verified separately.
+
+### October 9, 2026 — category-filter accessibility (Development candidate; unmerged)
+
+- Enlarged category-filter minimum touch-target height to 48dp without changing selection or entitlement boundaries.
+- Added Android clickable-bounds instrumentation and accent-folded search/category-intersection regression tests.
+- **Lifecycle:** source exists on a child branch of Development PR #51. Fresh exact-head CI, representative-device verification, protected integration and production acceptance remain pending.
 
 ## Implemented in the native bootstrap
 

@@ -1,12 +1,26 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-09 — Library application/service filter restoration (Development candidate)
+
+- Reconciled the unmerged Apps/Services type-filter capability from historical Library PR #46 into the current catalog/UI stack without reverting newer session-only recency, normalized search, or Library layout behavior.
+- Added 48dp-minimum All / Apps / Services Library chips, scoped to the active Development identity; filtering applies consistently to Favorites, Saved for later, and Recently opened after entitlement restriction.
+- Kept Unicode-normalized multi-term matching, hid nonmatching collection sections, and made empty-state Reset clear both text and type filters.
+- Added JVM regressions covering type filters, Unicode terms, source ordering, and entitlement-first visibility, plus Android 16 runtime interaction coverage.
+- **Verification:** this unmerged Draft PR #52 source requires fresh exact-head Android CI, physical-device accessibility review, protected integration, and independent release gates. PR #46 must not be considered merged or superseded until its unique work is reconciled.
+
+## 2026-10-09 — category-filter accessibility (Development candidate)
+
+- Raised minimum Discover/Apps/Services category-chip touch-target height to 48dp without changing category selection or entitlement filtering.
+- Added Android runtime coverage of rendered clickable bounds for All and Communication category controls, plus a JVM regression for accented multi-term searches within selected categories.
+- **Verification:** source committed in a child branch of PR #51; fresh exact-head Android CI and representative physical-device acceptance are pending. No production or Stable acceptance is claimed.
+
 ## 2026-10-09 — normalized catalog and Library search (Development candidate)
 
 - Unified search behavior across entitled Discover/Apps/Services entries and the active Development identity's local Library.
 - Added multi-term, order-independent, case-insensitive, and accent-insensitive matching over names, summaries, and categories; retained Library-only application/service type matches.
 - Preserved category restrictions, explicit sort choices, source-order behavior, entitlement-first filtering, and existing no-match recovery.
 - Added pure JVM regression cases. No backend lookup, history capture, entitlement expansion, identity integration, package installation, or release authority is added.
-- **Verification:** source is on a stacked Development candidate branch; exact-head CI and on-device acceptance remain pending.
+- **Verification:** PR #51 exact head `96d33262cd9ba5a8ce83d1484e89608e35891bc8` passed Android bootstrap validation and Android 16 onboarding runtime in run `37989512346` on October 9. Protected integration, representative physical-device acceptance, and Production/Stable acceptance remain pending.
 
 
 ## 2026-10-06 — bounded Development package delivery
