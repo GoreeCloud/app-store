@@ -1,5 +1,14 @@
 # GoreeCloud App Store — Changelogs
 
+## 2026-10-09 — normalized catalog and Library search (Development candidate)
+
+- Unified search behavior across entitled Discover/Apps/Services entries and the active Development identity's local Library.
+- Added multi-term, order-independent, case-insensitive, and accent-insensitive matching over names, summaries, and categories; retained Library-only application/service type matches.
+- Preserved category restrictions, explicit sort choices, source-order behavior, entitlement-first filtering, and existing no-match recovery.
+- Added pure JVM regression cases. No backend lookup, history capture, entitlement expansion, identity integration, package installation, or release authority is added.
+- **Verification:** source is on a stacked Development candidate branch; exact-head CI and on-device acceptance remain pending.
+
+
 ## 2026-10-06 — bounded Development package delivery
 
 - Added a read-only Development package backend with bearer-token and exact fixture-subject re-authorization.
