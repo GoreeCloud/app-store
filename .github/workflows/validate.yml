@@ -29,10 +29,15 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Locate runner Android SDK
+      - name: Configure runner Android SDK
         run: |
-          command -v sdkmanager
-          test -n "${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+          SDK_ROOT=/usr/local/lib/android/sdk
+          test -d "$SDK_ROOT"
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort -V | tail -n 1)"
+          test -x "$SDKMANAGER"
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          dirname "$SDKMANAGER" >> "$GITHUB_PATH"
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
