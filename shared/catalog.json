@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "owner": "GoreeCloud",
+  "products": [
+    {
+      "id": "launcher",
+      "name": "GoreeCloud Launcher",
+      "repo": "launcher",
+      "kind": "application",
+      "platforms": [
+        "android"
+      ],
+      "summary": "Native Android home screen and app launcher."
+    },
+    {
+      "id": "keyboard",
+      "name": "GoreeCloud Keyboard",
+      "repo": "keyboard",
+      "kind": "application",
+      "platforms": [
+        "android"
+      ],
+      "summary": "Privacy-focused native Android input method."
+    },
+    {
+      "id": "drive",
+      "name": "GoreeCloud Drive",
+      "repo": "drive",
+      "kind": "application",
+      "platforms": [
+        "android"
+      ],
+      "summary": "Native file-management client for the self-hosted cloud."
+    },
+    {
+      "id": "search",
+      "name": "GoreeCloud Search",
+      "repo": "search",
+      "kind": "application",
+      "platforms": [
+        "linux"
+      ],
+      "summary": "Native Linux search client for configurable SearXNG."
+    },
+    {
+      "id": "sync",
+      "name": "GoreeCloud Sync",
+      "repo": "sync",
+      "kind": "application",
+      "platforms": [
+        "linux"
+      ],
+      "summary": "Native desktop synchronization and local transfer client."
+    },
+    {
+      "id": "gateway",
+      "name": "GoreeCloud Gateway",
+      "repo": "gateway",
+      "kind": "service",
+      "platforms": [
+        "linux"
+      ],
+      "summary": "Caddy configuration and gateway-management service."
+    },
+    {
+      "id": "dns",
+      "name": "GoreeCloud DNS",
+      "repo": "DNS",
+      "kind": "service",
+      "platforms": [
+        "linux"
+      ],
+      "summary": "Planned AdGuard Home management front end."
+    },
+    {
+      "id": "app-store",
+      "name": "GoreeCloud App Store",
+      "repo": "app-store",
+      "kind": "application",
+      "platforms": [
+        "android",
+        "linux"
+      ],
+      "summary": "This native catalog and update-management client."
+    }
+  ]
+}

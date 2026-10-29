@@ -1,0 +1,15 @@
+# Build output, local caches and credentials
+.gradle/
+**/build/
+**/__pycache__/
+*.py[cod]
+.idea/
+.local/
+.env
+*.jks
+*.keystore
+*.apk
+*.aab
+*.flatpak
+*.AppImage
+.DS_Store
