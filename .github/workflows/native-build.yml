@@ -1,0 +1,105 @@
+name: Native build checks
+on:
+  pull_request:
+    paths:
+      - 'apps/android/**'
+      - 'apps/linux/**'
+      - 'scripts/build-android.sh'
+      - 'scripts/build-linux.sh'
+      - 'catalog/apps.json'
+      - '.github/workflows/native-build.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'apps/android/**'
+      - 'apps/linux/**'
+      - 'scripts/build-android.sh'
+      - 'scripts/build-linux.sh'
+      - 'catalog/apps.json'
+      - '.github/workflows/native-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android-debug:
+    name: android-debug-build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Configure compatible JDK
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Validate official Gradle wrapper and configure cache
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          gradle-version: '9.5.0'
+      - name: Install Android SDK platform 37.1
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-37.1'
+      - name: Compile native Android preview (not a release)
+        run: |
+          cd apps/android
+          ./gradlew :app:assembleDebug --no-daemon --stacktrace --max-workers=2
+      - name: Confirm APK exists and record source-bound checksum
+        run: |
+          set -euo pipefail
+          test -s apps/android/app/build/outputs/apk/debug/app-debug.apk
+          echo "Source commit: $(git rev-parse HEAD)"
+          sha256sum apps/android/app/build/outputs/apk/debug/app-debug.apk
+          echo "Android debug APK compiled; not signed for consumer distribution or deployed."
+
+  linux-qt:
+    name: qtquick-linux-build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Install Qt system graphics dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libgl-dev libopengl-dev libegl-dev libxkbcommon-dev
+      - name: Install pinned, provenance-checked PyPI Qt SDK installer
+        run: |
+          python3 -m venv "$RUNNER_TEMP/aqt-venv"
+          "$RUNNER_TEMP/aqt-venv/bin/pip" install --disable-pip-version-check --no-cache-dir "aqtinstall==3.3.0"
+      - name: Obtain exact Qt 6.12.0 official open-source SDK
+        run: |
+          "$RUNNER_TEMP/aqt-venv/bin/aqt" install-qt linux desktop 6.12.0 linux_gcc_64 \
+            --outputdir "$RUNNER_TEMP/Qt"
+      - name: Configure and compile native Qt Quick application
+        run: |
+          cmake -S apps/linux -B "$RUNNER_TEMP/goree-store-linux-build" \
+            -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/Qt/6.12.0/gcc_64" \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build "$RUNNER_TEMP/goree-store-linux-build" --parallel 2
+      - name: Validate source-only Qt app startup without X11 display
+        env:
+          QT_QPA_PLATFORM: offscreen
+          QSG_RHI_BACKEND: software
+        run: |
+          set +e
+          timeout 6s "$RUNNER_TEMP/goree-store-linux-build/goreecloud-app-store" >"$RUNNER_TEMP/goree-store-qt.log" 2>&1
+          result=$?
+          cat "$RUNNER_TEMP/goree-store-qt.log"
+          if [ "$result" -ne 124 ]; then
+            echo "Native Qt app unexpectedly exited with status $result"
+            exit 1
+          fi
+          if grep -Ei 'QQmlApplicationEngine failed|module .* is not installed|Unable to load bundled GoreeCloud' "$RUNNER_TEMP/goree-store-qt.log"; then
+            echo "Native Qt engine failed QML or catalog loading"
+            exit 1
+          fi
+          echo "Qt source-only preview stayed live in offscreen test; no physical-device acceptance claimed."

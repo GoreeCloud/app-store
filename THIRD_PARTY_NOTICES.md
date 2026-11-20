@@ -10,6 +10,8 @@ The application source in this repository is original GoreeCloud development wor
 | React and React DOM | Web storefront | https://github.com/facebook/react | MIT |
 | Vite | Web development and build tool | https://github.com/vitejs/vite | MIT |
 | GoreeCloud UI | Web CSS/design-system package (commit pinned in web package manifest) | https://github.com/GoreeCloud/gc-ui | MIT |
+| Gradle 9.5.0 Wrapper | Checked-in Android build bootstrap (JAR and scripts), SHA-256 verified against official release checksums | https://github.com/gradle/gradle | Apache-2.0 |
+| aqtinstall 3.3.0 | Nonpublishing GitHub CI installer for the Qt 6.12.0 SDK | https://github.com/miurahr/aqtinstall | MIT |
 | Qt 6 Quick / Qt Quick Controls | Native Linux UI; separately installed SDK | https://www.qt.io | LGPL-3.0 / GPL / commercial options; comply with applicable linkage and distribution obligations |
 | Kotlin / Jetpack Compose / AndroidX Material 3 | Native Android implementation | https://github.com/JetBrains/kotlin and https://android.googlesource.com/platform/frameworks/support | Apache-2.0 |
 

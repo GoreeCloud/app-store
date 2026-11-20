@@ -7,7 +7,7 @@
 - [x] Bundled native Qt Quick 6.12 and Android Compose source-only browsers.
 - [x] Offline snapshot parity checks and initial API/web CI scripts.
 - [ ] Verify exact-head GitHub CI and Android/Qt native compilation using supported toolchains.
-- [ ] Add reproducible, reviewed Android Gradle wrapper and native CI builds.
+- [x] Add official-checksum-verified Android Gradle 9.5.0 wrapper; [ ] obtain passing native Android and Qt CI builds.
 - [ ] Human visual/a11y and physical Linux/Android device qualification.
 
 ## Phase 1 — signed distribution metadata

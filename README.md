@@ -44,6 +44,6 @@ The development frontend proxies `/api` to the local backend. For production, pl
 
 A release appears only after a human-reviewed manifest change. A `release` must reference an HTTPS GitHub release asset and its verified SHA-256. This first iteration includes **no package releases**, so clients link to source only. A SHA-256 field alone does not authenticate publisher identity. Before enabling actual installation or updates, implement signed metadata (TUF), verified publisher keys, APK signing-certificate continuity, signed Flatpak repositories, explicit consent, rollback prevention, release revocation, and an isolated end-to-end update test.
 
-[Architecture](docs/ARCHITECTURE.md) · [Security model](docs/SECURITY.md) · [Roadmap](docs/ROADMAP.md) · [Third-party notices](THIRD_PARTY_NOTICES.md)
+[Architecture](docs/ARCHITECTURE.md) · [Security model](docs/SECURITY.md) · [Roadmap](docs/ROADMAP.md) · [Build evidence](docs/BUILD_EVIDENCE_20261120.md) · [Third-party notices](THIRD_PARTY_NOTICES.md)
 
 Copyright © 2026 GoreeCloud. Source license: [MIT](LICENSE). Dependencies have independent licenses.
