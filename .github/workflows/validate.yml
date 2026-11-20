@@ -18,6 +18,11 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install --disable-pip-version-check -e '.[dev]'
+      - name: Verify official Gradle 9.5.0 wrapper checksums
+        run: |
+          cd apps/android
+          echo "497c8c2a7e5031f6aa847f88104aa80a93532ec32ee17bdb8d1d2f67a194a9c7  gradle/wrapper/gradle-wrapper.jar" | sha256sum -c -
+          grep -Fx 'distributionSha256Sum=553c78f50dafcd54d65b9a444649057857469edf836431389695608536d6b746' gradle/wrapper/gradle-wrapper.properties
       - run: python scripts/validate_catalog.py
       - run: python scripts/sync_catalog.py --check
       - run: python scripts/validate_sources.py
