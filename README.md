@@ -38,7 +38,7 @@ The development frontend proxies `/api` to the local backend. For production, pl
 
 - **Web:** `apps/web` — React + Vite, GoreeCloud UI styles pinned to `GoreeCloud/gc-ui` commit.
 - **Linux:** `apps/linux` — Qt 6.12 Qt Quick / CMake, run `cmake -S apps/linux -B build/linux && cmake --build build/linux` in a Qt 6.12 SDK environment. The Linux client bundles an offline catalog snapshot and opens source links on explicit user action.
-- **Android:** `apps/android` — Android Studio / Gradle project. Run `gradle :app:assembleDebug` using a verified local Gradle 9.5.0 installation (or use `bash scripts/build-android.sh`). The app has internet permission only; it does **not** request APK-install authority. The Android client also uses the bundled offline snapshot and needs no network permission; source links open externally on explicit user action.
+- **Android:** `apps/android` — Android Studio / Gradle project. Run `cd apps/android && ./gradlew :app:assembleDebug` using the checked-in, checksum-pinned Gradle 9.5.0 wrapper (or use `bash scripts/build-android.sh`). The app has internet permission only; it does **not** request APK-install authority. The Android client also uses the bundled offline snapshot and needs no network permission; source links open externally on explicit user action.
 
 ## Distribution safety
 

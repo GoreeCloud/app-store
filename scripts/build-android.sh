@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-if ! command -v gradle >/dev/null 2>&1; then
-  echo "Gradle 9.5.0 is required. Install a verified Gradle distribution or use Android Studio." >&2
-  exit 2
-fi
 cd "$ROOT/apps/android"
-gradle :app:assembleDebug --no-daemon
+sha256sum -c <<'SHA'
+497c8c2a7e5031f6aa847f88104aa80a93532ec32ee17bdb8d1d2f67a194a9c7  gradle/wrapper/gradle-wrapper.jar
+SHA
+./gradlew :app:assembleDebug --no-daemon
