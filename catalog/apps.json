@@ -2,6 +2,20 @@
   "catalog_version": 1,
   "apps": [
     {
+      "slug": "app-store",
+      "name": "GoreeCloud App Store",
+      "summary": "Source discovery across web, native Linux and Android; signed distribution is not yet enabled.",
+      "category": "Utilities",
+      "platforms": [
+        "web",
+        "linux",
+        "android"
+      ],
+      "source_url": "https://github.com/GoreeCloud/app-store",
+      "status": "source-only",
+      "releases": []
+    },
+    {
       "slug": "backup",
       "name": "GoreeCloud Backup",
       "summary": "Encrypted backup orchestration with source-first web and Android clients.",
@@ -89,6 +103,20 @@
         "android"
       ],
       "source_url": "https://github.com/GoreeCloud/metrics",
+      "status": "source-only",
+      "releases": []
+    },
+    {
+      "slug": "monitor",
+      "name": "GoreeCloud Monitor",
+      "summary": "Self-hosted uptime monitoring with a web console and native Linux and Android status viewers.",
+      "category": "Infrastructure",
+      "platforms": [
+        "web",
+        "linux",
+        "android"
+      ],
+      "source_url": "https://github.com/GoreeCloud/monitor",
       "status": "source-only",
       "releases": []
     },

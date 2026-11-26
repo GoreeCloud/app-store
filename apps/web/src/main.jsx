@@ -4,6 +4,7 @@ import '@goreecloud/ui/tokens.css';
 import '@goreecloud/ui/components.css';
 import './store.css';
 import { selectApps } from './filter.mjs';
+import { loadApps } from './catalog.mjs';
 
 const platforms = ['all', 'web', 'linux', 'android'];
 
@@ -19,14 +20,12 @@ function Store() {
     setState('loading');
     setError('');
     try {
-      const response = await fetch('/api/v1/apps?limit=100', { signal, credentials: 'same-origin' });
-      if (!response.ok) throw new Error('Catalog API returned HTTP ' + response.status);
-      const data = await response.json();
-      if (!Array.isArray(data.items)) throw new Error('Invalid catalog response');
-      setApps(data.items);
+      const data = await loadApps(fetch, signal);
+      if (signal?.aborted) return;
+      setApps(data);
       setState('ready');
     } catch (e) {
-      if (e.name === 'AbortError') return;
+      if (signal?.aborted || e.name === 'AbortError') return;
       setError('Unable to load the catalog. Verify that the API is running and try again.');
       setState('error');
     }

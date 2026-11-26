@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from .catalog import StoreApp, current_catalog
@@ -25,13 +26,22 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/readyz")
+def ready():
+    try:
+        current_catalog()
+    except (OSError, ValueError):
+        return JSONResponse(status_code=503, content={"status": "unavailable"})
+    return {"status": "ready"}
+
+
 @app.get("/api/v1/meta")
 def meta():
     catalog = current_catalog()
     return {
         "catalog_version": catalog.catalog_version,
         "total_apps": len(catalog.apps),
-        "package_downloads_enabled": any(a.releases for a in catalog.apps),
+        "package_downloads_enabled": False,
     }
 
 

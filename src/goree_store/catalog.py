@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import date
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -31,10 +32,13 @@ class Release(StrictModel):
     @model_validator(mode="after")
     def verify_distribution_host_and_platform(self):
         u = urlparse(str(self.download_url))
-        if u.hostname != "github.com" or u.username or u.password or u.port:
+        if u.scheme != "https" or u.netloc != "github.com" or u.query or u.fragment:
             raise ValueError("initial release URLs must use trusted github.com HTTPS assets")
-        if not u.path.startswith("/GoreeCloud/") or "/releases/download/" not in u.path:
+        if not re.fullmatch(r"/GoreeCloud/[A-Za-z0-9_-][A-Za-z0-9_.-]*/releases/download/[A-Za-z0-9_-][A-Za-z0-9_.-]*/[A-Za-z0-9_-][A-Za-z0-9_.-]*", u.path):
             raise ValueError("release URL must be a GoreeCloud GitHub release asset")
+        date.fromisoformat(self.published_at)
+        if not u.path.endswith("." + self.kind):
+            raise ValueError("release filename must match its artifact type")
         if (self.platform == "android") != (self.kind == "apk"):
             raise ValueError("Android artifacts must be APKs; Linux artifacts must not be APKs")
         return self
@@ -61,9 +65,9 @@ class StoreApp(StrictModel):
     @classmethod
     def validate_source(cls, value):
         parsed = urlparse(str(value))
-        if parsed.hostname != "github.com" or parsed.username or parsed.password or parsed.port:
+        if parsed.scheme != "https" or parsed.netloc != "github.com" or parsed.query or parsed.fragment:
             raise ValueError("source URL must be HTTPS github.com")
-        if not re.fullmatch(r"/GoreeCloud/[A-Za-z0-9_.-]+/?", parsed.path):
+        if not re.fullmatch(r"/GoreeCloud/[A-Za-z0-9_-][A-Za-z0-9_.-]*/?", parsed.path):
             raise ValueError("source URL must identify a GoreeCloud repository")
         return value
 
@@ -75,6 +79,10 @@ class StoreApp(StrictModel):
             raise ValueError("source-only apps cannot advertise releases")
         if self.status == "packages-available" and not self.releases:
             raise ValueError("package availability requires releases")
+        if any(urlparse(str(r.download_url)).path.split("/")[2] != urlparse(str(self.source_url)).path.split("/")[2] for r in self.releases):
+            raise ValueError("release repository must match its source repository")
+        if len({(r.platform, r.kind, r.version) for r in self.releases}) != len(self.releases):
+            raise ValueError("duplicate release version/platform/type")
         if any(r.platform not in self.platforms for r in self.releases):
             raise ValueError("release platform must be supported by app")
         return self
@@ -82,21 +90,32 @@ class StoreApp(StrictModel):
 
 class Catalog(StrictModel):
     catalog_version: Literal[1]
-    apps: list[StoreApp]
+    apps: list[StoreApp] = Field(max_length=1000)
 
     @model_validator(mode="after")
     def unique_names(self):
         slugs = [a.slug for a in self.apps]
         if len(slugs) != len(set(slugs)):
             raise ValueError("duplicate app slug")
+        if any(a.status != "source-only" or a.releases for a in self.apps):
+            raise ValueError("distribution disabled until signed metadata admission is implemented")
         return self
 
 
 def load_catalog(path: Path = CATALOG_PATH) -> Catalog:
     # Explicit upper bound protects against accidentally mounting huge/untrusted catalogs.
-    if path.stat().st_size > 2_000_000:
+    with path.open("rb") as stream:
+        raw = stream.read(2_000_001)
+    if len(raw) > 2_000_000:
         raise ValueError("catalog file exceeds 2 MB")
-    return Catalog.model_validate(json.loads(path.read_text(encoding="utf-8")))
+    def unique_keys(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("duplicate JSON object key")
+            result[key] = value
+        return result
+    return Catalog.model_validate(json.loads(raw.decode("utf-8"), object_pairs_hook=unique_keys))
 
 
 @lru_cache(maxsize=1)
