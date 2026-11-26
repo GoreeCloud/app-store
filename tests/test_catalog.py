@@ -36,7 +36,7 @@ def test_not_found_and_invalid_input():
 
 
 def test_no_duplicate_slugs():
-    record = load_catalog().apps[0]
+    record = next(a for a in load_catalog().apps if a.slug == "backup")
     with pytest.raises(ValidationError):
         Catalog(catalog_version=1, apps=[record, record])
 
@@ -60,9 +60,70 @@ def test_unsigned_or_untrusted_artifacts_fail_closed():
 
 
 def test_source_only_cannot_claim_packages():
-    record = load_catalog().apps[0]
+    record = next(a for a in load_catalog().apps if a.slug == "backup")
     with pytest.raises(ValidationError):
         StoreApp.model_validate({
             **record.model_dump(mode="json"),
             "status": "packages-available",
         })
+
+
+@pytest.mark.parametrize("url", [
+    "http://github.com/GoreeCloud/backup",
+    "https://github.com/GoreeCloud/backup?x=1",
+    "https://github.com/GoreeCloud/backup#x",
+    "https://github.com.evil.example/GoreeCloud/backup",
+    "https://user@github.com/GoreeCloud/backup",
+])
+def test_reject_unsafe_source_urls(url):
+    record = next(a for a in load_catalog().apps if a.slug == "backup").model_dump(mode="json")
+    with pytest.raises(ValidationError):
+        StoreApp.model_validate({**record, "source_url": url})
+
+
+def release_record():
+    return dict(version="1.0.0", platform="android", kind="apk",
+                download_url="https://github.com/GoreeCloud/backup/releases/download/v1/app.apk",
+                sha256="a" * 64, size_bytes=12, published_at="2026-11-20")
+
+
+@pytest.mark.parametrize("changes", [
+    {"download_url": "http://github.com/GoreeCloud/backup/releases/download/v1/app.apk"},
+    {"download_url": "https://github.com/GoreeCloud/backup/releases/download/v1/app.apk?x=1"},
+    {"download_url": "https://github.com/GoreeCloud/backup/releases/download/v1/app.zip"},
+    {"published_at": "2026-02-30"},
+])
+def test_reject_invalid_release_metadata(changes):
+    with pytest.raises(ValidationError):
+        Release.model_validate({**release_record(), **changes})
+
+
+def test_hash_alone_never_enables_distribution():
+    record = next(a for a in load_catalog().apps if a.slug == "backup").model_dump(mode="json")
+    candidate = StoreApp.model_validate({**record, "status": "packages-available", "releases": [release_record()]})
+    with pytest.raises(ValidationError, match="distribution disabled"):
+        Catalog(catalog_version=1, apps=[candidate])
+    with pytest.raises(ValidationError, match="repository must match"):
+        StoreApp.model_validate({**record, "status": "packages-available", "releases": [
+            {**release_record(), "download_url": "https://github.com/GoreeCloud/vault/releases/download/v1/app.apk"}
+        ]})
+
+
+def test_duplicate_json_keys_and_bounded_reads(tmp_path):
+    path = tmp_path / "catalog.json"
+    path.write_text('{"catalog_version":1,"catalog_version":1,"apps":[]}')
+    with pytest.raises(ValueError, match="duplicate JSON"):
+        load_catalog(path)
+    path.write_bytes(b" " * 2_000_001)
+    with pytest.raises(ValueError, match="exceeds"):
+        load_catalog(path)
+
+
+def test_readiness_fails_closed(monkeypatch):
+    assert client.get("/readyz").json() == {"status": "ready"}
+    def invalid():
+        raise ValueError("private diagnostic")
+    monkeypatch.setattr("goree_store.api.current_catalog", invalid)
+    result = client.get("/readyz")
+    assert result.status_code == 503
+    assert result.json() == {"status": "unavailable"}

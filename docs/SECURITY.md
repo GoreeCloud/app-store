@@ -27,3 +27,7 @@ Implemented:
 - F-Droid APIs and index: https://f-droid.org/docs/All_our_APIs/
 - Flatpak repository management: https://docs.flatpak.org/en/latest/repositories.html
 - Android package user action: https://developer.android.com/reference/android/content/pm/PackageInstaller.SessionParams
+
+## Source-only admission gate
+
+The catalog rejects all package-bearing records until signed publisher metadata admission exists. A checksum, release URL, or package candidate alone cannot turn on distribution. Source links must use canonical HTTPS GitHub repository URLs without credentials, queries or fragments. Candidate release URLs must match the owning repository and artifact type; dates and duplicate release identities are checked. The browser rejects malformed, non-source-only or incomplete paginated catalogs. These are input guards, not signed metadata verification or a security certification.

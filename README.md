@@ -40,9 +40,11 @@ The development frontend proxies `/api` to the local backend. For production, pl
 - **Linux:** `apps/linux` — Qt 6.12 Qt Quick / CMake, run `cmake -S apps/linux -B build/linux && cmake --build build/linux` in a Qt 6.12 SDK environment. The Linux client bundles an offline catalog snapshot and opens source links on explicit user action.
 - **Android:** `apps/android` — Android Studio / Gradle project. Run `cd apps/android && ./gradlew :app:assembleDebug` using the checked-in, checksum-pinned Gradle 9.5.0 wrapper (or use `bash scripts/build-android.sh`). The app has internet permission only; it does **not** request APK-install authority. The Android client also uses the bundled offline snapshot and needs no network permission; source links open externally on explicit user action.
 
+Readiness: GET /readyz checks catalog admission; /healthz checks process liveness. The web client loads all bounded catalog pages (up to 1,000 source records).
+
 ## Distribution safety
 
-A release appears only after a human-reviewed manifest change. A `release` must reference an HTTPS GitHub release asset and its verified SHA-256. This first iteration includes **no package releases**, so clients link to source only. A SHA-256 field alone does not authenticate publisher identity. Before enabling actual installation or updates, implement signed metadata (TUF), verified publisher keys, APK signing-certificate continuity, signed Flatpak repositories, explicit consent, rollback prevention, release revocation, and an isolated end-to-end update test.
+Package-bearing catalog records are currently rejected entirely; human review alone cannot enable distribution. A `release` must reference an HTTPS GitHub release asset and its verified SHA-256. This first iteration includes **no package releases**, so clients link to source only. A SHA-256 field alone does not authenticate publisher identity. Before enabling actual installation or updates, implement signed metadata (TUF), verified publisher keys, APK signing-certificate continuity, signed Flatpak repositories, explicit consent, rollback prevention, release revocation, and an isolated end-to-end update test.
 
 [Architecture](docs/ARCHITECTURE.md) · [Security model](docs/SECURITY.md) · [Roadmap](docs/ROADMAP.md) · [Build evidence](docs/BUILD_EVIDENCE_20261120.md) · [Third-party notices](THIRD_PARTY_NOTICES.md)
 
