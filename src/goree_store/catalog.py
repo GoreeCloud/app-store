@@ -11,6 +11,8 @@ from urllib.parse import urlparse
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
 CATALOG_PATH = Path(__file__).resolve().parents[2] / "catalog" / "apps.json"
+# Reviewed GitHub inventory; update only after owner/source verification.
+ACTIVE_SOURCE_REPOS = frozenset(".github AI android-defaults android-toolkit app-store brand-assets containers database firefox-add-ons gc-ui GIF GoreeCloud goreeshield index mesh metrics static-websites wardveil".lower().split())
 SLUG_RE = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
 
 
@@ -63,8 +65,10 @@ class StoreApp(StrictModel):
         parsed = urlparse(str(value))
         if parsed.hostname != "github.com" or parsed.username or parsed.password or parsed.port:
             raise ValueError("source URL must be HTTPS github.com")
-        if not re.fullmatch(r"/GoreeCloud/[A-Za-z0-9_.-]+/?", parsed.path):
+        if parsed.scheme != "https" or parsed.query or parsed.fragment or not re.fullmatch(r"/GoreeCloud/[A-Za-z0-9_.-]+/?", parsed.path):
             raise ValueError("source URL must identify a GoreeCloud repository")
+        if parsed.path.rstrip("/").split("/")[-1].lower() not in ACTIVE_SOURCE_REPOS:
+            raise ValueError("source repository is not in the reviewed active inventory")
         return value
 
     @model_validator(mode="after")

@@ -2,33 +2,6 @@
   "catalog_version": 1,
   "apps": [
     {
-      "slug": "backup",
-      "name": "GoreeCloud Backup",
-      "summary": "Encrypted backup orchestration with source-first web and Android clients.",
-      "category": "Utilities",
-      "platforms": [
-        "web",
-        "android"
-      ],
-      "source_url": "https://github.com/GoreeCloud/backup",
-      "status": "source-only",
-      "releases": []
-    },
-    {
-      "slug": "dns",
-      "name": "GoreeCloud DNS",
-      "summary": "Self-hostable DNS management clients and DNS filtering services.",
-      "category": "Infrastructure",
-      "platforms": [
-        "web",
-        "linux",
-        "android"
-      ],
-      "source_url": "https://github.com/GoreeCloud/DNS",
-      "status": "source-only",
-      "releases": []
-    },
-    {
       "slug": "gif",
       "name": "GoreeCloud GIF's",
       "summary": "Searchable GIF and sticker gallery for native Android workflows.",
@@ -37,44 +10,6 @@
         "android"
       ],
       "source_url": "https://github.com/GoreeCloud/GIF",
-      "status": "source-only",
-      "releases": []
-    },
-    {
-      "slug": "keyboard",
-      "name": "GoreeCloud Keyboard",
-      "summary": "A privacy-conscious native Android keyboard development project.",
-      "category": "Utilities",
-      "platforms": [
-        "android"
-      ],
-      "source_url": "https://github.com/GoreeCloud/keyboard",
-      "status": "source-only",
-      "releases": []
-    },
-    {
-      "slug": "locations",
-      "name": "GoreeCloud Locations",
-      "summary": "Consent-led location history and circles across web and Android.",
-      "category": "Privacy",
-      "platforms": [
-        "web",
-        "android"
-      ],
-      "source_url": "https://github.com/GoreeCloud/locations",
-      "status": "source-only",
-      "releases": []
-    },
-    {
-      "slug": "messenger",
-      "name": "GoreeCloud Messenger",
-      "summary": "Self-hostable private messaging clients and service foundation.",
-      "category": "Communication",
-      "platforms": [
-        "web",
-        "android"
-      ],
-      "source_url": "https://github.com/GoreeCloud/messenger",
       "status": "source-only",
       "releases": []
     },
@@ -89,76 +24,6 @@
         "android"
       ],
       "source_url": "https://github.com/GoreeCloud/metrics",
-      "status": "source-only",
-      "releases": []
-    },
-    {
-      "slug": "notebook",
-      "name": "GoreeCloud Notebook",
-      "summary": "Local-first notes and knowledge across browser and native devices.",
-      "category": "Productivity",
-      "platforms": [
-        "web",
-        "linux",
-        "android"
-      ],
-      "source_url": "https://github.com/GoreeCloud/notebook",
-      "status": "source-only",
-      "releases": []
-    },
-    {
-      "slug": "photos",
-      "name": "GoreeCloud Photos",
-      "summary": "Self-hosted media library with web, Linux, and Android clients.",
-      "category": "Media",
-      "platforms": [
-        "web",
-        "linux",
-        "android"
-      ],
-      "source_url": "https://github.com/GoreeCloud/photos",
-      "status": "source-only",
-      "releases": []
-    },
-    {
-      "slug": "tasks",
-      "name": "GoreeCloud Tasks",
-      "summary": "Personal task management across web and native Linux and Android.",
-      "category": "Productivity",
-      "platforms": [
-        "web",
-        "linux",
-        "android"
-      ],
-      "source_url": "https://github.com/GoreeCloud/tasks",
-      "status": "source-only",
-      "releases": []
-    },
-    {
-      "slug": "teams",
-      "name": "GoreeCloud Teams",
-      "summary": "Self-hostable team collaboration with channels and native clients.",
-      "category": "Communication",
-      "platforms": [
-        "web",
-        "linux",
-        "android"
-      ],
-      "source_url": "https://github.com/GoreeCloud/teams",
-      "status": "source-only",
-      "releases": []
-    },
-    {
-      "slug": "vault",
-      "name": "GoreeCloud Vault",
-      "summary": "Encrypted credential vault under development; not security-audited.",
-      "category": "Privacy",
-      "platforms": [
-        "web",
-        "linux",
-        "android"
-      ],
-      "source_url": "https://github.com/GoreeCloud/vault",
       "status": "source-only",
       "releases": []
     }
