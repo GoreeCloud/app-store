@@ -2,7 +2,7 @@
 
 An open-source, self-hostable **GoreeCloud application catalog** with a read-only REST API, a responsive React storefront, a native Qt Quick Linux client, and a Kotlin/Jetpack Compose Android client.
 
-**State: development foundation.** Catalog entries point to verified project source repositories, not automatically to installable packages. No signing, release ingestion, updater, unattended installation, production deployment, or device acceptance is claimed.
+**State: development foundation.** The reviewed catalog currently lists GIF and Metrics. Deleted or unavailable sources are excluded; the canonical catalog and both native snapshots must match, and the reviewed source-repository allowlist must be reconciled when the inventory changes. Catalog entries point to verified project source repositories, not automatically to installable packages. No signing, release ingestion, updater, unattended installation, production deployment, or device acceptance is claimed.
 
 ## Features in this source
 - Validated, versioned JSON catalog and search/filter REST API.

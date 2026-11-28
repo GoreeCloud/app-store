@@ -12,19 +12,19 @@ client = TestClient(app)
 
 def test_manifest_is_valid_and_source_only():
     catalog = load_catalog()
-    assert len(catalog.apps) >= 10
+    assert {a.slug for a in catalog.apps} == {"gif", "metrics"}
     assert len({a.slug for a in catalog.apps}) == len(catalog.apps)
     assert all(not a.releases and a.status == "source-only" for a in catalog.apps)
 
 
 def test_search_and_filters():
-    result = client.get("/api/v1/apps", params={"q": "notes", "platform": "linux"})
+    result = client.get("/api/v1/apps", params={"q": "monitoring", "platform": "linux"})
     assert result.status_code == 200
-    assert [a["slug"] for a in result.json()["items"]] == ["notebook"]
-    result = client.get("/api/v1/apps", params={"limit": 2, "offset": 2})
+    assert [a["slug"] for a in result.json()["items"]] == ["metrics"]
+    result = client.get("/api/v1/apps", params={"limit": 1, "offset": 1})
     assert result.status_code == 200
-    assert len(result.json()["items"]) == 2
-    assert result.json()["total"] >= 10
+    assert len(result.json()["items"]) == 1
+    assert result.json()["total"] == 2
 
 
 def test_not_found_and_invalid_input():
@@ -66,3 +66,11 @@ def test_source_only_cannot_claim_packages():
             **record.model_dump(mode="json"),
             "status": "packages-available",
         })
+
+
+@pytest.mark.parametrize("repo", ["backup", "DNS", "keyboard", "locations", "messenger", "notebook", "photos", "tasks", "teams", "vault", "notify", "MIPS"])
+def test_retired_sources_rejected(repo):
+    record = load_catalog().apps[0]
+    with pytest.raises(ValidationError):
+        StoreApp.model_validate({**record.model_dump(mode="json"), "source_url": f"https://github.com/GoreeCloud/{repo}"})
+    assert client.get(f"/api/v1/apps/{repo.lower()}").status_code == 404
